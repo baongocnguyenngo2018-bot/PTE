@@ -1,0 +1,20 @@
+001. The bus waiting just outside the gate will take you to London
+002. We will enter the building from the righ side of the library
+003. Students have the opportunity to share their lunch during the common lunch break around noon
+004. There are office welcome events for both undergraduate and postgraduate students
+005. You can keep your bag in the back room
+006. Please close the door behind you when you leave the room
+007. You can get coffee and tea in the lunch room
+008. You must call your doctor to make an appointment
+009. The woman said she could help me get a replacement travel  pass
+010. One solution is a system of electric cars available for hire on demand
+011. Psychology relies on scientific methods to investigate questions and arrive at conclusions
+012. The professor predicts that biotechnology is the future of traditional biology.
+013. There has been a delay in processing the enrollment due to computer problems
+014. Globalization has been an overwhelming urbanization phenomenon
+015. No crop responds more readily than careful husbandry and skillful cultivation
+016. There are various approaches to plagiarism across different university departments
+017. There are several reasons for this lack of interest in corporate crime, compared with other type of crime
+018. Every car maker in Europe has sort of been on the blocks because of their dependence on diesel
+019. Mitosis is the division of cells for growth and repair
+020. You can register your card at the university student center or the library

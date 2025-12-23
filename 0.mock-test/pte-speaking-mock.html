@@ -1,0 +1,1059 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PTE Speaking Mock Test</title>
+  <style>
+    :root {
+      --bg: #f5efe6;
+      --ink: #1a1a1a;
+      --muted: #5a5a5a;
+      --accent: #c2410c;
+      --accent-2: #0f766e;
+      --card: #fff8ee;
+      --border: #e2d3c4;
+      --shadow: rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top left, #fff5e4, #f2e6d2 45%, #efe1cc 70%, #e9dac6 100%);
+    }
+
+    header {
+      padding: 28px 20px 16px;
+      background: linear-gradient(120deg, #1f2937, #0f172a);
+      color: #f8fafc;
+    }
+
+    header h1 {
+      margin: 0 0 6px;
+      font-family: "Palatino Linotype", "Book Antiqua", serif;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    header p {
+      margin: 0;
+      color: #e2e8f0;
+    }
+
+    main {
+      padding: 18px 16px 80px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section {
+      margin-top: 24px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: 0 12px 24px var(--shadow);
+      overflow: hidden;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .section-header {
+      padding: 16px 18px;
+      background: linear-gradient(120deg, #fff, #f7efe3);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header h2 {
+      margin: 0 0 6px;
+      font-size: 20px;
+      letter-spacing: 0.2px;
+    }
+
+    .section-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .question {
+      padding: 16px 18px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .question:last-child {
+      border-bottom: none;
+    }
+
+    .question h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent);
+    }
+
+    .prompt {
+      background: #fff;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #f0e4d4;
+      margin-bottom: 10px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .btn.secondary {
+      background: var(--accent-2);
+    }
+
+    .btn.ghost {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+
+    .timer {
+      font-weight: 700;
+      color: #0f172a;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: #fdeedc;
+      border: 1px solid #f1d7b8;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid #e6d5c3;
+      font-family: inherit;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .note {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .media-row {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .image-card img {
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid #edd7c2;
+      background: #fff;
+    }
+
+    .answer-key {
+      margin-top: 24px;
+      border: 1px dashed #c5a78b;
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    details summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .progress {
+      margin: 18px 0 6px;
+      background: #efe1cf;
+      border-radius: 999px;
+      overflow: hidden;
+      height: 12px;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #c2410c, #f59e0b);
+      transition: width 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 700px) {
+      header {
+        padding: 20px 16px;
+      }
+
+      .section-header h2 {
+        font-size: 18px;
+      }
+
+      .question h3 {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PTE Speaking Mock Test</h1>
+    <p>Complete all sections in order, use the timers, and record or note your responses. Audio requires local files in this project.</p>
+  </header>
+
+  <main>
+    <section class="section" id="intro">
+      <div class="section-header">
+        <h2>1. Personal Introduction (Unscored)</h2>
+        <p>Prepare a 30-40 second introduction about yourself. This is not scored.</p>
+      </div>
+      <div class="question" data-duration="40">
+        <h3>Warm-up</h3>
+        <div class="prompt">
+          Introduce yourself: name, academic background, interests, and goals for studying English.
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 40s Timer</button>
+          <span class="timer" data-timer>00:40</span>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <p class="note">Recording works in browsers that allow microphone access for local files. If unavailable, type notes below.</p>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+    </section>
+
+    <section class="section" id="read-aloud">
+      <div class="section-header">
+        <h2>2. Read Aloud (6 Questions)</h2>
+        <p>Read each passage aloud. Time: 40 seconds per question.</p>
+      </div>
+      <div class="question" data-duration="40" id="ra-001">
+        <h3>Read Aloud 1</h3>
+        <div class="prompt">Road bicycle racing is the cycle sports discipline of road cycling, held on paved roads. Road racing is the most popular professional form of bicycle racing in terms of numbers of competitors event, and spectators. The two most common competition formats are mass start events, where riders start simultaneously and race to set finish point; and time trials, where individual riders or teams race a course alone against the clock.</div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 40s Timer</button>
+          <span class="timer" data-timer>00:40</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="40" id="ra-002">
+        <h3>Read Aloud 2</h3>
+        <div class="prompt">One of the most popular natural dandruff remedies, coconut oil can help reduce some of the yeast that contributes to flakes, explains Geeta Shah, MD, a Maryland-based dermatologist. She recommends massaging a small amount into your scalp and leaving it there for at least 15-20 minutes. The longer the better she says. "Some people even leave it on overnight with a towel or shower cap so it penetrates a little deeper.</div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 40s Timer</button>
+          <span class="timer" data-timer>00:40</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="40" id="ra-003">
+        <h3>Read Aloud 3</h3>
+        <div class="prompt">The 1992 World Shrimp Farming report pegged Japan's production of farmed shrimp at 3,000 metric tons of live weight from 150 semi-intensive and intensive farms covering 400 hectares of ponds. In the Kagoshima area of Kyushu, farmers used large, round, land-based tanks to produce 15,000 to 20,000 kilograms per hectare. Later, semi-intensive farms appeared on Japan's southern islands-Okinawa, for example.</div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 40s Timer</button>
+          <span class="timer" data-timer>00:40</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="40" id="ra-004">
+        <h3>Read Aloud 4</h3>
+        <div class="prompt">Teamwork taps into one of the basic drivers of human behavior. The principle of social proof is so pervasive that we don't even recognize it," says Cialdini. If your project is being resisted for example, by a group of veteran employees ask another old timer to speak up for it. Cialdini is not alone in advocating this strategy.</div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 40s Timer</button>
+          <span class="timer" data-timer>00:40</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="40" id="ra-005">
+        <h3>Read Aloud 5</h3>
+        <div class="prompt">Researchers from 18 countries analyzed honey bee, other bee and non-bee insect visits to 480 fields of 17 different crop types on five continents. They found that total pollination services provided were the same for honey bees and non-bee insects 38 percent, with around a quarter of services twenty three percent, provided by other bees.</div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 40s Timer</button>
+          <span class="timer" data-timer>00:40</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="40" id="ra-006">
+        <h3>Read Aloud 6</h3>
+        <div class="prompt">Methane is a waste product of the oil and gas industry that results in greenhouse gas pollution that is 25 times more powerful than CO2. Working with industry to cut these harmful emissions by almost half over the next ten years will dramatically reduce our greenhouse gas emissions.</div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 40s Timer</button>
+          <span class="timer" data-timer>00:40</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+    </section>
+
+    <section class="section" id="repeat-sentence">
+      <div class="section-header">
+        <h2>3. Repeat Sentence (10 Questions)</h2>
+        <p>Play the audio once, then repeat immediately. Suggested response time: 15 seconds.</p>
+      </div>
+      <div class="question" data-duration="15" id="rs-001">
+        <h3>Repeat Sentence 1</h3>
+        <div class="prompt">Listen and repeat.</div>
+        <div class="media-row">
+          <audio controls src="../03.repeat-sentence/001.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 15s Timer</button>
+          <span class="timer" data-timer>00:15</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="15" id="rs-002">
+        <h3>Repeat Sentence 2</h3>
+        <div class="prompt">Listen and repeat.</div>
+        <div class="media-row">
+          <audio controls src="../03.repeat-sentence/002.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 15s Timer</button>
+          <span class="timer" data-timer>00:15</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="15" id="rs-003">
+        <h3>Repeat Sentence 3</h3>
+        <div class="prompt">Listen and repeat.</div>
+        <div class="media-row">
+          <audio controls src="../03.repeat-sentence/003.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 15s Timer</button>
+          <span class="timer" data-timer>00:15</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="15" id="rs-004">
+        <h3>Repeat Sentence 4</h3>
+        <div class="prompt">Listen and repeat.</div>
+        <div class="media-row">
+          <audio controls src="../03.repeat-sentence/004.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 15s Timer</button>
+          <span class="timer" data-timer>00:15</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="15" id="rs-005">
+        <h3>Repeat Sentence 5</h3>
+        <div class="prompt">Listen and repeat.</div>
+        <div class="media-row">
+          <audio controls src="../03.repeat-sentence/005.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 15s Timer</button>
+          <span class="timer" data-timer>00:15</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="15" id="rs-006">
+        <h3>Repeat Sentence 6</h3>
+        <div class="prompt">Listen and repeat.</div>
+        <div class="media-row">
+          <audio controls src="../03.repeat-sentence/006.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 15s Timer</button>
+          <span class="timer" data-timer>00:15</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="15" id="rs-007">
+        <h3>Repeat Sentence 7</h3>
+        <div class="prompt">Listen and repeat.</div>
+        <div class="media-row">
+          <audio controls src="../03.repeat-sentence/007.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 15s Timer</button>
+          <span class="timer" data-timer>00:15</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="15" id="rs-008">
+        <h3>Repeat Sentence 8</h3>
+        <div class="prompt">Listen and repeat.</div>
+        <div class="media-row">
+          <audio controls src="../03.repeat-sentence/008.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 15s Timer</button>
+          <span class="timer" data-timer>00:15</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="15" id="rs-009">
+        <h3>Repeat Sentence 9</h3>
+        <div class="prompt">Listen and repeat.</div>
+        <div class="media-row">
+          <audio controls src="../03.repeat-sentence/009.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 15s Timer</button>
+          <span class="timer" data-timer>00:15</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="15" id="rs-010">
+        <h3>Repeat Sentence 10</h3>
+        <div class="prompt">Listen and repeat.</div>
+        <div class="media-row">
+          <audio controls src="../03.repeat-sentence/010.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 15s Timer</button>
+          <span class="timer" data-timer>00:15</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+    </section>
+
+    <section class="section" id="describe-image">
+      <div class="section-header">
+        <h2>4. Describe Image (5 Questions)</h2>
+        <p>Describe the image in detail. Time: 40 seconds response.</p>
+      </div>
+      <div id="describe-image-list"></div>
+    </section>
+
+    <section class="section" id="retell-lecture">
+      <div class="section-header">
+        <h2>5. Retell Lecture (2 Questions)</h2>
+        <p>Listen to the lecture, get 10 seconds to prepare, then speak for 40 seconds.</p>
+      </div>
+      <div class="question" data-duration="40" data-prep="10" id="rl-001">
+        <h3>Retell Lecture 1</h3>
+        <div class="prompt">Listen and retell the lecture.</div>
+        <div class="media-row">
+          <audio controls src="../05.retell-lecture/001.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-prep">Start 10s Prep</button>
+          <button class="btn" data-action="start-timer">Start 40s Response</button>
+          <span class="timer" data-timer>00:40</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+      <div class="question" data-duration="40" data-prep="10" id="rl-002">
+        <h3>Retell Lecture 2</h3>
+        <div class="prompt">Listen and retell the lecture.</div>
+        <div class="media-row">
+          <audio controls src="../05.retell-lecture/002.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-prep">Start 10s Prep</button>
+          <button class="btn" data-action="start-timer">Start 40s Response</button>
+          <span class="timer" data-timer>00:40</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <div class="controls">
+          <button class="btn secondary" data-action="start-record">Start Recording</button>
+          <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+        </div>
+        <audio controls class="recording" hidden></audio>
+        <textarea placeholder="Notes or transcript..."></textarea>
+      </div>
+    </section>
+
+    <section class="section" id="answer-short">
+      <div class="section-header">
+        <h2>6. Answer Short Question (5 Questions)</h2>
+        <p>Listen to the audio and respond in 1-2 words. Time: 10 seconds response.</p>
+      </div>
+      <div class="question" data-duration="10" id="asq-001">
+        <h3>Answer Short Question 1</h3>
+        <div class="prompt">Listen and answer briefly.</div>
+        <div class="media-row">
+          <audio controls src="../06.answer-short-question/001.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 10s Timer</button>
+          <span class="timer" data-timer>00:10</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <textarea placeholder="Your short answer..."></textarea>
+      </div>
+      <div class="question" data-duration="10" id="asq-002">
+        <h3>Answer Short Question 2</h3>
+        <div class="prompt">Listen and answer briefly.</div>
+        <div class="media-row">
+          <audio controls src="../06.answer-short-question/002.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 10s Timer</button>
+          <span class="timer" data-timer>00:10</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <textarea placeholder="Your short answer..."></textarea>
+      </div>
+      <div class="question" data-duration="10" id="asq-003">
+        <h3>Answer Short Question 3</h3>
+        <div class="prompt">Listen and answer briefly.</div>
+        <div class="media-row">
+          <audio controls src="../06.answer-short-question/003.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 10s Timer</button>
+          <span class="timer" data-timer>00:10</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <textarea placeholder="Your short answer..."></textarea>
+      </div>
+      <div class="question" data-duration="10" id="asq-004">
+        <h3>Answer Short Question 4</h3>
+        <div class="prompt">Listen and answer briefly.</div>
+        <div class="media-row">
+          <audio controls src="../06.answer-short-question/004.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 10s Timer</button>
+          <span class="timer" data-timer>00:10</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <textarea placeholder="Your short answer..."></textarea>
+      </div>
+      <div class="question" data-duration="10" id="asq-005">
+        <h3>Answer Short Question 5</h3>
+        <div class="prompt">Listen and answer briefly.</div>
+        <div class="media-row">
+          <audio controls src="../06.answer-short-question/005.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 10s Timer</button>
+          <span class="timer" data-timer>00:10</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <textarea placeholder="Your short answer..."></textarea>
+      </div>
+    </section>
+
+    <section class="section" id="summarize-group">
+      <div class="section-header">
+        <h2>7. Summarize Group Discussion (2 Questions)</h2>
+        <p>Listen to the group discussion, then summarize the key points. Time: 40 seconds response.</p>
+      </div>
+      <div class="question" data-duration="40" id="sgd-001">
+        <h3>Summarize Group Discussion 1</h3>
+        <div class="prompt">Listen and summarize the discussion.</div>
+        <div class="media-row">
+          <audio controls src="../07.summarize-group-discussion/001.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 40s Timer</button>
+          <span class="timer" data-timer>00:40</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <textarea placeholder="Your summary notes..."></textarea>
+      </div>
+      <div class="question" data-duration="40" id="sgd-002">
+        <h3>Summarize Group Discussion 2</h3>
+        <div class="prompt">Listen and summarize the discussion.</div>
+        <div class="media-row">
+          <audio controls src="../07.summarize-group-discussion/002.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 40s Timer</button>
+          <span class="timer" data-timer>00:40</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <textarea placeholder="Your summary notes..."></textarea>
+      </div>
+    </section>
+
+    <section class="section" id="respond-situation">
+      <div class="section-header">
+        <h2>8. Respond to a Situation (2 Questions)</h2>
+        <p>Read the situation and respond. Time: 30 seconds response.</p>
+      </div>
+      <div class="question" data-duration="30" id="rts-001">
+        <h3>Respond to a Situation 1</h3>
+        <div class="prompt">You forgot to bring the keys to your dorm and the door is locked so you can't get in. You need to call the school management team and ask them to solve this problem. What should you say?</div>
+        <div class="media-row">
+          <audio controls src="../08.respond-to-situation/001.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 30s Timer</button>
+          <span class="timer" data-timer>00:30</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <textarea placeholder="Your response..."></textarea>
+      </div>
+      <div class="question" data-duration="30" id="rts-002">
+        <h3>Respond to a Situation 2</h3>
+        <div class="prompt">Your classmate's leg is injured, but he needs to return books to the library. You are planning to help him by returning the books. What would you say to him?</div>
+        <div class="media-row">
+          <audio controls src="../08.respond-to-situation/002.mp3"></audio>
+        </div>
+        <div class="controls">
+          <button class="btn" data-action="start-timer">Start 30s Timer</button>
+          <span class="timer" data-timer>00:30</span>
+          <button class="btn ghost" data-action="next">Next</button>
+        </div>
+        <textarea placeholder="Your response..."></textarea>
+      </div>
+    </section>
+
+    <section class="section" id="answer-key">
+      <div class="section-header">
+        <h2>Answer Key (Reference Responses)</h2>
+        <p>Use this for self-assessment after completing the test.</p>
+      </div>
+      <div class="question">
+        <details class="answer-key">
+          <summary>Read Aloud (Reference Texts)</summary>
+          <p>1. Road bicycle racing is the cycle sports discipline of road cycling, held on paved roads. Road racing is the most popular professional form of bicycle racing in terms of numbers of competitors event, and spectators. The two most common competition formats are mass start events, where riders start simultaneously and race to set finish point; and time trials, where individual riders or teams race a course alone against the clock.</p>
+          <p>2. One of the most popular natural dandruff remedies, coconut oil can help reduce some of the yeast that contributes to flakes, explains Geeta Shah, MD, a Maryland-based dermatologist. She recommends massaging a small amount into your scalp and leaving it there for at least 15-20 minutes. The longer the better she says. "Some people even leave it on overnight with a towel or shower cap so it penetrates a little deeper.</p>
+          <p>3. The 1992 World Shrimp Farming report pegged Japan's production of farmed shrimp at 3,000 metric tons of live weight from 150 semi-intensive and intensive farms covering 400 hectares of ponds. In the Kagoshima area of Kyushu, farmers used large, round, land-based tanks to produce 15,000 to 20,000 kilograms per hectare. Later, semi-intensive farms appeared on Japan's southern islands-Okinawa, for example.</p>
+          <p>4. Teamwork taps into one of the basic drivers of human behavior. The principle of social proof is so pervasive that we don't even recognize it," says Cialdini. If your project is being resisted for example, by a group of veteran employees ask another old timer to speak up for it. Cialdini is not alone in advocating this strategy.</p>
+          <p>5. Researchers from 18 countries analyzed honey bee, other bee and non-bee insect visits to 480 fields of 17 different crop types on five continents. They found that total pollination services provided were the same for honey bees and non-bee insects 38 percent, with around a quarter of services twenty three percent, provided by other bees.</p>
+          <p>6. Methane is a waste product of the oil and gas industry that results in greenhouse gas pollution that is 25 times more powerful than CO2. Working with industry to cut these harmful emissions by almost half over the next ten years will dramatically reduce our greenhouse gas emissions.</p>
+        </details>
+      </div>
+      <div class="question">
+        <details class="answer-key">
+          <summary>Repeat Sentence (Transcripts)</summary>
+          <p>001. The bus waiting just outside the gate will take you to London</p>
+          <p>002. We will enter the building from the righ side of the library</p>
+          <p>003. Students have the opportunity to share their lunch during the common lunch break around noon</p>
+          <p>004. There are office welcome events for both undergraduate and postgraduate students</p>
+          <p>005. You can keep your bag in the back room</p>
+          <p>006. Please close the door behind you when you leave the room</p>
+          <p>007. You can get coffee and tea in the lunch room</p>
+          <p>008. You must call your doctor to make an appointment</p>
+          <p>009. The woman said she could help me get a replacement travel pass</p>
+          <p>010. One solution is a system of electric cars available for hire on demand</p>
+        </details>
+      </div>
+      <div class="question">
+        <details class="answer-key">
+          <summary>Describe Image (How to Score Yourself)</summary>
+          <p>Use the title of the image, identify its type, and summarize the main features. Mention maximum and minimum values for charts, step order for processes, and notable regions for maps.</p>
+        </details>
+      </div>
+      <div class="question">
+        <details class="answer-key">
+          <summary>Retell Lecture (Reference Transcripts)</summary>
+          <p>001. Our civilization, which subsumes most of its predecessors, is a great ship steaming at speed into the future. It travels faster, further, and more laden than any before. We may not be able to foresee every reef and hazard, but by reading her compass bearing and headway, by understanding her design, her safety record, and the abilities of her crew, we can. I think, plot a wise course between the narrows and bergs looming ahead. And I believe we must do this without delay. because there are too many shipwrecks behind us. The vessel we are now aboard is not merely the biggest of all time; it is also the only one left. The future of everything we have accomplished since our intelligence evolved will depend on the wisdom of our actions over the next few years. Like all creatures, humans have made their way in the world so far by trial and error, unlike other creatures. we have a presence so colossal that error is a luxury we can no longer afford. The world has grown too small to forgive us any big mistakes.</p>
+          <p>002. Deliberate practice takes time and people also need to find and solve problems and mistakes during it. To be a high performing solo musician for the violin you also have to spend several dozen hundreds of hours in solitary practice. When it comes to other things, for example, studying geometry, it is still the case. During practice you should identify your weakness, focus on it, and carry out further deliberate practice to demonstrate how important deliberate practice is. Even for talents, they generally need spend ten years to achieve the high international level of recognition. So there is no need for average people to be ashamed to practice.</p>
+        </details>
+      </div>
+      <div class="question">
+        <details class="answer-key">
+          <summary>Answer Short Question (Expected Answers)</summary>
+          <p>001. Patent</p>
+          <p>002. Import</p>
+          <p>003. Cloud</p>
+          <p>004. Circle</p>
+          <p>005. Pension</p>
+        </details>
+      </div>
+      <div class="question">
+        <details class="answer-key">
+          <summary>Summarize Group Discussion (Reference Transcripts)</summary>
+          <p>001. Three students discuss working part-time on campus. They highlight advantages like saving travel time, flexible hours, useful experience tied to majors, meeting new people, and financial independence. Challenges include balancing work with studies, busy periods, and competition for flexible roles. They conclude that benefits can outweigh drawbacks if students manage time and choose suitable jobs.</p>
+          <p>002. Alina struggles with a tough essay, and friends advise her to understand the question first, write main ideas before the introduction, revise drafts, use the writing center, and take breaks. They reassure her and encourage step-by-step progress.</p>
+        </details>
+      </div>
+      <div class="question">
+        <details class="answer-key">
+          <summary>Respond to a Situation (Sample Responses)</summary>
+          <p>001. Hello, this is [Name] from dorm building B, room 312. I forgot my keys and the door is locked, so I can't get in. Could you please advise what I should do? If there is a spare key or an on-call staff member, I can come to the office and show my student ID. If a locksmith is needed, please let me know the process, any fees, and how long it might take. Thank you.</p>
+          <p>002. Hey, I heard about your leg. Don't worry about the library books. I can return them for you today. Just tell me the titles and the due date, and if you have your library card, I can use it, or I can return them at the desk with your name. If there are any fines, let me know and I'll keep the receipt. Focus on resting and getting better.</p>
+        </details>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const progressBar = document.createElement("div");
+    progressBar.className = "progress";
+    progressBar.innerHTML = "<span></span>";
+    document.querySelector("main").prepend(progressBar);
+
+    const allQuestions = Array.from(document.querySelectorAll(".question")).filter(
+      (card) => !card.closest("#answer-key")
+    );
+    const progressFill = progressBar.querySelector("span");
+
+    function updateProgress() {
+      const filled = allQuestions.filter((q) => q.classList.contains("complete")).length;
+      const pct = Math.round((filled / allQuestions.length) * 100);
+      progressFill.style.width = pct + "%";
+    }
+
+    function formatTime(seconds) {
+      const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+      const s = String(seconds % 60).padStart(2, "0");
+      return `${m}:${s}`;
+    }
+
+    function startTimer(button, duration, markComplete = true, labelPrefix = "") {
+      const card = button.closest(".question");
+      const timerEl = card.querySelector("[data-timer]");
+      let remaining = duration;
+      if (!timerEl) return;
+      timerEl.textContent = labelPrefix + formatTime(remaining);
+      if (card.timerId) {
+        clearInterval(card.timerId);
+      }
+      card.timerId = setInterval(() => {
+        remaining -= 1;
+        timerEl.textContent = labelPrefix + formatTime(Math.max(remaining, 0));
+        if (remaining <= 0) {
+          clearInterval(card.timerId);
+          if (markComplete) {
+            card.classList.add("complete");
+            updateProgress();
+          }
+        }
+      }, 1000);
+    }
+
+    async function startRecording(button) {
+      const card = button.closest(".question");
+      if (card.recorder) return;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const recorder = new MediaRecorder(stream);
+        const chunks = [];
+        recorder.ondataavailable = (event) => chunks.push(event.data);
+        recorder.onstop = () => {
+          const blob = new Blob(chunks, { type: "audio/webm" });
+          const audioEl = card.querySelector(".recording");
+          audioEl.src = URL.createObjectURL(blob);
+          audioEl.hidden = false;
+          stream.getTracks().forEach((track) => track.stop());
+        };
+        recorder.start();
+        card.recorder = recorder;
+        button.disabled = true;
+        card.querySelector("[data-action='stop-record']").disabled = false;
+      } catch (err) {
+        alert("Microphone access blocked or unavailable. Use the notes field instead.");
+      }
+    }
+
+    function stopRecording(button) {
+      const card = button.closest(".question");
+      if (!card.recorder) return;
+      card.recorder.stop();
+      card.recorder = null;
+      card.querySelector("[data-action='start-record']").disabled = false;
+      button.disabled = true;
+    }
+
+    function jumpNext(button) {
+      const cards = allQuestions;
+      const current = button.closest(".question");
+      const idx = cards.indexOf(current);
+      const next = cards[idx + 1];
+      if (next) {
+        next.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+
+    document.addEventListener("click", (event) => {
+      const action = event.target.getAttribute("data-action");
+      if (!action) return;
+      if (action === "start-timer") {
+        const card = event.target.closest(".question");
+        const duration = Number(card.dataset.duration || 0);
+        startTimer(event.target, duration);
+      }
+      if (action === "start-prep") {
+        const card = event.target.closest(".question");
+        const prep = Number(card.dataset.prep || 0);
+        startTimer(event.target, prep, false, "Prep ");
+      }
+      if (action === "start-record") {
+        startRecording(event.target);
+      }
+      if (action === "stop-record") {
+        stopRecording(event.target);
+      }
+      if (action === "next") {
+        jumpNext(event.target);
+      }
+    });
+
+    const describeImageBank = {
+      "Table": [
+        "Table - University Enrollment.png",
+        "Table - Transportation Preferences.png",
+        "Table - Students Migrating to UK.png",
+        "Table - Sport Participation.png",
+        "Table - Spending Share.png",
+        "Table - Middle School Timetable.png"
+      ],
+      "Process": [
+        "Process - Plastic Recycling.png",
+        "Process - Online Ordering.png",
+        "Process - Laundry.png",
+        "Process - Hydrological cycle.png",
+        "Process - Human Evolution.png",
+        "Process - Handwashing.png",
+        "Process - Food Preparation.png",
+        "Process - Brine Processing.png",
+        "Process - Apple Life cycle.png"
+      ],
+      "Pie Chart": [
+        "Pie Chart - Website Traffic Sources.png",
+        "Pie Chart - US Pet Ownership.png",
+        "Pie Chart - Travel Time to Work.png",
+        "Pie Chart - Social Media Usage.png",
+        "Pie Chart - Share of Companies.png",
+        "Pie Chart - Pet Spending.png",
+        "Pie Chart - Nutritional Composition.png",
+        "Pie Chart - Global Language Distribution.png",
+        "Pie Chart - Foreign Language Motivation.png",
+        "Pie Chart - Favorite Types of Movies.png",
+        "Pie Chart - English Influences.png",
+        "Pie Chart - Daily Activity of a Student.png"
+      ],
+      "Mixed Charts": [
+        "Mixed Charts - Sales & Customer Satisfaction.png",
+        "Mixed Charts - Largest Banks.png",
+        "Mixed Charts - Food Pyramid.png",
+        "Mixed Charts - Eating Habits.png",
+        "Mixed Charts - College Courses.png"
+      ],
+      "Maps": [
+        "Maps - Satellite Image.png",
+        "Maps - Main Hall.png",
+        "Maps - European Nuclear Plant Distribution.png",
+        "Maps - European Countries.png"
+      ],
+      "Line Chart": [
+        "Line Chart - Unemployment Rate in UK.png",
+        "Line Chart - Rise of Smartphones.png",
+        "Line Chart - Newspaper Circulation.png",
+        "Line Chart - Heart Disease and Diabetes.png",
+        "Line Chart - Consumption of Meat.png",
+        "Line Chart - Car Fuel Consumption.png",
+        "Line Chart - Atlantic Cod Stocks.png",
+        "Line Chart - Annual Height Increase.png",
+        "Line Chart - Agewise Volunteer Trends.png"
+      ],
+      "Image": [
+        "Image - Water Collection.png",
+        "Image - Vegetable & Fruit Market.png",
+        "Image - Travel Planning.png",
+        "Image - Transportation Evolution.png",
+        "Image - Sunset.png",
+        "Image - Solar System.png",
+        "Image - Rankings of Australia.png",
+        "Image - Parts of Tree.png",
+        "Image - Internet Interaction.png",
+        "Image - Geocentric Theory.png",
+        "Image - Fire Emergency.png",
+        "Image - Family Meal.png",
+        "Image - Chemical Experiment.png",
+        "Image - Being Healthy.png"
+      ],
+      "Distribution Chart": [
+        "Distribution Chart - Food Consumption Patterns.png"
+      ],
+      "Bar Chart": [
+        "Bar Chart - Working Hours.png",
+        "Bar Chart - Time Spent Watching TV.png",
+        "Bar Chart - Salary by Major.png",
+        "Bar Chart - Programming language usage.png",
+        "Bar Chart - Percentage of Volunteering Job.png",
+        "Bar Chart - Mean Salary.png",
+        "Bar Chart - Gift Purchase Trends.png",
+        "Bar Chart - Gender Based Workforce.png",
+        "Bar Chart - Estate Sales.png",
+        "Bar Chart - Cat Owners.png",
+        "Bar Chart - Canada Tourism Stats.png",
+        "Bar Chart - Box Office Revenue.png",
+        "Bar Chart - Average Weekly Household Spending.png",
+        "Bar Chart - Australian Population and Births.png",
+        "Bar Chart - Annual Tourist Numbers.png"
+      ]
+    };
+
+    function pickRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function buildDescribeImages() {
+      const types = Object.keys(describeImageBank);
+      const shuffled = types.sort(() => 0.5 - Math.random());
+      const chosenTypes = shuffled.slice(0, 5);
+      const container = document.getElementById("describe-image-list");
+      chosenTypes.forEach((type, index) => {
+        const fileName = pickRandom(describeImageBank[type]);
+        const src = "../04.describe-image/" + encodeURI(fileName);
+        const card = document.createElement("div");
+        card.className = "question";
+        card.dataset.duration = "40";
+        card.id = `di-${String(index + 1).padStart(3, "0")}`;
+        card.innerHTML = `
+          <h3>Describe Image ${index + 1} (${type})</h3>
+          <div class="prompt">Describe the image. Highlight the main features, comparisons, and key details.</div>
+          <div class="media-row image-card">
+            <img src="${src}" alt="${fileName}">
+          </div>
+          <div class="controls">
+            <button class="btn" data-action="start-timer">Start 40s Timer</button>
+            <span class="timer" data-timer>00:40</span>
+            <button class="btn ghost" data-action="next">Next</button>
+          </div>
+          <div class="controls">
+            <button class="btn secondary" data-action="start-record">Start Recording</button>
+            <button class="btn ghost" data-action="stop-record" disabled>Stop</button>
+          </div>
+          <audio controls class="recording" hidden></audio>
+          <textarea placeholder="Notes or transcript..."></textarea>
+          <p class="note">Self-check idea: ${type} images should cover the title, main categories, and the strongest contrasts.</p>
+        `;
+        container.appendChild(card);
+      });
+      allQuestions.push(...container.querySelectorAll(".question"));
+      updateProgress();
+    }
+
+    buildDescribeImages();
+    updateProgress();
+  </script>
+</body>
+</html>

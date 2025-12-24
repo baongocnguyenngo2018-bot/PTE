@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTE Mock Test (Quick Nav)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; background-color: #f8fafc; }
+        
+        /* Animations */
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .recording-active { animation: pulse-ring 2s infinite; background-color: #ef4444 !important; border-color: #ef4444 !important; color: white !important; }
+        
+        /* Layout */
+        .h-safe-screen { height: 100vh; }
+        .image-container { position: relative; width: 100%; max-height: 350px; display: flex; justify-content: center; overflow: hidden; background: #fff; }
+        .image-container img { max-height: 100%; max-width: 100%; object-fit: contain; }
+        
+        /* Audio Player */
+        audio::-webkit-media-controls-panel { background-color: #f1f5f9; }
+        
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        
+        /* Nav Button Styles */
+        .nav-btn { white-space: nowrap; transition: all 0.2s; }
+        .nav-btn.active { background-color: #2563eb; color: white; border-color: #2563eb; }
+    </style>
+</head>
+<body class="h-safe-screen flex flex-col text-slate-800">
+
+    <!-- HEADER -->
+    <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shadow-sm z-20 shrink-0">
+        <div class="flex items-center gap-4">
+            <div class="bg-slate-900 text-white font-bold px-3 py-1 rounded text-lg">PTE</div>
+            <div class="hidden md:block">
+                <h1 class="font-bold text-slate-800 text-sm">Full Mock Test</h1>
+                <div class="text-[10px] text-slate-500 font-medium">Quick Navigation • Dynamic Timing</div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="flex items-center gap-6">
+            <div class="text-right hidden sm:block">
+                <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Section</div>
+                <div id="section-label" class="font-bold text-blue-600 text-sm">Setup</div>
+            </div>
+            <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
+            
+            <div id="global-mic-status" class="flex items-center gap-2 px-3 py-1 rounded bg-slate-100 text-slate-400 text-xs font-bold transition-colors">
+                <i class="fa-solid fa-microphone-slash"></i> <span>Mic Off</span>
+            </div>
+
+            <button onclick="testEngine.resetTest()" class="text-slate-400 hover:text-red-500 transition ml-2" title="Restart Test">
+                <i class="fa-solid fa-power-off"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- QUICK NAV BAR -->
+    <nav id="quick-nav" class="bg-slate-50 border-b border-slate-200 px-4 py-2 flex gap-2 overflow-x-auto custom-scroll shrink-0 shadow-inner items-center">
+        <span class="text-[10px] font-bold text-slate-400 uppercase mr-2 shrink-0">Jump To:</span>
+        <!-- Buttons injected by JS -->
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- TEST INTERFACE -->
+        <main class="flex-1 bg-slate-50 relative flex flex-col overflow-y-auto p-4 md:p-8 custom-scroll">
+            
+            <!-- Question Card -->
+            <div id="question-card" class="bg-white w-full max-w-4xl mx-auto rounded-2xl shadow-xl border border-slate-200 p-8 flex flex-col items-center text-center fade-in relative min-h-[500px]">
+                
+                <!-- Section Badge -->
+                <div id="badge-section" class="inline-block bg-slate-100 text-slate-500 text-xs font-bold px-3 py-1 rounded-full mb-6">
+                    System Check
+                </div>
+
+                <!-- DYNAMIC CONTENT AREA -->
+                <div id="content-area" class="w-full flex-1 flex flex-col items-center justify-center mb-8">
+                    <!-- Text Prompts -->
+                    <div id="text-prompt" class="text-2xl font-medium leading-relaxed text-slate-800 max-w-3xl">
+                        Click "Initialize Test" to enable your microphone.<br>
+                        <span class="text-sm text-slate-500 block mt-2 font-normal">Browser will ask for permission once. This stream will remain active for the full test.</span>
+                    </div>
+                    
+                    <!-- Visuals (Images) -->
+                    <div id="image-wrapper" class="w-full max-w-3xl hidden mb-4 p-2 bg-white rounded border border-slate-100 shadow-sm">
+                        <div class="image-container">
+                            <img id="main-image" src="" alt="Describe Image Content">
+                        </div>
+                    </div>
+
+                    <!-- Audio Player -->
+                    <div id="audio-wrapper" class="w-full max-w-md mt-8 hidden p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Audio Source</span>
+                            <span id="audio-filename" class="text-xs font-mono text-slate-500">Loading...</span>
+                        </div>
+                        <audio id="main-audio" controls class="w-full h-8 mb-2"></audio>
+                        <button id="tts-fallback" onclick="testEngine.playTTS()" class="text-xs text-blue-500 hover:text-blue-700 underline hidden">
+                            Audio not playing? Click to Simulate
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CONTROLS & TIMER -->
+                <div class="w-full border-t border-slate-100 pt-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                    
+                    <!-- Timer -->
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <div id="timer-label" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</div>
+                            <div id="timer-display" class="font-mono text-3xl font-bold text-slate-300">WAIT</div>
+                        </div>
+                    </div>
+
+                    <!-- Action Button -->
+                    <button id="btn-action" onclick="testEngine.handleAction()" class="px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95 min-w-[200px] flex items-center justify-center gap-2">
+                        Initialize Test
+                    </button>
+                </div>
+
+                <!-- Recorder Visualizer -->
+                <div id="rec-visualizer" class="absolute bottom-0 left-0 w-full h-1 bg-slate-100 overflow-hidden rounded-b-2xl hidden">
+                    <div id="rec-bar" class="h-full bg-red-500 w-0 transition-all duration-1000"></div>
+                </div>
+            </div>
+
+            <!-- User Response Area (Notes) -->
+            <div id="notes-area" class="w-full max-w-4xl mx-auto mt-6 hidden">
+                <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Notes (Optional - Not Scored)</label>
+                    <textarea id="user-notes" class="w-full h-24 p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none" placeholder="Take notes here while listening..."></textarea>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- LOGIC & DATA -->
+    <script>
+        const BASE_URL = "https://baongocnguyenngo2018-bot.github.io/PTE/";
+
+        // --- ANSWERS ---
+        const DI_ANSWERS = [
+            "The image shows a table illustrating the share of food, beverages, and tobacco in consumer spending from 2009 to 2012, measured in percentages. Overall, food and non-alcoholic beverages accounted for the largest proportion throughout the period, remaining relatively stable at around 24 to 25 percent. In contrast, alcoholic beverages and tobacco represented a much smaller share, fluctuating slightly between 3 and 3.4 percent. When combined, total spending on food, beverages, and tobacco ranged from approximately 27 to 28 percent, with a peak in 2010. In summary, food-related expenses dominated consumer spending, while alcohol and tobacco contributed minimally, showing only minor variations over time.",
+            "The image illustrates a process of producing brine from an underground salt bed. Initially, water is pumped down through a vertical pipe into the salt layer. As the water flows underground, it dissolves the salt and forms brine. This brine is then pumped back up to the surface and collected in a tank. Finally, the brine is transported to a chemical plant for further processing. Overall, the diagram shows a clear step-by-step industrial extraction process.",
+            "The line graph presents annual incidence rates of heart disease and diabetes from 2008 to 2016. Overall, both conditions show a gradual upward trend over time. Diabetes consistently has a higher incidence rate, increasing from about 0.4 to 0.45 percent. Meanwhile, heart disease rises more slowly, from approximately 0.3 to 0.33 percent. In summary, the chart indicates a steady increase in both health issues, with diabetes remaining more prevalent.",
+            "The chart compares annual sales figures with customer satisfaction levels between 2010 and 2020. Sales fluctuate significantly over the period, peaking around 2017 and dropping sharply in 2018. In contrast, customer satisfaction generally remains high but varies slightly, reaching its maximum close to 100 percent in 2018. Overall, the image suggests that high customer satisfaction does not always directly correspond to higher sales.",
+            "The image shows a satellite view of coal export infrastructure, focusing on the Dalrymple Bay and Hay Point coal terminals. It highlights stockyards on land connected by long conveyor systems extending offshore to loading points. Ships are positioned at the end of these jetties for coal transportation. Overall, the image emphasizes large-scale industrial logistics and the coastal layout of coal export facilities."
+        ];
+
+        const RL_ANSWERS = [
+            "The lecture compares human civilization to a massive ship moving rapidly into the future. Although we cannot predict every danger ahead, understanding our direction, design, and past mistakes can help us choose a wiser path. The speaker emphasizes that humanity now holds unprecedented power, making large errors unacceptable. Since this is the only “ship” we have, the survival of everything we have achieved depends on making responsible decisions in the near future.",
+            "The lecture explains that deliberate practice requires significant time and effort, including identifying and correcting mistakes. High performance, such as becoming a solo violinist or mastering subjects like geometry, depends on many hours of focused practice. Even talented individuals usually need around ten years to reach international excellence, so practice is essential and nothing to feel ashamed of."
+        ];
+
+        const SGD_ANSWERS = [
+            "The group discusses the advantages and challenges of working part-time on campus. They agree that campus jobs save commuting time, offer flexible hours, and provide a supportive environment for students. Such jobs can also offer relevant work experience and opportunities to meet new people. However, they note challenges such as balancing work with academic deadlines, high competition for desirable roles, and a demanding application process. Overall, the participants feel that despite these challenges, the benefits—especially flexibility, skill development, and financial independence—generally outweigh the drawbacks.",
+            "The discussion focuses on helping Alina manage a challenging university essay. Rachel and Daniel reassure her and offer practical advice, such as understanding the essay question, starting with main ideas rather than the introduction, and revising drafts later. They also encourage her to seek support from friends and use campus resources like the writing center. With their guidance, Alina gains confidence and feels more capable of tackling the essay step by step."
+        ];
+
+        const RTS_ANSWERS = [
+            "Sample response: Hello, this is [Name] from dorm building B, room 312. I forgot my keys and the door is locked, so I can't get in. Could you please advise what I should do? If there is a spare key or an on-call staff member, I can come to the office and show my student ID. If a locksmith is needed, please let me know the process, any fees, and how long it might take. Thank you.",
+            "Sample response: Hey, I heard about your leg. Don't worry about the library books. I can return them for you today. Just tell me the titles and the due date, and if you have your library card, I can use it, or I can return them at the desk with your name. If there are any fines, let me know and I'll keep the receipt. Focus on resting and getting better."
+        ];
+
+        // --- CONTENT DATA ---
+        const RA_TEXTS = [
+            "Road bicycle racing is the cycle sports discipline of road cycling, held on paved roads. Road racing is the most popular professional form of bicycle racing in terms of numbers of competitors, events, and spectators. The two most common competition formats are mass start events, where riders start simultaneously and race to set finish point; and time trials, where individual riders or teams race a course alone against the clock.",
+            "One of the most popular natural dandruff remedies, coconut oil can help reduce some of the yeast that contributes to flakes, explains Geeta Shah, MD, a Maryland-based dermatologist. She recommends massaging a small amount into your scalp and leaving it there for at least 15-20 minutes. The longer the better she says. 'Some people even leave it on overnight with a towel or shower cap so it penetrates a little deeper.'",
+            "The 1992 World Shrimp Farming report pegged Japan's production of farmed shrimp at 3,000 metric tons of live weight from 150 semi-intensive and intensive farms covering 400 hectares of ponds. In the Kagoshima area of Kyushu, farmers used large, round, land-based tanks to produce 15,000 to 20,000 kilograms per hectare. Later, semi-intensive farms appeared on Japan's southern islands-Okinawa, for example.",
+            "Teamwork taps into one of the basic drivers of human behavior. The principle of social proof is so pervasive that we don't even recognize it,' says Cialdini. If your project is being resisted for example, by a group of veteran employees ask another old timer to speak up for it. Cialdini is not alone in advocating this strategy.",
+            "Researchers from 18 countries analyzed honey bee, other bee and non-bee insect visits to 480 fields of 17 different crop types on five continents. They found that total pollination services provided were the same for honey bees and non-bee insects 38 percent, with around a quarter of services twenty three percent, provided by other bees.",
+            "Methane is a waste product of the oil and gas industry that results in greenhouse gas pollution that is 25 times more powerful than CO2. Working with industry to cut these harmful emissions by almost half over the next ten years will dramatically reduce our greenhouse gas emissions."
+        ];
+
+        const RS_TRANSCRIPTS = [
+            "The bus waiting just outside the gate will take you to London",
+            "We will enter the building from the righ side of the library",
+            "Students have the opportunity to share their lunch during the common lunch break around noon",
+            "There are office welcome events for both undergraduate and postgraduate students",
+            "You can keep your bag in the back room",
+            "Please close the door behind you when you leave the room",
+            "You can get coffee and tea in the lunch room",
+            "You must call your doctor to make an appointment",
+            "The woman said she could help me get a replacement travel pass",
+            "One solution is a system of electric cars available for hire on demand"
+        ];
+
+        const DI_IMAGES = [
+            { url: "04.describe-image/Table%20-%20Spending%20Share.png", desc: "Table - Spending Share" },
+            { url: "04.describe-image/Process%20-%20Brine%20Processing.png", desc: "Process - Brine Processing" },
+            { url: "04.describe-image/Line%20Chart%20-%20Heart%20Disease%20and%20Diabetes.png", desc: "Line Chart - Heart Disease and Diabetes" },
+            { url: "04.describe-image/Mixed%20Charts%20-%20Sales%20&%20Customer%20Satisfaction.png", desc: "Mixed Charts - Sales & Customer Satisfaction" },
+            { url: "04.describe-image/Maps%20-%20Satellite%20Image.png", desc: "Maps - Satellite Image" }
+        ];
+
+        const RL_TRANSCRIPTS = [
+            "Our civilization, which subsumes most of its predecessors, is a great ship steaming at speed into the future. It travels faster, further, and more laden than any before. We may not be able to foresee every reef and hazard, but by reading her compass bearing and headway, by understanding her design, her safety record, and the abilities of her crew, we can. I think, plot a wise course between the narrows and bergs looming ahead...",
+            "Deliberate practice takes time and people also need to find and solve problems and mistakes during it. To be a high performing solo musician for the violin you also have to spend several dozen hundreds of hours in solitary practice. When it comes to other things, for example, studying geometry, it is still the case..."
+        ];
+
+        const ASQ_DATA = [
+            { q: "Which type of legal document protects a person’s invention or intellectual property rights?", a: "Patent" },
+            { q: "What is the antonym of the word ‘export’?", a: "Import" },
+            { q: "What is a visible mass of condensed water vapor floating in the atmosphere, typically high above the ground called?", a: "Cloud" },
+            { q: "What geometric shape are circumference, diameter, and radius related to?", a: "Circle" },
+            { q: "What is the term used for an amount that is regularly received by a retiree?", a: "Pension" }
+        ];
+
+        const SGD_TRANSCRIPTS = [
+            "Three students are discussing the benefits and challenges of working part-time on campus. Speaker 1: Hey guys, I was just thinking about how helpful it is to have part-time jobs right here on campus...",
+            "Narrator: Alina struggles with a tough essay, and Rachel and Daniel guide her with tips and support, boosting her confidence to tackle it step by step. Alina: Guys, I'm really struggling with this essay..."
+        ];
+
+        const RTS_TRANSCRIPTS = [
+            "You forgot to bring the keys to your dorm and the door is locked so you can't get in. You need to call the school management team and ask them to solve this problem. What should you say?",
+            "Your classmate's leg is injured, but he needs to return books to the library. You are planning to help him by returning the books. What would you say to him?"
+        ];
+
+        // --- TEST STRUCTURE ---
+        const TEST_DATA = [
+            // 1. Personal Intro
+            { type: 'intro', section: 'Personal Introduction', prompt: "Introduce yourself.", text: "Please introduce yourself...", prep: 25, rec: 30, answer: "Unscored." },
+            
+            // 2. Read Aloud
+            ...RA_TEXTS.map((text, i) => ({ type: 'ra', section: 'Read Aloud', id: `RA${i+1}`, prompt: "Read the text aloud.", text: text, prep: 35, rec: 40, answer: "Fluent reading of the text provided." })),
+
+            // 3. Repeat Sentence
+            ...RS_TRANSCRIPTS.map((t, i) => ({ type: 'rs', section: 'Repeat Sentence', id: `RS${i+1}`, prompt: "Repeat the sentence.", audioPath: `03.repeat-sentence/0${i < 9 ? '0'+(i+1) : i+1}.mp3`, transcript: t, prep: 0, rec: 15, answer: t })),
+
+            // 4. Describe Image
+            ...DI_IMAGES.map((img, i) => ({ type: 'di', section: 'Describe Image', id: `DI${i+1}`, prompt: "Describe the image.", imagePath: img.url, transcript: img.desc, prep: 25, rec: 40, answer: DI_ANSWERS[i] })),
+
+            // 5. Retell Lecture
+            ...RL_TRANSCRIPTS.map((t, i) => ({ type: 'rl', section: 'Retell Lecture', id: `RL${i+1}`, prompt: "Retell the lecture.", audioPath: `05.retell-lecture/00${i+1}.mp3`, transcript: t, prep: 10, rec: 40, answer: RL_ANSWERS[i] })),
+
+            // 6. ASQ
+            ...ASQ_DATA.map((item, i) => ({ type: 'asq', section: 'Answer Short Question', id: `ASQ${i+1}`, prompt: "Answer the question.", audioPath: `06.answer-short-question/00${i+1}.mp3`, transcript: item.q, prep: 0, rec: 10, answer: item.a })),
+
+            // 7. Summarize Group
+            ...SGD_TRANSCRIPTS.map((t, i) => ({ type: 'sgd', section: 'Summarize Group Discussion', id: `SGD${i+1}`, prompt: "Summarize discussion.", audioPath: `07.summarize-group-discussion/00${i+1}.mp3`, transcript: t, prep: 10, rec: 40, answer: SGD_ANSWERS[i] })),
+
+            // 8. Respond Situation
+            ...RTS_TRANSCRIPTS.map((t, i) => ({ type: 'rts', section: 'Respond to a Situation', id: `RTS${i+1}`, prompt: "Respond to the situation.", audioPath: `08.respond-to-situation/00${i+1}.mp3`, transcript: t, prep: 0, rec: 30, answer: RTS_ANSWERS[i] }))
+        ];
+
+        // --- ENGINE ---
+        const testEngine = {
+            index: -1, 
+            state: 'SETUP', 
+            timer: null,
+            globalStream: null,
+            mediaRecorder: null,
+            audioChunks: [],
+
+            init: function() { 
+                this.renderNav(); 
+            },
+
+            renderNav: function() {
+                const nav = document.getElementById('quick-nav');
+                const counts = {};
+                TEST_DATA.forEach((data, i) => {
+                    counts[data.type] = (counts[data.type] || 0) + 1;
+                    const btn = document.createElement('button');
+                    let label = data.type === 'intro' ? 'Intro' : data.type.toUpperCase() + ' ' + counts[data.type];
+                    
+                    btn.className = "nav-btn px-3 py-1 text-xs font-bold rounded border bg-white border-slate-200 text-slate-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200";
+                    btn.innerText = label;
+                    btn.id = `nav-btn-${i}`;
+                    btn.onclick = () => this.loadQuestion(i);
+                    nav.appendChild(btn);
+                });
+            },
+
+            updateNavHighlight: function(idx) {
+                document.querySelectorAll('#quick-nav button').forEach(b => {
+                    b.className = "nav-btn px-3 py-1 text-xs font-bold rounded border bg-white border-slate-200 text-slate-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200";
+                });
+                const activeBtn = document.getElementById(`nav-btn-${idx}`);
+                if (activeBtn) {
+                    activeBtn.className = "nav-btn px-3 py-1 text-xs font-bold rounded border bg-blue-600 border-blue-600 text-white shadow-sm active";
+                    activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            },
+
+            startTestSession: async function() {
+                try {
+                    this.globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    const statusBadge = document.getElementById('global-mic-status');
+                    statusBadge.classList.remove('bg-slate-100', 'text-slate-400');
+                    statusBadge.classList.add('bg-green-100', 'text-green-700');
+                    statusBadge.innerHTML = '<i class="fa-solid fa-microphone"></i> <span>Mic Ready</span>';
+                    document.getElementById('notes-area').classList.remove('hidden');
+                    this.loadQuestion(0);
+                } catch (err) {
+                    alert("Microphone access is required. Please allow access and refresh.");
+                }
+            },
+
+            loadQuestion: function(idx) {
+                if (idx < 0 || idx >= TEST_DATA.length) {
+                    if (idx >= TEST_DATA.length) this.endTest();
+                    return; 
+                }
+
+                // CHECK FOR REQUIRED ELEMENTS TO PREVENT NULL ERROR
+                const sectionLabel = document.getElementById('section-label');
+                if (!sectionLabel) return;
+
+                this.index = idx;
+                const data = TEST_DATA[idx];
+                
+                this.updateNavHighlight(idx);
+
+                sectionLabel.innerText = data.section;
+                const progLabel = document.getElementById('progress-label');
+                if(progLabel) progLabel.innerText = `${idx + 1}/${TEST_DATA.length}`;
+                
+                const badge = document.getElementById('badge-section');
+                if(badge) badge.innerText = data.section;
+                
+                const textPrompt = document.getElementById('text-prompt');
+                if (textPrompt) {
+                    textPrompt.innerText = data.prompt;
+                    textPrompt.classList.remove('text-left', 'text-sm');
+                    textPrompt.classList.add('text-center', 'text-2xl');
+                }
+
+                const notes = document.getElementById('user-notes');
+                if(notes) notes.value = "";
+                
+                const imgWrap = document.getElementById('image-wrapper');
+                if(imgWrap) imgWrap.classList.add('hidden');
+                
+                const audioWrap = document.getElementById('audio-wrapper');
+                if(audioWrap) audioWrap.classList.add('hidden');
+                
+                const recVis = document.getElementById('rec-visualizer');
+                if(recVis) recVis.classList.add('hidden');
+
+                if (data.type === 'ra' && textPrompt) {
+                    textPrompt.innerText = data.text;
+                    textPrompt.classList.remove('text-center', 'text-2xl');
+                    textPrompt.classList.add('text-left', 'text-xl');
+                } else if (data.type === 'rts' && textPrompt) {
+                    textPrompt.innerText = data.transcript;
+                    textPrompt.classList.remove('text-center', 'text-2xl');
+                    textPrompt.classList.add('text-left', 'text-xl');
+                } else if (data.type === 'di' && imgWrap) {
+                    imgWrap.classList.remove('hidden');
+                    const mainImg = document.getElementById('main-image');
+                    if(mainImg) mainImg.src = BASE_URL + data.imagePath;
+                }
+
+                if (data.audioPath && audioWrap) {
+                    audioWrap.classList.remove('hidden');
+                    const audio = document.getElementById('main-audio');
+                    const aFile = document.getElementById('audio-filename');
+                    const tts = document.getElementById('tts-fallback');
+                    
+                    if(audio) {
+                        audio.src = BASE_URL + data.audioPath;
+                        audio.onended = () => { this.handleAudioEnd(data); };
+                    }
+                    if(aFile) aFile.innerText = data.id;
+                    if(tts) tts.classList.remove('hidden');
+                }
+
+                this.startFlow(data);
+            },
+
+            startFlow: function(data) {
+                clearInterval(this.timer);
+                const btn = document.getElementById('btn-action');
+                const display = document.getElementById('timer-display');
+                const label = document.getElementById('timer-label');
+                
+                if(!btn || !display || !label) return;
+
+                if (data.audioPath) {
+                    this.state = 'LISTENING';
+                    label.innerText = "Status";
+                    display.innerText = "LISTEN";
+                    btn.innerText = "Playing...";
+                    btn.disabled = true;
+                    btn.classList.remove('recording-active', 'bg-blue-600');
+                    btn.classList.add('bg-slate-400');
+                    
+                    const audio = document.getElementById('main-audio');
+                    if(audio) {
+                        audio.play().catch(e => {
+                            console.log("Autoplay blocked");
+                            const ttsBtn = document.getElementById('tts-fallback');
+                            if(ttsBtn) ttsBtn.onclick = () => { this.playTTS(() => this.handleAudioEnd(data)); }
+                        });
+                    }
+                } else {
+                    this.state = 'IDLE'; 
+                    this.startPrep(data);
+                }
+            },
+
+            handleAudioEnd: function(data) {
+                if (['rs', 'asq', 'rts'].includes(data.type)) {
+                    this.startRecording(data);
+                } else if (['rl', 'sgd'].includes(data.type)) {
+                    this.startPrep(data, true); 
+                }
+            },
+
+            startPrep: function(data, autoStart = true) {
+                this.state = 'PREP';
+                const btn = document.getElementById('btn-action');
+                const label = document.getElementById('timer-label');
+                const display = document.getElementById('timer-display');
+                
+                if(!btn || !label || !display) return;
+
+                label.innerText = "Preparation";
+                display.className = "font-mono text-4xl font-bold text-blue-500";
+                
+                btn.innerText = "Skip Prep";
+                btn.disabled = false;
+                btn.classList.remove('bg-slate-400');
+                btn.classList.add('bg-slate-900');
+
+                let timeLeft = data.prep;
+                display.innerText = timeLeft;
+
+                this.timer = setInterval(() => {
+                    timeLeft--;
+                    if(display) display.innerText = timeLeft;
+                    if (timeLeft <= 0) {
+                        this.startRecording(data);
+                    }
+                }, 1000);
+            },
+
+            startRecording: function(data) {
+                clearInterval(this.timer);
+                this.state = 'RECORDING';
+
+                const btn = document.getElementById('btn-action');
+                const label = document.getElementById('timer-label');
+                const display = document.getElementById('timer-display');
+                const recVis = document.getElementById('rec-visualizer');
+                const recBar = document.getElementById('rec-bar');
+                
+                if(!btn || !label || !display) return;
+
+                label.innerText = "Recording";
+                display.className = "font-mono text-4xl font-bold text-red-500";
+                btn.innerText = "Stop Recording";
+                btn.classList.add('recording-active');
+                btn.disabled = false;
+
+                if(recVis) recVis.classList.remove('hidden');
+                if(recBar) {
+                    recBar.style.width = "0%";
+                    recBar.style.transition = `width ${data.rec}s linear`;
+                    void recBar.offsetWidth; 
+                    recBar.style.width = "100%";
+                }
+
+                if (this.globalStream) {
+                    this.audioChunks = [];
+                    this.mediaRecorder = new MediaRecorder(this.globalStream);
+                    this.mediaRecorder.ondataavailable = e => this.audioChunks.push(e.data);
+                    this.mediaRecorder.onstop = () => {
+                        const blob = new Blob(this.audioChunks, { type: 'audio/wav' });
+                        TEST_DATA[this.index].userRecording = URL.createObjectURL(blob);
+                    };
+                    this.mediaRecorder.start();
+                }
+
+                let timeLeft = data.rec;
+                display.innerText = timeLeft;
+
+                this.timer = setInterval(() => {
+                    timeLeft--;
+                    if(display) display.innerText = timeLeft;
+                    if (timeLeft <= 0) {
+                        this.stopRecording();
+                    }
+                }, 1000);
+            },
+
+            stopRecording: function() {
+                clearInterval(this.timer);
+                this.state = 'DONE';
+                if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') this.mediaRecorder.stop();
+
+                const btn = document.getElementById('btn-action');
+                const display = document.getElementById('timer-display');
+                const recVis = document.getElementById('rec-visualizer');
+                
+                if(btn) {
+                    btn.innerText = "Next Question >>";
+                    btn.classList.remove('recording-active');
+                    btn.classList.add('bg-blue-600');
+                }
+                if(display) display.innerText = "DONE";
+                if(recVis) recVis.classList.add('hidden');
+            },
+
+            handleAction: function() {
+                if (this.index === -1) { this.startTestSession(); return; }
+                const data = TEST_DATA[this.index];
+
+                if (this.state === 'PREP') this.startRecording(data);
+                else if (this.state === 'RECORDING') this.stopRecording();
+                else if (this.state === 'DONE') this.loadQuestion(this.index + 1);
+            },
+
+            endTest: function() {
+                if (this.globalStream) this.globalStream.getTracks().forEach(track => track.stop());
+                const body = document.querySelector('body');
+                
+                let rows = TEST_DATA.map((item, idx) => {
+                    let userAudio = item.userRecording 
+                        ? `<audio controls src="${item.userRecording}" class="w-full h-8 mt-1"></audio>` 
+                        : `<span class="text-xs text-red-400">No recording</span>`;
+
+                    let transcriptDisplay = item.transcript 
+                        ? `<div class="p-3 bg-slate-50 rounded mt-2 border border-slate-200">
+                             <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1">Transcript / Prompt</span>
+                             <p class="text-sm text-slate-700 leading-relaxed">${item.transcript}</p>
+                           </div>`
+                        : (item.text ? `<div class="p-3 bg-slate-50 rounded mt-2 border border-slate-200"><span class="text-[10px] font-bold text-slate-500 uppercase block mb-1">Read Text</span><p class="text-sm text-slate-700">${item.text}</p></div>` : '');
+
+                    if(item.type === 'di') {
+                        transcriptDisplay = `<div class="mt-2"><span class="text-[10px] font-bold text-slate-500 uppercase">Image Prompt</span><div class="h-32 w-auto overflow-hidden border mt-1 bg-white rounded"><img src="${BASE_URL + item.imagePath}" class="h-full mx-auto"></div></div>`;
+                    }
+
+                    return `
+                        <div class="bg-white border border-slate-200 rounded-lg p-5 mb-6 shadow-sm break-inside-avoid">
+                            <div class="flex justify-between items-start mb-3 border-b border-slate-100 pb-3">
+                                <span class="font-bold text-slate-800 text-lg">Q${idx + 1}: ${item.section}</span>
+                                <span class="text-xs text-slate-400 font-mono bg-slate-100 px-2 py-1 rounded">${item.id || ''}</span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    ${transcriptDisplay}
+                                    <div class="mt-4">
+                                        <span class="text-[10px] font-bold text-blue-600 uppercase tracking-wide">Your Recording</span>
+                                        ${userAudio}
+                                    </div>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded border border-green-100">
+                                    <span class="text-[10px] font-bold text-green-700 uppercase tracking-wide block mb-2">Sample Answer / Key</span>
+                                    <p class="text-sm text-green-900 leading-relaxed whitespace-pre-wrap">${item.answer}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                body.innerHTML = `
+                    <div class="h-safe-screen overflow-y-auto bg-slate-100 custom-scroll">
+                        <div class="max-w-5xl mx-auto p-8">
+                            <div class="bg-white p-8 rounded-xl shadow mb-8 text-center">
+                                <h1 class="text-3xl font-bold text-slate-900">Test Complete</h1>
+                                <button onclick="location.reload()" class="mt-4 px-6 py-2 bg-slate-900 text-white rounded hover:bg-slate-700">Restart Test</button>
+                            </div>
+                            <div class="space-y-4">
+                                ${rows}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            playTTS: function(callback) {
+                const data = TEST_DATA[this.index];
+                const text = data.transcript || data.text || "No text available";
+                const utt = new SpeechSynthesisUtterance(text);
+                utt.lang = 'en-US';
+                if(callback) utt.onend = callback;
+                speechSynthesis.speak(utt);
+            },
+
+            resetTest: function() {
+                if(confirm("Restart the test? All recordings will be lost.")) location.reload();
+            }
+        };
+
+        window.onload = () => testEngine.init();
+    </script>
+</body>
+</html>

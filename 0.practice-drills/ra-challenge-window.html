@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTE Windows Dictation Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .text-area-focus:focus {
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
+            border-color: #3b82f6;
+        }
+        .diff-green { background-color: #dcfce7; color: #166534; border-radius: 4px; padding: 0 4px; }
+        .diff-red { background-color: #fee2e2; color: #991b1b; text-decoration: none; border-radius: 4px; padding: 0 4px; border-bottom: 2px solid #ef4444; }
+        .diff-heard { background-color: #f1f5f9; color: #64748b; text-decoration: line-through; border-radius: 4px; padding: 0 4px; font-size: 0.85em; margin-right: 4px; }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white p-4 shadow-md flex justify-between items-center shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-xl"><i class="fab fa-windows"></i></div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">Windows Dictation Challenge</h1>
+                <p class="text-xs text-slate-400">Read Aloud Precision Trainer</p>
+            </div>
+        </div>
+        
+        <!-- Mode Toggle -->
+        <div class="bg-slate-800 p-1 rounded-lg flex text-sm font-bold">
+            <button onclick="setMode('sample')" id="btn-mode-sample" class="px-4 py-1.5 rounded-md bg-blue-600 text-white shadow-sm transition-all">
+                20 Samples
+            </button>
+            <button onclick="setMode('custom')" id="btn-mode-custom" class="px-4 py-1.5 rounded-md text-slate-400 hover:text-white transition-all">
+                Custom Text
+            </button>
+        </div>
+
+        <div class="text-sm font-mono bg-slate-800 px-3 py-1 rounded w-24 text-center" id="q-counter-box">
+            Q: <span id="current-q">1</span>/20
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 max-w-4xl mx-auto w-full p-6 flex flex-col gap-6 h-full overflow-hidden">
+        
+        <!-- Instructions Card -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded shadow-sm text-sm text-blue-900 shrink-0">
+            <h3 class="font-bold flex items-center gap-2"><i class="fas fa-microphone"></i> How to use Windows Dictation:</h3>
+            <ol class="list-decimal ml-5 mt-1 space-y-1">
+                <li>Click inside the bottom <strong>"Your Transcript"</strong> box.</li>
+                <li>Press <span class="bg-white border border-blue-200 px-1 rounded font-mono font-bold">Windows Key + H</span> to start dictation toolbar.</li>
+                <li>Read the text clearly. Click the mic icon or press keys again to stop. Click <strong>"Check Accuracy"</strong>.</li>
+            </ol>
+        </div>
+
+        <!-- Question Card -->
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 flex-1 flex flex-col overflow-hidden min-h-0">
+            
+            <!-- Source Text Area -->
+            <div class="p-6 border-b border-slate-100 bg-slate-50 relative shrink-0" style="max-height: 40%;">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Read Aloud Text (Source)</span>
+                
+                <!-- Sample Text Display -->
+                <div id="sample-text-container" class="overflow-y-auto max-h-48">
+                    <p id="question-text" class="text-xl leading-relaxed font-medium text-slate-800 select-none">
+                        <!-- Text inserted via JS -->
+                    </p>
+                </div>
+
+                <!-- Custom Text Input (Hidden by default) -->
+                <textarea id="custom-source-input" class="hidden w-full h-32 p-3 text-lg border border-slate-300 rounded focus:border-blue-500 outline-none text-slate-700" placeholder="Paste your own text here to practice..."></textarea>
+            </div>
+
+            <!-- Dictation Area -->
+            <div class="p-6 flex-1 bg-white relative min-h-0 flex flex-col">
+                <span class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2 flex justify-between shrink-0">
+                    <span>Your Transcript (Click here & Press Win+H)</span>
+                    <span id="status-indicator" class="text-slate-300"><i class="fas fa-circle text-[8px]"></i> Ready</span>
+                </span>
+                
+                <div class="relative flex-1 min-h-0">
+                    <textarea id="user-input" class="w-full h-full p-4 text-lg border-2 border-slate-200 rounded-lg resize-none outline-none text-area-focus transition-all text-slate-700 placeholder-slate-300" placeholder="Place cursor here, press Win + H, and start reading..."></textarea>
+                    
+                    <!-- Diff View Overlay (Hidden by default) -->
+                    <div id="diff-view" class="absolute inset-0 bg-white p-4 rounded-lg border-2 border-slate-200 overflow-y-auto hidden z-10"></div>
+                </div>
+            </div>
+
+            <!-- Footer Controls -->
+            <div class="p-4 bg-slate-100 border-t border-slate-200 flex justify-between items-center shrink-0">
+                <button id="btn-prev" onclick="prevQuestion()" class="text-slate-500 hover:text-slate-800 font-bold px-4 py-2">
+                    <i class="fas fa-chevron-left mr-1"></i> Prev
+                </button>
+
+                <div class="flex gap-3">
+                    <button onclick="clearText()" class="bg-white border border-slate-300 text-slate-600 hover:bg-slate-50 font-bold px-4 py-2 rounded shadow-sm transition">
+                        Clear
+                    </button>
+                    <button onclick="checkAccuracy()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded shadow transition flex items-center gap-2">
+                        <i class="fas fa-check-circle"></i> Check Accuracy
+                    </button>
+                </div>
+
+                <button id="btn-next" onclick="nextQuestion()" class="text-slate-500 hover:text-slate-800 font-bold px-4 py-2">
+                    Next <i class="fas fa-chevron-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- DATA ---
+        const questions = [
+            "The well-being, prosperity, and sustainability of human enterprise rely on the functioning of the Earth's natural systems and their complex physical, chemical, and biological processes. Water is a central theme in all terrestrial, oceanic, atmospheric, agricultural, and industrial systems.",
+            "Teaching is indeed a challenging profession, yet it continues to attract and retain individuals year after year, many of whom remain in the field for five, ten, or even more years. This enduring commitment can be attributed to a combination of intrinsic motivations and the rewarding aspects of the profession.",
+            "Schools host parent teacher conferences four times a year and it is important for families to attend. This is your chance to meet with teachers and ask questions about your child's progress. It can be helpful to write down questions ahead of time.",
+            "The exponential growth of the internet was heralded, in the 1990s, as revolutionizing the production and dissemination of information. Some people saw the internet as a means of democratizing access to knowledge. For people concerned with African development, it seemed to offer the possibility of leap frogging over the technology gap that separates Africa from advanced industrialized countries.",
+            "The word radical from the Latin word for roots means anyone who advocates fundamental change in the political system. Literally, a radical is one who proposes to attack some political or social problem by going deep into the social or economic fabric to get at the root cause and alter this basic weakness.",
+            "Today, telecommunication is widespread and devices that assist the progress are common in many parts of the world. There is also a vast array of networks that connect these devices, including a computer, telephone, and cable networks. Computer communication across the Internet, such as email and instant messaging, is just one of many examples of telecommunication.",
+            "The starting point of Bergson's theory is the experience of time and motion. Time is the reality we experience most directly, but this doesn't mean that we can capture this experience mentally. The past is gone and the future is yet to come. The only reality is the present, which is real through our experience.",
+            "To some extent, attendance at cultural venues and events is influenced by a person's age and the composition of the household in which they live. For example, those people in households with dependent children were more likely to visit zoological parks and aquariums than people living in single person households.",
+            "At a time when stress levels are soaring, rates of depression are increasing and the gap between rich and poor is ever widening. We believe that giving can play a positive role in helping people to feel connected to those around them and generate a sense of purpose and hope. When we give, we feel valued, useful and happy.",
+            "380 years after his death, William Shakespeare remains the central author of the English speaking world; he is the most quoted poet and the most regularly produced playwright and now among the most popular screenwriters as well. Why is that, and who \"is\" he? Why do so many people think his writing is so great? What meanings did his plays have in his own time, and how do we read, speak, or listen to his words now?",
+            "There were various explanations for volcano behaviour before the structure of the earth's mantle as a semisolid material was developed. For decades, awareness that compression and radioactive materials may be heat sources was discounted and volcanic action was often attributed to chemical reactions and a thin layer of molten rock near the surface.",
+            "The whole purpose of making notes is to aid your learning. It is important to go back over them within a day of making them to make sure they make sense and make them legible for future revisions. Also, going back over them should highlight the key questions of areas in which you want to do further reading.",
+            "Most babies start developing their hearing while still in the womb, prompting some hopeful parents to play classical music to their pregnant bellies. Some research even suggests that infants are listening to adult speech as early as 10 weeks before birth, gathering the basic building blocks of their family's native tongue.",
+            "We have spent a lot of money over the last 70 years on flood control, and it's protected millions of people and has saved us billions of dollars. We've built dams to hold back the waters. We've built levees to keep the water off the people, and we've raised the ones that were originally started in 1718.",
+            "The noise restrictions are based on measurements on animals in captivity exposed to noise levels that induce a temporary threshold shift (TTS) in hearing. The TTS onset threshold is the lowest noise exposure capable of inducing a small temporary reduction of hearing sensitivity, also known as auditory fatigue, with full recovery shortly after exposure.",
+            "Tissues are grouped together in the body to form organs. These include the brain, heart, lungs, kidneys, and liver. Each body organ has a specific shape and is made up of different types of tissue that work together. For example, the heart consists mainly of a specialized type of muscle tissue, which contracts rhythmically to provide the heart's pumping action.",
+            "The audio, which includes more than 1,000 separate data files, was captured in the early 1970s by the late Hetty van de Rijt. She recorded the various screams, barks, and how calls made by a group of chimps, including 17 youngsters, living in the Gombe National Park in Tanzania.",
+            "The Royal Institution is an organisation that has been around for 209 years. Many of the people that have worked here have been scientists themselves, including Michael Faraday. He made the discoveries that may be generating a using electricity much easier, making it possible for us all to switch on lights, cook for dinner, play games consoles much more.",
+            "Australia has one of the world's most important mining industries. It is a major exporter of coal, iron ore, gold, and copper and is self sufficient in all minerals and bar petroleum. Since the first discoveries, the coal in 1798, mineral production has risen every year in the decade, and in 1992 it doubled.",
+            "In spite of the spectacularly high quality of life for the vast majority of the people who live in the European Union, its inhabitant seems obsessed by the region's relative decline in the world. Slow economic growth rates and high unemployment have reinforced the impression that Europe is unhappy with today and unsure of tomorrow."
+        ];
+
+        let currentIndex = 0;
+        let currentMode = 'sample'; // 'sample' or 'custom'
+        
+        const ui = {
+            text: document.getElementById('question-text'),
+            sampleContainer: document.getElementById('sample-text-container'),
+            customInput: document.getElementById('custom-source-input'),
+            input: document.getElementById('user-input'),
+            counter: document.getElementById('current-q'),
+            counterBox: document.getElementById('q-counter-box'),
+            diff: document.getElementById('diff-view'),
+            btnSample: document.getElementById('btn-mode-sample'),
+            btnCustom: document.getElementById('btn-mode-custom'),
+            btnPrev: document.getElementById('btn-prev'),
+            btnNext: document.getElementById('btn-next')
+        };
+
+        // --- Logic ---
+
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // Toggle active styling
+            if(mode === 'sample') {
+                ui.btnSample.className = "px-4 py-1.5 rounded-md bg-blue-600 text-white shadow-sm transition-all";
+                ui.btnCustom.className = "px-4 py-1.5 rounded-md text-slate-400 hover:text-white transition-all";
+                
+                ui.sampleContainer.classList.remove('hidden');
+                ui.customInput.classList.add('hidden');
+                ui.counterBox.classList.remove('hidden');
+                
+                // Show Nav buttons
+                ui.btnPrev.classList.remove('invisible');
+                ui.btnNext.classList.remove('invisible');
+                
+                loadQuestion(currentIndex);
+            } else {
+                ui.btnCustom.className = "px-4 py-1.5 rounded-md bg-blue-600 text-white shadow-sm transition-all";
+                ui.btnSample.className = "px-4 py-1.5 rounded-md text-slate-400 hover:text-white transition-all";
+                
+                ui.sampleContainer.classList.add('hidden');
+                ui.customInput.classList.remove('hidden');
+                ui.counterBox.classList.add('hidden');
+                
+                // Hide Nav buttons
+                ui.btnPrev.classList.add('invisible');
+                ui.btnNext.classList.add('invisible');
+                
+                // Clear validation view
+                clearText();
+                ui.customInput.focus();
+            }
+        }
+
+        function loadQuestion(index) {
+            if (index < 0) index = 0;
+            if (index >= questions.length) index = questions.length - 1;
+            currentIndex = index;
+
+            ui.text.innerText = questions[currentIndex];
+            ui.counter.innerText = currentIndex + 1;
+            
+            clearText();
+        }
+
+        function nextQuestion() {
+            if(currentMode === 'sample') loadQuestion(currentIndex + 1);
+        }
+
+        function prevQuestion() {
+            if(currentMode === 'sample') loadQuestion(currentIndex - 1);
+        }
+
+        function clearText() {
+            ui.input.value = '';
+            ui.input.classList.remove('hidden');
+            ui.diff.classList.add('hidden');
+            ui.diff.innerHTML = '';
+            ui.input.focus();
+        }
+
+        function checkAccuracy() {
+            let original = "";
+            
+            // Determine source based on mode
+            if (currentMode === 'sample') {
+                original = questions[currentIndex];
+            } else {
+                original = ui.customInput.value.trim();
+                if (!original) {
+                    alert("Please paste text into the source box first!");
+                    ui.customInput.focus();
+                    return;
+                }
+            }
+
+            const user = ui.input.value;
+            if (!user.trim()) {
+                alert("Please dictate some text first!");
+                return;
+            }
+
+            // 1. Get Display Tokens (Preserve original casing/punctuation for display)
+            const displayTokens = original.split(/\s+/).filter(w => w.length > 0);
+
+            // 2. Prepare Comparison Tokens (Lowercase, strip ALL non-alphanumeric chars)
+            const clean = (word) => word.toLowerCase().replace(/[^a-z0-9]/g, "");
+            
+            const originalWordsRaw = displayTokens.map(w => clean(w)); 
+            
+            // User words: keep raw for display (in heard tag), cleaned for comparison
+            const userWordsRaw = user.split(/\s+/).filter(w => w.length > 0);
+            const userWordsClean = userWordsRaw.map(w => clean(w));
+            
+            // Stats
+            let correctCount = 0;
+            let totalCount = 0;
+            let wordsHTML = "";
+            let userIndex = 0;
+            
+            displayTokens.forEach((displayWord, index) => {
+                const targetWord = originalWordsRaw[index];
+                
+                // If it's pure punctuation (cleaned to empty), show it neutrally
+                if (!targetWord) {
+                    wordsHTML += `<span class="text-slate-400 font-bold mx-0.5">${displayWord}</span>`;
+                    return;
+                }
+
+                totalCount++;
+
+                let found = false;
+                let searchLimit = 6; 
+                let matchOffset = -1;
+                
+                for(let i = 0; i < searchLimit; i++) {
+                    if (userIndex + i < userWordsClean.length && userWordsClean[userIndex + i] === targetWord) {
+                        found = true;
+                        matchOffset = i;
+                        break;
+                    }
+                }
+
+                if (found) {
+                    // Check for skipped words (words spoken incorrectly before this match)
+                    if (matchOffset > 0) {
+                        const skippedWords = userWordsRaw.slice(userIndex, userIndex + matchOffset).join(" ");
+                        wordsHTML += `<span class="diff-heard" title="Heard instead">${skippedWords}</span>`;
+                        userIndex += matchOffset;
+                    }
+                    
+                    correctCount++;
+                    wordsHTML += `<span class="diff-green mx-0.5">${displayWord}</span>`;
+                    userIndex++; 
+                } else {
+                    wordsHTML += `<span class="diff-red mx-0.5">${displayWord}</span>`;
+                }
+            });
+
+            // If there are leftover words in the user transcript at the end
+            if (userIndex < userWordsRaw.length) {
+                const leftover = userWordsRaw.slice(userIndex).join(" ");
+                wordsHTML += `<span class="diff-heard" title="Extra words at end">${leftover}</span>`;
+            }
+
+            // Calc Score
+            const percent = totalCount === 0 ? 0 : Math.round((correctCount / totalCount) * 100);
+            let colorClass = "text-red-700 bg-red-50";
+            if (percent >= 50) colorClass = "text-yellow-700 bg-yellow-50";
+            if (percent >= 80) colorClass = "text-green-700 bg-green-50";
+
+            let diffHTML = `
+                <div class="sticky top-0 bg-white pb-3 border-b mb-3 flex flex-wrap justify-between items-center z-10 gap-2">
+                    <h4 class="font-bold text-slate-700">Accuracy Check</h4>
+                    <div class="text-sm font-bold px-3 py-1 rounded border border-slate-200 shadow-sm ${colorClass}">
+                        Score: ${correctCount}/${totalCount} Words (${percent}%)
+                    </div>
+                </div>
+                <div class="text-lg leading-relaxed flex flex-wrap gap-y-2 items-center">
+                    ${wordsHTML}
+                </div>
+                
+                <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-400 flex flex-wrap gap-4">
+                    <span class="flex items-center"><span class="w-3 h-3 bg-red-100 rounded mr-1 border border-red-200 border-b-2 border-b-red-500"></span> Missed/Wrong</span>
+                    <span class="flex items-center"><span class="w-3 h-3 bg-green-100 rounded mr-1 border border-green-200"></span> Correct</span>
+                    <span class="flex items-center"><span class="w-3 h-3 bg-slate-100 text-slate-400 text-[8px] flex items-center justify-center mr-1 border border-slate-200 line-through">abc</span> What was heard instead</span>
+                </div>
+
+                <button onclick="editAgain()" class="mt-6 text-blue-600 hover:underline text-sm font-bold bg-blue-50 px-4 py-2 rounded inline-block">Close / Edit Again</button>
+            `;
+
+            ui.input.classList.add('hidden');
+            ui.diff.classList.remove('hidden');
+            ui.diff.innerHTML = diffHTML;
+        }
+
+        function editAgain() {
+            ui.diff.classList.add('hidden');
+            ui.input.classList.remove('hidden');
+            ui.input.focus();
+        }
+
+        // Init
+        loadQuestion(0);
+
+        // Keyboard Nav
+        document.addEventListener('keydown', (e) => {
+            if(currentMode === 'sample') {
+                if (e.ctrlKey && e.key === 'ArrowRight') nextQuestion();
+                if (e.ctrlKey && e.key === 'ArrowLeft') prevQuestion();
+            }
+        });
+
+    </script>
+</body>
+</html>

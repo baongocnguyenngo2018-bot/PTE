@@ -62,6 +62,7 @@
                 </div>
             </div>
             <div class="text-right">
+                <!-- Global Timer (Total Session Time) -->
                 <div class="text-2xl font-mono font-bold" id="header-timer">00:00</div>
                 <div class="text-xs text-slate-400 uppercase tracking-wider" id="header-status">Ready</div>
             </div>
@@ -86,7 +87,7 @@
                 <strong>Requirements:</strong>
                 <ul class="list-disc ml-4 mt-1">
                     <li>Use Chrome or Edge for Speech-to-Text.</li>
-                    <li>Allow microphone access.</li>
+                    <li>Allow microphone access (once at start).</li>
                     <li>Find a quiet room.</li>
                 </ul>
             </div>
@@ -135,9 +136,13 @@
             <!-- Footer Controls -->
             <div class="bg-slate-100 p-4 border-t border-slate-200">
                 
-                <!-- Progress Bar for Timer -->
-                <div class="w-full bg-slate-300 h-2 rounded-full mb-4 overflow-hidden relative">
-                    <div id="timer-bar" class="bg-blue-600 h-full w-0 progress-bar absolute top-0 left-0"></div>
+                <!-- Progress Bar Area -->
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="flex-1 bg-slate-300 h-2 rounded-full overflow-hidden relative">
+                        <div id="timer-bar" class="bg-blue-600 h-full w-0 progress-bar absolute top-0 left-0"></div>
+                    </div>
+                    <!-- Countdown Timer Text -->
+                    <div id="bar-timer-text" class="font-mono font-bold text-slate-700 w-12 text-right">00:00</div>
                 </div>
 
                 <div class="flex justify-between items-center gap-4">
@@ -160,7 +165,6 @@
                 <h2 class="text-2xl font-bold text-slate-800">Session Complete!</h2>
                 <div class="flex gap-2">
                     <button onclick="window.location.reload()" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">Start New Session</button>
-                    <button onclick="downloadReport()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-bold shadow"><i class="fas fa-download mr-2"></i>Save Report</button>
                 </div>
             </div>
             
@@ -174,11 +178,70 @@
     <!-- JS Logic -->
     <script>
         // --- DATA CONFIGURATION ---
-        const raQuestions = Array.from({length: 20}, (_, i) => ({
+        
+        // 1. READ ALOUD DATA (20 Questions)
+        const raTexts = [
+            "The well-being, prosperity, and sustainability of human enterprise rely on the functioning of the Earth's natural systems and their complex physical, chemical, and biological processes. Water is a central theme in all terrestrial, oceanic, atmospheric, agricultural, and industrial systems.",
+            "Teaching is indeed a challenging profession, yet it continues to attract and retain individuals year after year, many of whom remain in the field for five, ten, or even more years. This enduring commitment can be attributed to a combination of intrinsic motivations and the rewarding aspects of the profession.",
+            "Schools host parent teacher conferences four times a year and it is important for families to attend. This is your chance to meet with teachers and ask questions about your child's progress. It can be helpful to write down questions ahead of time.",
+            "The exponential growth of the internet was heralded, in the 1990s, as revolutionizing the production and dissemination of information. Some people saw the internet as a means of democratizing access to knowledge. For people concerned with African development, it seemed to offer the possibility of leap frogging over the technology gap that separates Africa from advanced industrialized countries.",
+            "The word radical from the Latin word for roots means anyone who advocates fundamental change in the political system. Literally, a radical is one who proposes to attack some political or social problem by going deep into the social or economic fabric to get at the root cause and alter this basic weakness.",
+            "Today, telecommunication is widespread and devices that assist the progress are common in many parts of the world. There is also a vast array of networks that connect these devices, including a computer, telephone, and cable networks. Computer communication across the Internet, such as email and instant messaging, is just one of many examples of telecommunication.",
+            "The starting point of Bergson's theory is the experience of time and motion. Time is the reality we experience most directly, but this doesn't mean that we can capture this experience mentally. The past is gone and the future is yet to come. The only reality is the present, which is real through our experience.",
+            "To some extent, attendance at cultural venues and events is influenced by a person's age and the composition of the household in which they live. For example, those people in households with dependent children were more likely to visit zoological parks and aquariums than people living in single person households.",
+            "At a time when stress levels are soaring, rates of depression are increasing and the gap between rich and poor is ever widening. We believe that giving can play a positive role in helping people to feel connected to those around them and generate a sense of purpose and hope. When we give, we feel valued, useful and happy.",
+            "380 years after his death, William Shakespeare remains the central author of the English speaking world; he is the most quoted poet and the most regularly produced playwright and now among the most popular screenwriters as well. Why is that, and who \"is\" he? Why do so many people think his writing is so great? What meanings did his plays have in his own time, and how do we read, speak, or listen to his words now?",
+            "There were various explanations for volcano behaviour before the structure of the earth's mantle as a semisolid material was developed. For decades, awareness that compression and radioactive materials may be heat sources was discounted and volcanic action was often attributed to chemical reactions and a thin layer of molten rock near the surface.",
+            "The whole purpose of making notes is to aid your learning. It is important to go back over them within a day of making them to make sure they make sense and make them legible for future revisions. Also, going back over them should highlight the key questions of areas in which you want to do further reading.",
+            "Most babies start developing their hearing while still in the womb, prompting some hopeful parents to play classical music to their pregnant bellies. Some research even suggests that infants are listening to adult speech as early as 10 weeks before birth, gathering the basic building blocks of their family's native tongue.",
+            "We have spent a lot of money over the last 70 years on flood control, and it's protected millions of people and has saved us billions of dollars. We've built dams to hold back the waters. We've built levees to keep the water off the people, and we've raised the ones that were originally started in 1718.",
+            "The noise restrictions are based on measurements on animals in captivity exposed to noise levels that induce a temporary threshold shift (TTS) in hearing. The TTS onset threshold is the lowest noise exposure capable of inducing a small temporary reduction of hearing sensitivity, also known as auditory fatigue, with full recovery shortly after exposure.",
+            "Tissues are grouped together in the body to form organs. These include the brain, heart, lungs, kidneys, and liver. Each body organ has a specific shape and is made up of different types of tissue that work together. For example, the heart consists mainly of a specialized type of muscle tissue, which contracts rhythmically to provide the heart's pumping action.",
+            "The audio, which includes more than 1,000 separate data files, was captured in the early 1970s by the late Hetty van de Rijt. She recorded the various screams, barks, and how calls made by a group of chimps, including 17 youngsters, living in the Gombe National Park in Tanzania.",
+            "The Royal Institution is an organisation that has been around for 209 years. Many of the people that have worked here have been scientists themselves, including Michael Faraday. He made the discoveries that may be generating a using electricity much easier, making it possible for us all to switch on lights, cook for dinner, play games consoles much more.",
+            "Australia has one of the world's most important mining industries. It is a major exporter of coal, iron ore, gold, and copper and is self sufficient in all minerals and bar petroleum. Since the first discoveries, the coal in 1798, mineral production has risen every year in the decade, and in 1992 it doubled.",
+            "In spite of the spectacularly high quality of life for the vast majority of the people who live in the European Union, its inhabitant seems obsessed by the region's relative decline in the world. Slow economic growth rates and high unemployment have reinforced the impression that Europe is unhappy with today and unsure of tomorrow."
+        ];
+
+        const raQuestions = raTexts.map((text, i) => ({
             id: `RA-${i+1}`,
             type: 'RA',
-            text: `[Q${i+1}] Market research is a vital part of the planning of any business. However experienced you or your staff may be in a particular field, if you are thinking of introducing a service to a new area, it is important to find out what the local population thinks about it first.`
+            text: `[Q${i+1}] ${text}`
         }));
+
+        // 2. REPEAT SENTENCE DATA (30 Questions, 011-040)
+        const rsTranscripts = {
+            "011": "Psychology relies on scientific methods to investigate questions and arrive at conclusions",
+            "012": "The professor predicts that biotechnology is the future of traditional biology.",
+            "013": "There has been a delay in processing the enrollment due to computer problems",
+            "014": "Globalization has been an overwhelming urbanization phenomenon",
+            "015": "No crop responds more readily than careful husbandry and skillful cultivation",
+            "016": "There are various approaches to plagiarism across different university departments",
+            "017": "There are several reasons for this lack of interest in corporate crime, compared with other type of crime",
+            "018": "Every car maker in Europe has sort of been on the blocks because of their dependence on diesel",
+            "019": "Mitosis is the division of cells for growth and repair",
+            "020": "You can register your card at the university student center or the library",
+            "021": "The art museum is located across the street and near the theater.",
+            "022": "A public telephone is available in the shop.",
+            "023": "Your wages will be put into your bank account on Thursday.",
+            "024": "The library will be closed during summer vacation.",
+            "025": "I need somebody to fix the problem with the computer screen.",
+            "026": "Your son has a bad cold and is in the nurse's room.",
+            "027": "You can speak to the current students at the information sessions.",
+            "028": "Several people have applied for this position.",
+            "029": "Passengers on the train should not put their feet on the seat.",
+            "030": "If you take a part-time job, ensure it doesn’t interfere with your studies.",
+            "031": "The building will be closed and reopened next week.",
+            "032": "The library is downstairs on the east side of the building.",
+            "033": "You must wear a hard hat on the construction site.",
+            "034": "Your car can park in the building behind the medical center.",
+            "035": "If finance is a cause for concern, scholarships may be available.",
+            "036": "One theory says that dreams help the long term memory.",
+            "037": "Not everyone wants to keep in touch with their old school friends when they leave school.",
+            "038": "Before electric lighting, adults generally slept about 9 or 10 hours per night.",
+            "039": "Even now, scientists still don't know whether animals dream while they sleep",
+            "040": "Find a bookstore situated on the main campus northern side."
+        };
 
         const rsQuestions = Array.from({length: 30}, (_, i) => {
             const num = (i + 11).toString().padStart(3, '0');
@@ -186,7 +249,7 @@
                 id: `RS-${num}`,
                 type: 'RS',
                 audioSrc: `https://baongocnguyenngo2018-bot.github.io/PTE/03.repeat-sentence/${num}.mp3`,
-                text: "Transcript not available for external audio."
+                text: rsTranscripts[num] || "Transcript not available."
             };
         });
 
@@ -194,14 +257,17 @@
         
         // --- STATE MANAGEMENT ---
         let currentIndex = 0;
-        let userResponses = []; // Store blobs and transcripts
+        let userResponses = []; 
         let mediaRecorder;
         let audioChunks = [];
         let wavesurferLive;
         let recognition;
+        let globalStream = null; 
         let finalTranscript = '';
         let timerInterval;
-        let appState = 'IDLE'; // PREP, PLAYING_AUDIO, RECORDING, WAITING_FOR_RECORD
+        let appState = 'IDLE'; 
+        let isRecognizing = false;
+        let ignoreStop = false;
         
         // DOM Elements
         const screens = {
@@ -221,6 +287,7 @@
             rsStatusText: document.getElementById('rs-status-text'),
             statusOverlay: document.getElementById('status-overlay'),
             timerBar: document.getElementById('timer-bar'),
+            barTimerText: document.getElementById('bar-timer-text'),
             btnAction: document.getElementById('btn-action'),
             btnNext: document.getElementById('btn-next'),
             liveWave: document.getElementById('live-waveform')
@@ -230,7 +297,8 @@
 
         async function startPractice() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                // Initialize Stream ONCE
+                globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 
                 wavesurferLive = WaveSurfer.create({
                     container: '#live-waveform',
@@ -242,28 +310,87 @@
                     normalize: true
                 });
 
-                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                    recognition = new SpeechRecognition();
-                    recognition.continuous = true;
-                    recognition.interimResults = false;
-                    recognition.lang = 'en-US';
-                    recognition.onresult = (event) => {
-                        for (let i = event.resultIndex; i < event.results.length; ++i) {
-                            if (event.results[i].isFinal) {
-                                finalTranscript += event.results[i][0].transcript + '. ';
-                            }
-                        }
-                    };
-                }
+                // Initialize STT engine once
+                initSpeechRecognition();
 
                 showScreen('active');
                 renderNavBar();
                 loadQuestion(0);
 
             } catch (err) {
-                alert("Microphone access is required.");
+                alert("Microphone access is required to proceed.");
                 console.error(err);
+            }
+        }
+
+        // --- SPEECH RECOGNITION HELPERS ---
+        function initSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                console.warn("Speech Recognition API not supported in this browser.");
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            
+            recognition.onstart = () => {
+                isRecognizing = true;
+                console.log("STT Engine Started");
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Speech Recognition Error", event.error);
+                if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                    ignoreStop = true;
+                }
+            };
+
+            recognition.onend = () => {
+                isRecognizing = false;
+                console.log("STT Engine Ended");
+                // Auto-restart if we are recording and it wasn't a manual stop
+                if (appState === 'RECORDING' && !ignoreStop && allQuestions[currentIndex].type === 'RA') {
+                    console.log("Auto-restarting STT...");
+                    try { recognition.start(); } catch(e) { console.error(e); }
+                }
+            };
+            
+            recognition.onresult = (event) => {
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript + '. ';
+                        // Optional: update UI live if needed, but for now we save it at end
+                    }
+                }
+            };
+        }
+
+        function startSpeechToText() {
+            if (!recognition) return;
+            
+            finalTranscript = ''; 
+            ignoreStop = false;
+
+            if (!isRecognizing) {
+                try {
+                    recognition.start();
+                } catch (e) {
+                    console.warn("Recognition start warning:", e);
+                }
+            }
+        }
+
+        function stopSpeechToText() {
+            if (!recognition) return;
+            
+            ignoreStop = true; // Signal that this is a manual stop
+            if (isRecognizing) {
+                try {
+                    recognition.stop();
+                } catch (e) {}
             }
         }
 
@@ -291,7 +418,8 @@
                 btn.onclick = () => {
                     // Force stop current question if user jumps
                     clearInterval(timerInterval);
-                    stopMediaRecorder();
+                    stopMediaRecorder(); // Will fail to save if recording, but prevents crash
+                    stopSpeechToText();
                     loadQuestion(i);
                 };
                 els.navContainer.appendChild(btn);
@@ -312,7 +440,7 @@
 
             // Cleanup previous state
             clearInterval(timerInterval);
-            if(mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+            stopSpeechToText();
             
             // Safe pause for audio
             try {
@@ -321,7 +449,7 @@
             } catch(e) { console.log("Audio reset warning", e); }
             
             currentIndex = index;
-            renderNavBar(); // Update highlights
+            renderNavBar(); 
             
             const q = allQuestions[index];
             els.qIndex.innerText = index + 1;
@@ -342,22 +470,17 @@
         // --- ACTION BUTTON HANDLER ---
         function handleAction() {
             if (appState === 'PREP') {
-                // User wants to skip prep
                 clearInterval(timerInterval);
                 if (allQuestions[currentIndex].type === 'RA') {
                     playSound('beep');
                     startRecordingRA(40);
                 } else {
-                    // For RS, skipping prep usually means skipping the "Get Ready" phase
                     startRecordingRS(15);
                 }
             } else if (appState === 'RECORDING') {
-                // User wants to stop recording and go next
                 clearInterval(timerInterval);
                 if (allQuestions[currentIndex].type === 'RA') stopRecordingRA();
                 else stopRecordingRS();
-            } else if (appState === 'PLAYING_AUDIO') {
-                // Maybe allow skipping audio? For now, do nothing or stop audio
             }
         }
 
@@ -366,7 +489,6 @@
             els.btnAction.disabled = !enabled;
             appState = state;
             
-            // Visual cues
             if (state === 'RECORDING') {
                 els.btnAction.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                 els.btnAction.classList.add('bg-red-600', 'hover:bg-red-700');
@@ -384,7 +506,6 @@
             els.raText.classList.remove('hidden');
             els.rsInterface.classList.add('hidden');
 
-            // Start Prep
             updateActionButton("Skip Prep", 'PREP');
             runTimer(35, "Preparation", () => {
                 playSound('beep');
@@ -398,24 +519,24 @@
             els.statusOverlay.className = "mt-8 text-2xl font-bold text-red-600 mic-pulse";
             els.liveWave.style.opacity = '1';
 
-            startMediaRecorder(() => {
-                if (recognition) {
-                    try { recognition.start(); } catch(e){}
-                }
-            });
+            // Start STT explicitly for RA
+            startSpeechToText(); 
 
+            // Pass callback to execute AFTER stop completes
+            startMediaRecorder(() => {
+                stopSpeechToText();
+                saveResponse();
+                loadQuestion(currentIndex + 1);
+            });
+            
             runTimer(duration, "Recording", () => {
                 stopRecordingRA();
             });
         }
 
         function stopRecordingRA() {
+            // Just signal stop. The onstop callback setup in startMediaRecorder will handle saving.
             stopMediaRecorder();
-            if (recognition) {
-                try { recognition.stop(); } catch(e){}
-            }
-            saveResponse();
-            loadQuestion(currentIndex + 1);
         }
 
         // --- REPEAT SENTENCE FLOW ---
@@ -435,54 +556,47 @@
             
             updateActionButton("Playing...", 'PLAYING_AUDIO', false);
 
-            // Cleanup listeners
             els.audioPlayer.oncanplaythrough = null;
             els.audioPlayer.onended = null;
             els.audioPlayer.onerror = null;
 
             els.audioPlayer.src = q.audioSrc;
             
-            // Robust Play Function
             const playAudioSafe = () => {
                 els.audioPlayer.play()
                     .catch(err => {
                         console.error("Audio playback error:", err);
-                        els.statusOverlay.innerText = "Audio Error. Check Console.";
+                        els.statusOverlay.innerText = "Audio Error";
                         els.rsStatusText.innerText = "Could not play audio source.";
                     });
             };
 
             els.audioPlayer.oncanplaythrough = () => {
-                els.audioPlayer.oncanplaythrough = null; // One time trigger
+                els.audioPlayer.oncanplaythrough = null;
                 playAudioSafe();
             };
             
-            // Error Handler for Source Loading
             els.audioPlayer.onerror = (e) => {
                 console.error("Audio Load Error:", e);
                 els.statusOverlay.innerText = "Audio Not Found";
-                els.rsStatusText.innerText = "Please check URL or internet connection.";
+                els.rsStatusText.innerText = "Please check URL.";
             };
 
-            // Attempt play if ready
             if(els.audioPlayer.readyState >= 3) {
                  playAudioSafe();
             }
 
             els.audioPlayer.onended = () => {
-                // Short "Get Ready" phase (1-2s)
                 els.statusOverlay.innerText = "Get Ready...";
-                updateActionButton("Start Speaking", 'PREP'); // Treat as Prep so we can skip
+                updateActionButton("Start Speaking", 'PREP');
                 
-                // Small delay before auto-record, mimicking PTE
                 timerInterval = setTimeout(() => {
                     startRecordingRS(15);
-                }, 1000); // 1 second gap
+                }, 1000);
             };
         }
 
         function startRecordingRS(duration) {
-            // Cancel the timeout if we skipped manually
             clearTimeout(timerInterval);
 
             const audioIcon = document.getElementById('audio-icon-container');
@@ -495,7 +609,11 @@
             els.statusOverlay.innerText = "Recording...";
             els.liveWave.style.opacity = '1';
 
-            startMediaRecorder();
+            // Pass callback to execute AFTER stop completes
+            startMediaRecorder(() => {
+                saveResponse();
+                loadQuestion(currentIndex + 1);
+            });
 
             runTimer(duration, "Recording", () => {
                 stopRecordingRS();
@@ -504,61 +622,78 @@
 
         function stopRecordingRS() {
             stopMediaRecorder();
-            saveResponse();
-            loadQuestion(currentIndex + 1);
         }
-
 
         // --- CORE UTILS ---
 
-        function startMediaRecorder(onStartCallback) {
-            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
-                mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
-                mediaRecorder.start();
-                if(onStartCallback) onStartCallback();
-            });
+        // Revised to handle ASYNC stop event for proper blob creation
+        function startMediaRecorder(onStopCallback) {
+            if (!globalStream) {
+                 console.error("No global stream available");
+                 return;
+            }
+            
+            mediaRecorder = new MediaRecorder(globalStream);
+            audioChunks = [];
+            
+            mediaRecorder.ondataavailable = event => {
+                if(event.data.size > 0) audioChunks.push(event.data);
+            };
+            
+            // CRITICAL FIX: Save data only when stop event fires
+            mediaRecorder.onstop = () => {
+                if (onStopCallback) onStopCallback();
+            };
+
+            mediaRecorder.start();
         }
 
         function stopMediaRecorder() {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
-                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                // We rely on the 'onstop' event defined in startMediaRecorder to trigger the next step
             }
         }
 
         function saveResponse() {
-            const blob = new Blob(audioChunks, { type: 'audio/webm' });
-            userResponses[currentIndex].blob = blob;
+            if(audioChunks.length > 0) {
+                const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                userResponses[currentIndex].blob = blob;
+            }
             userResponses[currentIndex].transcript = finalTranscript.trim();
-            // Force redraw nav to show green
             renderNavBar(); 
         }
 
         function forceNext() {
-            // Manually skip entire question
             clearInterval(timerInterval);
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-            }
-            if(appState === 'PLAYING_AUDIO') {
-                // Try catch to prevent crash on pause if not playing
-                try { els.audioPlayer.pause(); } catch(e) {}
-            }
             
-            loadQuestion(currentIndex + 1);
+            // If we skip during recording, we stop. 
+            // NOTE: If we are recording, mediaRecorder.stop() triggers the callback which calls saveResponse and loadQuestion.
+            // We need to avoid double calling loadQuestion.
+            
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                // If recording, stopping it will trigger the callback that saves and loads next.
+                // We just stop it.
+                mediaRecorder.stop();
+            } else {
+                // If not recording (e.g. prep time), we manually load next.
+                stopSpeechToText();
+                try { els.audioPlayer.pause(); } catch(e) {}
+                loadQuestion(currentIndex + 1);
+            }
         }
 
         function runTimer(seconds, label, onComplete) {
             let remaining = seconds;
-            els.headerTimer.innerText = formatTime(remaining);
+            els.headerTimer.innerText = "Session"; // Placeholder or total time if needed
             els.headerStatus.innerText = label;
             
+            // Update the text next to the bar
+            els.barTimerText.innerText = formatTime(remaining);
+
             els.timerBar.style.transition = 'none';
             els.timerBar.style.width = '100%';
             
-            // Force reflow
             void els.timerBar.offsetWidth;
             
             els.timerBar.style.transition = `width ${seconds}s linear`;
@@ -566,7 +701,7 @@
 
             timerInterval = setInterval(() => {
                 remaining--;
-                els.headerTimer.innerText = formatTime(remaining);
+                els.barTimerText.innerText = formatTime(remaining);
                 if (remaining <= 0) {
                     clearInterval(timerInterval);
                     onComplete();
@@ -621,7 +756,7 @@
                         </div>
                         <div class="mb-4">
                             <h4 class="font-bold text-blue-700 mb-2">Your Speech-to-Text:</h4>
-                            <p class="text-blue-800 bg-blue-50 p-3 rounded border border-blue-100 italic">${resp.transcript || "No speech detected"}</p>
+                            <p class="text-blue-800 bg-blue-50 p-3 rounded border border-blue-100 italic">${resp.transcript || "No speech detected (or browser not supported)"}</p>
                         </div>
                     `;
                 } else {
@@ -630,6 +765,10 @@
                             <div class="flex items-center gap-4">
                                 <h4 class="font-bold text-slate-700">Original Audio:</h4>
                                 <audio controls src="${q.audioSrc}" class="h-8"></audio>
+                            </div>
+                            <div class="mt-2">
+                                <h4 class="font-bold text-slate-700 mb-1 text-sm">Transcript:</h4>
+                                <p class="text-slate-600 bg-purple-50 p-2 rounded border border-purple-100 text-sm italic">${q.text}</p>
                             </div>
                         </div>
                     `;
@@ -659,50 +798,33 @@
                 list.appendChild(card);
 
                 if (resp.blob) {
+                    // Slight delay to ensure DOM is ready for WaveSurfer
                     setTimeout(() => {
-                        const ws = WaveSurfer.create({
-                            container: `#wave-${i}`,
-                            waveColor: '#94a3b8',
-                            progressColor: '#2563eb',
-                            height: 80,
-                            barWidth: 2,
-                            cursorWidth: 0,
-                            url: URL.createObjectURL(resp.blob)
-                        });
-                        
-                        document.getElementById(`play-btn-${i}`).onclick = () => {
-                            ws.playPause();
+                        try {
+                            const ws = WaveSurfer.create({
+                                container: `#wave-${i}`,
+                                waveColor: '#94a3b8',
+                                progressColor: '#2563eb',
+                                height: 80,
+                                barWidth: 2,
+                                cursorWidth: 0,
+                                url: URL.createObjectURL(resp.blob)
+                            });
+                            
                             const btn = document.getElementById(`play-btn-${i}`);
-                            btn.innerHTML = ws.isPlaying() ? '<i class="fas fa-pause"></i> Pause' : '<i class="fas fa-play"></i> Play Recording';
+                            btn.onclick = () => {
+                                ws.playPause();
+                            };
+                            
+                            ws.on('play', () => btn.innerHTML = '<i class="fas fa-pause"></i> Pause');
+                            ws.on('pause', () => btn.innerHTML = '<i class="fas fa-play"></i> Play Recording');
                             ws.on('finish', () => btn.innerHTML = '<i class="fas fa-play"></i> Play Recording');
-                        };
+                        } catch (e) {
+                            console.error("WaveSurfer init error", e);
+                        }
                     }, 100);
                 }
             });
-        }
-
-        function downloadReport() {
-            let text = "PTE Day 1 Report\n\n";
-            userResponses.forEach((r, i) => {
-                const q = allQuestions[i];
-                if(!q) return;
-                text += `Q${i+1} [${q.type}]\n`;
-                if(q.type === 'RA') {
-                    text += `Original: ${q.text}\n`;
-                    text += `Transcribed: ${r.transcript}\n`;
-                } else {
-                    text += `Audio: ${q.audioSrc}\n`;
-                }
-                text += `----------------\n`;
-            });
-            
-            const element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-            element.setAttribute('download', 'PTE_Day1_Report.txt');
-            element.style.display = 'none';
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
         }
     </script>
 </body>

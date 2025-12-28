@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTE Day 1: RA & RS Intensive Practice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        
+        .mic-pulse {
+            animation: pulse-red 1.5s infinite;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        
+        .progress-bar {
+            transition: width 1s linear;
+        }
+
+        /* Scrollbar for the results section */
+        .results-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .results-container::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .results-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        .results-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Nav Grid Scrollbar */
+        .nav-grid::-webkit-scrollbar {
+            height: 4px;
+        }
+        .nav-grid::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white shadow-lg z-10 flex flex-col">
+        <div class="p-4 flex justify-between items-center border-b border-slate-700">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-xl">1</div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Day 1 Intensive</h1>
+                    <p class="text-xs text-slate-400">Read Aloud (20) & Repeat Sentence (30)</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-2xl font-mono font-bold" id="header-timer">00:00</div>
+                <div class="text-xs text-slate-400 uppercase tracking-wider" id="header-status">Ready</div>
+            </div>
+        </div>
+        
+        <!-- Navigation Grid -->
+        <div class="bg-slate-800 p-2 overflow-x-auto whitespace-nowrap nav-grid flex gap-2 items-center" id="nav-container">
+            <!-- Injected via JS -->
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 relative flex flex-col items-center justify-center p-4 overflow-y-auto bg-slate-100">
+        
+        <!-- WELCOME SCREEN -->
+        <div id="screen-welcome" class="max-w-md w-full bg-white rounded-xl shadow-xl p-8 text-center">
+            <i class="fas fa-headset text-6xl text-blue-500 mb-6"></i>
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Ready to Practice?</h2>
+            <p class="text-slate-600 mb-6">This session includes 20 Read Alouds followed by 30 Repeat Sentences.</p>
+            
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 text-left text-sm text-yellow-800 mb-6">
+                <strong>Requirements:</strong>
+                <ul class="list-disc ml-4 mt-1">
+                    <li>Use Chrome or Edge for Speech-to-Text.</li>
+                    <li>Allow microphone access.</li>
+                    <li>Find a quiet room.</li>
+                </ul>
+            </div>
+
+            <button onclick="startPractice()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition transform hover:scale-105 shadow-lg">
+                Start Session
+            </button>
+        </div>
+
+        <!-- ACTIVE QUESTION INTERFACE -->
+        <div id="screen-active" class="hidden w-full max-w-4xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col" style="min-height: 500px;">
+            
+            <!-- Question Header / Status -->
+            <div class="bg-slate-50 border-b border-slate-200 p-4 flex justify-between items-center">
+                <span id="task-type-badge" class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Read Aloud</span>
+                <div class="text-sm text-slate-500">Question <span id="q-index-display">1</span> of 50</div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex-1 p-8 flex flex-col justify-center items-center text-center relative">
+                
+                <!-- Read Aloud Text -->
+                <p id="ra-text-display" class="text-xl md:text-2xl leading-relaxed font-medium text-slate-800 hidden">
+                    <!-- Text injected via JS -->
+                </p>
+
+                <!-- Repeat Sentence Audio Placeholder -->
+                <div id="rs-interface" class="hidden flex-col items-center justify-center w-full">
+                    <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6 animate-pulse" id="audio-icon-container">
+                        <i class="fas fa-volume-up text-4xl text-blue-500"></i>
+                    </div>
+                    <p class="text-slate-500 text-lg" id="rs-status-text">Listen carefully...</p>
+                    <audio id="rs-audio-player" class="hidden"></audio>
+                </div>
+
+                <!-- Status Message overlay -->
+                <div id="status-overlay" class="mt-8 text-lg font-semibold text-blue-600 transition-opacity duration-300">
+                    Preparing...
+                </div>
+
+                <!-- Live Waveform -->
+                <div id="live-waveform" class="w-full h-32 mt-8 opacity-0 transition-opacity duration-500"></div>
+
+            </div>
+
+            <!-- Footer Controls -->
+            <div class="bg-slate-100 p-4 border-t border-slate-200">
+                
+                <!-- Progress Bar for Timer -->
+                <div class="w-full bg-slate-300 h-2 rounded-full mb-4 overflow-hidden relative">
+                    <div id="timer-bar" class="bg-blue-600 h-full w-0 progress-bar absolute top-0 left-0"></div>
+                </div>
+
+                <div class="flex justify-between items-center gap-4">
+                    <!-- Dynamic Action Button (Skip Prep / Stop Recording) -->
+                    <button id="btn-action" onclick="handleAction()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded shadow font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        Skip Prep
+                    </button>
+
+                    <!-- Next Button -->
+                    <button id="btn-next" onclick="forceNext()" class="bg-slate-800 hover:bg-slate-900 text-white px-6 py-3 rounded shadow font-semibold transition-all">
+                        Next <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="screen-results" class="hidden w-full max-w-5xl bg-white rounded-xl shadow-2xl flex flex-col h-[90vh]">
+            <div class="p-6 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-slate-800">Session Complete!</h2>
+                <div class="flex gap-2">
+                    <button onclick="window.location.reload()" class="text-blue-600 hover:text-blue-800 font-semibold text-sm">Start New Session</button>
+                    <button onclick="downloadReport()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-bold shadow"><i class="fas fa-download mr-2"></i>Save Report</button>
+                </div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6 results-container space-y-6" id="results-list">
+                <!-- Results items injected here -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JS Logic -->
+    <script>
+        // --- DATA CONFIGURATION ---
+        const raQuestions = Array.from({length: 20}, (_, i) => ({
+            id: `RA-${i+1}`,
+            type: 'RA',
+            text: `[Q${i+1}] Market research is a vital part of the planning of any business. However experienced you or your staff may be in a particular field, if you are thinking of introducing a service to a new area, it is important to find out what the local population thinks about it first.`
+        }));
+
+        const rsQuestions = Array.from({length: 30}, (_, i) => {
+            const num = (i + 11).toString().padStart(3, '0');
+            return {
+                id: `RS-${num}`,
+                type: 'RS',
+                audioSrc: `https://baongocnguyenngo2018-bot.github.io/PTE/03.repeat-sentence/${num}.mp3`,
+                text: "Transcript not available for external audio."
+            };
+        });
+
+        const allQuestions = [...raQuestions, ...rsQuestions];
+        
+        // --- STATE MANAGEMENT ---
+        let currentIndex = 0;
+        let userResponses = []; // Store blobs and transcripts
+        let mediaRecorder;
+        let audioChunks = [];
+        let wavesurferLive;
+        let recognition;
+        let finalTranscript = '';
+        let timerInterval;
+        let appState = 'IDLE'; // PREP, PLAYING_AUDIO, RECORDING, WAITING_FOR_RECORD
+        
+        // DOM Elements
+        const screens = {
+            welcome: document.getElementById('screen-welcome'),
+            active: document.getElementById('screen-active'),
+            results: document.getElementById('screen-results')
+        };
+        const els = {
+            navContainer: document.getElementById('nav-container'),
+            headerTimer: document.getElementById('header-timer'),
+            headerStatus: document.getElementById('header-status'),
+            qIndex: document.getElementById('q-index-display'),
+            badge: document.getElementById('task-type-badge'),
+            raText: document.getElementById('ra-text-display'),
+            rsInterface: document.getElementById('rs-interface'),
+            audioPlayer: document.getElementById('rs-audio-player'),
+            rsStatusText: document.getElementById('rs-status-text'),
+            statusOverlay: document.getElementById('status-overlay'),
+            timerBar: document.getElementById('timer-bar'),
+            btnAction: document.getElementById('btn-action'),
+            btnNext: document.getElementById('btn-next'),
+            liveWave: document.getElementById('live-waveform')
+        };
+
+        // --- INITIALIZATION ---
+
+        async function startPractice() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                wavesurferLive = WaveSurfer.create({
+                    container: '#live-waveform',
+                    waveColor: '#ef4444',
+                    progressColor: '#b91c1c',
+                    barWidth: 3,
+                    cursorWidth: 0,
+                    height: 100,
+                    normalize: true
+                });
+
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    recognition = new SpeechRecognition();
+                    recognition.continuous = true;
+                    recognition.interimResults = false;
+                    recognition.lang = 'en-US';
+                    recognition.onresult = (event) => {
+                        for (let i = event.resultIndex; i < event.results.length; ++i) {
+                            if (event.results[i].isFinal) {
+                                finalTranscript += event.results[i][0].transcript + '. ';
+                            }
+                        }
+                    };
+                }
+
+                showScreen('active');
+                renderNavBar();
+                loadQuestion(0);
+
+            } catch (err) {
+                alert("Microphone access is required.");
+                console.error(err);
+            }
+        }
+
+        function showScreen(name) {
+            Object.values(screens).forEach(s => s.classList.add('hidden'));
+            screens[name].classList.remove('hidden');
+        }
+
+        function renderNavBar() {
+            els.navContainer.innerHTML = '';
+            allQuestions.forEach((q, i) => {
+                const btn = document.createElement('button');
+                // Styling: Current (Blue), Completed (Green), Future (Gray)
+                let baseClass = "w-8 h-8 rounded text-xs font-bold shrink-0 transition-colors border ";
+                if (i === currentIndex) {
+                    baseClass += "bg-blue-600 text-white border-blue-700 shadow-md transform scale-110";
+                } else if (userResponses[i] && userResponses[i].blob) {
+                    baseClass += "bg-green-100 text-green-700 border-green-200 hover:bg-green-200";
+                } else {
+                    baseClass += "bg-slate-700 text-slate-400 border-slate-600 hover:bg-slate-600";
+                }
+
+                btn.className = baseClass;
+                btn.innerText = i + 1;
+                btn.onclick = () => {
+                    // Force stop current question if user jumps
+                    clearInterval(timerInterval);
+                    stopMediaRecorder();
+                    loadQuestion(i);
+                };
+                els.navContainer.appendChild(btn);
+            });
+            
+            // Scroll to current
+            const activeBtn = els.navContainer.children[currentIndex];
+            if(activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        }
+
+        // --- QUESTION LOGIC ---
+
+        function loadQuestion(index) {
+            if (index >= allQuestions.length) {
+                finishSession();
+                return;
+            }
+
+            // Cleanup previous state
+            clearInterval(timerInterval);
+            if(mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+            
+            // Safe pause for audio
+            try {
+                els.audioPlayer.pause();
+                els.audioPlayer.currentTime = 0;
+            } catch(e) { console.log("Audio reset warning", e); }
+            
+            currentIndex = index;
+            renderNavBar(); // Update highlights
+            
+            const q = allQuestions[index];
+            els.qIndex.innerText = index + 1;
+            
+            // UI Reset
+            els.statusOverlay.style.opacity = '1';
+            els.statusOverlay.className = "mt-8 text-lg font-semibold text-slate-600";
+            els.liveWave.style.opacity = '0';
+            finalTranscript = '';
+            
+            // Data Reset
+            userResponses[index] = { id: q.id, type: q.type, blob: null, text: '' };
+
+            if (q.type === 'RA') setupRA(q);
+            else setupRS(q);
+        }
+
+        // --- ACTION BUTTON HANDLER ---
+        function handleAction() {
+            if (appState === 'PREP') {
+                // User wants to skip prep
+                clearInterval(timerInterval);
+                if (allQuestions[currentIndex].type === 'RA') {
+                    playSound('beep');
+                    startRecordingRA(40);
+                } else {
+                    // For RS, skipping prep usually means skipping the "Get Ready" phase
+                    startRecordingRS(15);
+                }
+            } else if (appState === 'RECORDING') {
+                // User wants to stop recording and go next
+                clearInterval(timerInterval);
+                if (allQuestions[currentIndex].type === 'RA') stopRecordingRA();
+                else stopRecordingRS();
+            } else if (appState === 'PLAYING_AUDIO') {
+                // Maybe allow skipping audio? For now, do nothing or stop audio
+            }
+        }
+
+        function updateActionButton(text, state, enabled = true) {
+            els.btnAction.innerText = text;
+            els.btnAction.disabled = !enabled;
+            appState = state;
+            
+            // Visual cues
+            if (state === 'RECORDING') {
+                els.btnAction.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                els.btnAction.classList.add('bg-red-600', 'hover:bg-red-700');
+            } else {
+                els.btnAction.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                els.btnAction.classList.remove('bg-red-600', 'hover:bg-red-700');
+            }
+        }
+
+        // --- READ ALOUD FLOW ---
+        function setupRA(q) {
+            els.badge.innerText = "Read Aloud";
+            els.badge.className = "bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider";
+            els.raText.innerText = q.text;
+            els.raText.classList.remove('hidden');
+            els.rsInterface.classList.add('hidden');
+
+            // Start Prep
+            updateActionButton("Skip Prep", 'PREP');
+            runTimer(35, "Preparation", () => {
+                playSound('beep');
+                startRecordingRA(40);
+            });
+        }
+
+        function startRecordingRA(duration) {
+            updateActionButton("Stop Recording", 'RECORDING');
+            els.statusOverlay.innerText = "Recording...";
+            els.statusOverlay.className = "mt-8 text-2xl font-bold text-red-600 mic-pulse";
+            els.liveWave.style.opacity = '1';
+
+            startMediaRecorder(() => {
+                if (recognition) {
+                    try { recognition.start(); } catch(e){}
+                }
+            });
+
+            runTimer(duration, "Recording", () => {
+                stopRecordingRA();
+            });
+        }
+
+        function stopRecordingRA() {
+            stopMediaRecorder();
+            if (recognition) {
+                try { recognition.stop(); } catch(e){}
+            }
+            saveResponse();
+            loadQuestion(currentIndex + 1);
+        }
+
+        // --- REPEAT SENTENCE FLOW ---
+        function setupRS(q) {
+            els.badge.innerText = "Repeat Sentence";
+            els.badge.className = "bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider";
+            els.raText.classList.add('hidden');
+            els.rsInterface.classList.remove('hidden');
+            
+            const audioIcon = document.getElementById('audio-icon-container');
+            audioIcon.classList.add('animate-pulse', 'bg-blue-50');
+            audioIcon.classList.remove('bg-red-50');
+            document.querySelector('#audio-icon-container i').className = "fas fa-volume-up text-4xl text-blue-500";
+            
+            els.statusOverlay.innerText = "Playing Audio...";
+            els.rsStatusText.innerText = "Listen carefully...";
+            
+            updateActionButton("Playing...", 'PLAYING_AUDIO', false);
+
+            // Cleanup listeners
+            els.audioPlayer.oncanplaythrough = null;
+            els.audioPlayer.onended = null;
+            els.audioPlayer.onerror = null;
+
+            els.audioPlayer.src = q.audioSrc;
+            
+            // Robust Play Function
+            const playAudioSafe = () => {
+                els.audioPlayer.play()
+                    .catch(err => {
+                        console.error("Audio playback error:", err);
+                        els.statusOverlay.innerText = "Audio Error. Check Console.";
+                        els.rsStatusText.innerText = "Could not play audio source.";
+                    });
+            };
+
+            els.audioPlayer.oncanplaythrough = () => {
+                els.audioPlayer.oncanplaythrough = null; // One time trigger
+                playAudioSafe();
+            };
+            
+            // Error Handler for Source Loading
+            els.audioPlayer.onerror = (e) => {
+                console.error("Audio Load Error:", e);
+                els.statusOverlay.innerText = "Audio Not Found";
+                els.rsStatusText.innerText = "Please check URL or internet connection.";
+            };
+
+            // Attempt play if ready
+            if(els.audioPlayer.readyState >= 3) {
+                 playAudioSafe();
+            }
+
+            els.audioPlayer.onended = () => {
+                // Short "Get Ready" phase (1-2s)
+                els.statusOverlay.innerText = "Get Ready...";
+                updateActionButton("Start Speaking", 'PREP'); // Treat as Prep so we can skip
+                
+                // Small delay before auto-record, mimicking PTE
+                timerInterval = setTimeout(() => {
+                    startRecordingRS(15);
+                }, 1000); // 1 second gap
+            };
+        }
+
+        function startRecordingRS(duration) {
+            // Cancel the timeout if we skipped manually
+            clearTimeout(timerInterval);
+
+            const audioIcon = document.getElementById('audio-icon-container');
+            audioIcon.classList.remove('animate-pulse', 'bg-blue-50');
+            audioIcon.classList.add('bg-red-50', 'mic-pulse');
+            document.querySelector('#audio-icon-container i').className = "fas fa-microphone text-4xl text-red-500";
+            els.rsStatusText.innerText = "Speak now!";
+
+            updateActionButton("Stop Recording", 'RECORDING');
+            els.statusOverlay.innerText = "Recording...";
+            els.liveWave.style.opacity = '1';
+
+            startMediaRecorder();
+
+            runTimer(duration, "Recording", () => {
+                stopRecordingRS();
+            });
+        }
+
+        function stopRecordingRS() {
+            stopMediaRecorder();
+            saveResponse();
+            loadQuestion(currentIndex + 1);
+        }
+
+
+        // --- CORE UTILS ---
+
+        function startMediaRecorder(onStartCallback) {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+                mediaRecorder.start();
+                if(onStartCallback) onStartCallback();
+            });
+        }
+
+        function stopMediaRecorder() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        function saveResponse() {
+            const blob = new Blob(audioChunks, { type: 'audio/webm' });
+            userResponses[currentIndex].blob = blob;
+            userResponses[currentIndex].transcript = finalTranscript.trim();
+            // Force redraw nav to show green
+            renderNavBar(); 
+        }
+
+        function forceNext() {
+            // Manually skip entire question
+            clearInterval(timerInterval);
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+            if(appState === 'PLAYING_AUDIO') {
+                // Try catch to prevent crash on pause if not playing
+                try { els.audioPlayer.pause(); } catch(e) {}
+            }
+            
+            loadQuestion(currentIndex + 1);
+        }
+
+        function runTimer(seconds, label, onComplete) {
+            let remaining = seconds;
+            els.headerTimer.innerText = formatTime(remaining);
+            els.headerStatus.innerText = label;
+            
+            els.timerBar.style.transition = 'none';
+            els.timerBar.style.width = '100%';
+            
+            // Force reflow
+            void els.timerBar.offsetWidth;
+            
+            els.timerBar.style.transition = `width ${seconds}s linear`;
+            els.timerBar.style.width = '0%';
+
+            timerInterval = setInterval(() => {
+                remaining--;
+                els.headerTimer.innerText = formatTime(remaining);
+                if (remaining <= 0) {
+                    clearInterval(timerInterval);
+                    onComplete();
+                }
+            }, 1000);
+        }
+
+        function formatTime(s) {
+            const min = Math.floor(s / 60);
+            const sec = s % 60;
+            return `${min < 10 ? '0'+min : min}:${sec < 10 ? '0'+sec : sec}`;
+        }
+
+        function playSound(type) {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value = 800;
+            gain.gain.value = 0.1;
+            osc.start();
+            setTimeout(() => osc.stop(), 200);
+        }
+
+        // --- RESULTS PAGE ---
+
+        function finishSession() {
+            showScreen('results');
+            renderResults();
+        }
+
+        function renderResults() {
+            const list = document.getElementById('results-list');
+            list.innerHTML = '';
+
+            userResponses.forEach((resp, i) => {
+                const q = allQuestions.find(q => q.id === resp.id);
+                if (!q) return;
+                const isRA = q.type === 'RA';
+                
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-lg p-6 shadow-sm";
+                
+                let contentHtml = '';
+                
+                if (isRA) {
+                    contentHtml = `
+                        <div class="mb-4">
+                            <h4 class="font-bold text-slate-700 mb-2">Original Text:</h4>
+                            <p class="text-slate-600 bg-slate-50 p-3 rounded border border-slate-100">${q.text}</p>
+                        </div>
+                        <div class="mb-4">
+                            <h4 class="font-bold text-blue-700 mb-2">Your Speech-to-Text:</h4>
+                            <p class="text-blue-800 bg-blue-50 p-3 rounded border border-blue-100 italic">${resp.transcript || "No speech detected"}</p>
+                        </div>
+                    `;
+                } else {
+                    contentHtml = `
+                        <div class="mb-4">
+                            <div class="flex items-center gap-4">
+                                <h4 class="font-bold text-slate-700">Original Audio:</h4>
+                                <audio controls src="${q.audioSrc}" class="h-8"></audio>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="font-mono font-bold text-slate-400">#${i+1}</span>
+                            <span class="${isRA ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'} text-xs font-bold px-2 py-1 rounded">${q.type}</span>
+                        </div>
+                    </div>
+                    ${contentHtml}
+                    <div class="mt-4 border-t border-slate-100 pt-4">
+                        <h4 class="font-bold text-slate-700 mb-2">Your Recording:</h4>
+                        ${resp.blob ? 
+                            `<div id="wave-${i}" class="w-full h-24 bg-slate-50 rounded mb-2"></div>
+                             <div class="flex justify-center">
+                                <button id="play-btn-${i}" class="text-blue-600 hover:text-blue-800 font-bold text-sm flex items-center gap-2">
+                                    <i class="fas fa-play"></i> Play Recording
+                                </button>
+                             </div>` 
+                            : '<p class="text-red-500 italic text-sm">No recording made.</p>'}
+                    </div>
+                `;
+                
+                list.appendChild(card);
+
+                if (resp.blob) {
+                    setTimeout(() => {
+                        const ws = WaveSurfer.create({
+                            container: `#wave-${i}`,
+                            waveColor: '#94a3b8',
+                            progressColor: '#2563eb',
+                            height: 80,
+                            barWidth: 2,
+                            cursorWidth: 0,
+                            url: URL.createObjectURL(resp.blob)
+                        });
+                        
+                        document.getElementById(`play-btn-${i}`).onclick = () => {
+                            ws.playPause();
+                            const btn = document.getElementById(`play-btn-${i}`);
+                            btn.innerHTML = ws.isPlaying() ? '<i class="fas fa-pause"></i> Pause' : '<i class="fas fa-play"></i> Play Recording';
+                            ws.on('finish', () => btn.innerHTML = '<i class="fas fa-play"></i> Play Recording');
+                        };
+                    }, 100);
+                }
+            });
+        }
+
+        function downloadReport() {
+            let text = "PTE Day 1 Report\n\n";
+            userResponses.forEach((r, i) => {
+                const q = allQuestions[i];
+                if(!q) return;
+                text += `Q${i+1} [${q.type}]\n`;
+                if(q.type === 'RA') {
+                    text += `Original: ${q.text}\n`;
+                    text += `Transcribed: ${r.transcript}\n`;
+                } else {
+                    text += `Audio: ${q.audioSrc}\n`;
+                }
+                text += `----------------\n`;
+            });
+            
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', 'PTE_Day1_Report.txt');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+    </script>
+</body>
+</html>

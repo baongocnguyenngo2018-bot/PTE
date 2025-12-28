@@ -263,11 +263,9 @@
         let wavesurferLive;
         let recognition;
         let globalStream = null; 
-        let finalTranscript = '';
         let timerInterval;
         let appState = 'IDLE'; 
-        let isRecognizing = false;
-        let ignoreStop = false;
+        let resultAudioPlayer = null; // Separate player for results
         
         // DOM Elements
         const screens = {
@@ -310,9 +308,6 @@
                     normalize: true
                 });
 
-                // Initialize STT engine once
-                initSpeechRecognition();
-
                 showScreen('active');
                 renderNavBar();
                 loadQuestion(0);
@@ -320,77 +315,6 @@
             } catch (err) {
                 alert("Microphone access is required to proceed.");
                 console.error(err);
-            }
-        }
-
-        // --- SPEECH RECOGNITION HELPERS ---
-        function initSpeechRecognition() {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                console.warn("Speech Recognition API not supported in this browser.");
-                return;
-            }
-
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = 'en-US';
-            
-            recognition.onstart = () => {
-                isRecognizing = true;
-                console.log("STT Engine Started");
-            };
-
-            recognition.onerror = (event) => {
-                console.error("Speech Recognition Error", event.error);
-                if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-                    ignoreStop = true;
-                }
-            };
-
-            recognition.onend = () => {
-                isRecognizing = false;
-                console.log("STT Engine Ended");
-                // Auto-restart if we are recording and it wasn't a manual stop
-                if (appState === 'RECORDING' && !ignoreStop && allQuestions[currentIndex].type === 'RA') {
-                    console.log("Auto-restarting STT...");
-                    try { recognition.start(); } catch(e) { console.error(e); }
-                }
-            };
-            
-            recognition.onresult = (event) => {
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        finalTranscript += event.results[i][0].transcript + '. ';
-                        // Optional: update UI live if needed, but for now we save it at end
-                    }
-                }
-            };
-        }
-
-        function startSpeechToText() {
-            if (!recognition) return;
-            
-            finalTranscript = ''; 
-            ignoreStop = false;
-
-            if (!isRecognizing) {
-                try {
-                    recognition.start();
-                } catch (e) {
-                    console.warn("Recognition start warning:", e);
-                }
-            }
-        }
-
-        function stopSpeechToText() {
-            if (!recognition) return;
-            
-            ignoreStop = true; // Signal that this is a manual stop
-            if (isRecognizing) {
-                try {
-                    recognition.stop();
-                } catch (e) {}
             }
         }
 
@@ -419,7 +343,6 @@
                     // Force stop current question if user jumps
                     clearInterval(timerInterval);
                     stopMediaRecorder(); // Will fail to save if recording, but prevents crash
-                    stopSpeechToText();
                     loadQuestion(i);
                 };
                 els.navContainer.appendChild(btn);
@@ -440,7 +363,6 @@
 
             // Cleanup previous state
             clearInterval(timerInterval);
-            stopSpeechToText();
             
             // Safe pause for audio
             try {
@@ -458,10 +380,11 @@
             els.statusOverlay.style.opacity = '1';
             els.statusOverlay.className = "mt-8 text-lg font-semibold text-slate-600";
             els.liveWave.style.opacity = '0';
-            finalTranscript = '';
             
-            // Data Reset
-            userResponses[index] = { id: q.id, type: q.type, blob: null, text: '' };
+            // Data Reset - keep existing if revisiting, or init new
+            if(!userResponses[index]) {
+                userResponses[index] = { id: q.id, type: q.type, blob: null, transcript: '' };
+            }
 
             if (q.type === 'RA') setupRA(q);
             else setupRS(q);
@@ -519,12 +442,8 @@
             els.statusOverlay.className = "mt-8 text-2xl font-bold text-red-600 mic-pulse";
             els.liveWave.style.opacity = '1';
 
-            // Start STT explicitly for RA
-            startSpeechToText(); 
-
             // Pass callback to execute AFTER stop completes
             startMediaRecorder(() => {
-                stopSpeechToText();
                 saveResponse();
                 loadQuestion(currentIndex + 1);
             });
@@ -535,7 +454,6 @@
         }
 
         function stopRecordingRA() {
-            // Just signal stop. The onstop callback setup in startMediaRecorder will handle saving.
             stopMediaRecorder();
         }
 
@@ -626,7 +544,6 @@
 
         // --- CORE UTILS ---
 
-        // Revised to handle ASYNC stop event for proper blob creation
         function startMediaRecorder(onStopCallback) {
             if (!globalStream) {
                  console.error("No global stream available");
@@ -640,7 +557,6 @@
                 if(event.data.size > 0) audioChunks.push(event.data);
             };
             
-            // CRITICAL FIX: Save data only when stop event fires
             mediaRecorder.onstop = () => {
                 if (onStopCallback) onStopCallback();
             };
@@ -651,7 +567,6 @@
         function stopMediaRecorder() {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
-                // We rely on the 'onstop' event defined in startMediaRecorder to trigger the next step
             }
         }
 
@@ -660,24 +575,16 @@
                 const blob = new Blob(audioChunks, { type: 'audio/webm' });
                 userResponses[currentIndex].blob = blob;
             }
-            userResponses[currentIndex].transcript = finalTranscript.trim();
+            // NO transcript logic here anymore.
             renderNavBar(); 
         }
 
         function forceNext() {
             clearInterval(timerInterval);
             
-            // If we skip during recording, we stop. 
-            // NOTE: If we are recording, mediaRecorder.stop() triggers the callback which calls saveResponse and loadQuestion.
-            // We need to avoid double calling loadQuestion.
-            
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                // If recording, stopping it will trigger the callback that saves and loads next.
-                // We just stop it.
                 mediaRecorder.stop();
             } else {
-                // If not recording (e.g. prep time), we manually load next.
-                stopSpeechToText();
                 try { els.audioPlayer.pause(); } catch(e) {}
                 loadQuestion(currentIndex + 1);
             }
@@ -685,10 +592,9 @@
 
         function runTimer(seconds, label, onComplete) {
             let remaining = seconds;
-            els.headerTimer.innerText = "Session"; // Placeholder or total time if needed
+            els.headerTimer.innerText = "Session"; 
             els.headerStatus.innerText = label;
             
-            // Update the text next to the bar
             els.barTimerText.innerText = formatTime(remaining);
 
             els.timerBar.style.transition = 'none';
@@ -727,7 +633,7 @@
             setTimeout(() => osc.stop(), 200);
         }
 
-        // --- RESULTS PAGE ---
+        // --- RESULTS PAGE & ON-DEMAND STT ---
 
         function finishSession() {
             showScreen('results');
@@ -755,8 +661,29 @@
                             <p class="text-slate-600 bg-slate-50 p-3 rounded border border-slate-100">${q.text}</p>
                         </div>
                         <div class="mb-4">
-                            <h4 class="font-bold text-blue-700 mb-2">Your Speech-to-Text:</h4>
-                            <p class="text-blue-800 bg-blue-50 p-3 rounded border border-blue-100 italic">${resp.transcript || "No speech detected (or browser not supported)"}</p>
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-bold text-blue-700">Transcript:</h4>
+                                ${resp.blob ? 
+                                `<button onclick="transcribeRecording(${i})" id="btn-transcribe-${i}" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors border border-blue-300">
+                                    <i class="${resp.transcript ? 'fas fa-redo' : 'fas fa-magic'} mr-1"></i> ${resp.transcript ? 'Retry' : 'Transcribe'}
+                                </button>` : ''}
+                            </div>
+                            <!-- Transcript Box with Fallback Textarea -->
+                            <div id="transcript-container-${i}">
+                                ${resp.transcript 
+                                    ? `<p class="text-blue-800 bg-blue-50 p-3 rounded border border-blue-100 italic min-h-[40px]">${resp.transcript}</p>`
+                                    : `<div class="relative">
+                                         <p id="transcript-output-${i}" class="text-blue-800 bg-blue-50 p-3 rounded border border-blue-100 italic min-h-[40px] block">
+                                            <span class="text-slate-400 text-xs">Click 'Transcribe' or type below...</span>
+                                         </p>
+                                         <textarea placeholder="Manual correction (if auto-transcribe fails)" class="w-full mt-2 p-2 text-sm border rounded text-slate-600 bg-white" rows="2"></textarea>
+                                       </div>`
+                                }
+                            </div>
+                            <div class="mt-2 text-[11px] text-red-500 bg-red-50 p-2 rounded border border-red-100 flex gap-2 items-start">
+                                <i class="fas fa-exclamation-circle mt-0.5"></i>
+                                <span><strong>Warning:</strong> For transcription to work, you MUST unplug headphones and turn up speakers so the mic can hear the playback. (Loopback limitation)</span>
+                            </div>
                         </div>
                     `;
                 } else {
@@ -798,7 +725,6 @@
                 list.appendChild(card);
 
                 if (resp.blob) {
-                    // Slight delay to ensure DOM is ready for WaveSurfer
                     setTimeout(() => {
                         try {
                             const ws = WaveSurfer.create({
@@ -812,10 +738,7 @@
                             });
                             
                             const btn = document.getElementById(`play-btn-${i}`);
-                            btn.onclick = () => {
-                                ws.playPause();
-                            };
-                            
+                            btn.onclick = () => ws.playPause();
                             ws.on('play', () => btn.innerHTML = '<i class="fas fa-pause"></i> Pause');
                             ws.on('pause', () => btn.innerHTML = '<i class="fas fa-play"></i> Play Recording');
                             ws.on('finish', () => btn.innerHTML = '<i class="fas fa-play"></i> Play Recording');
@@ -826,6 +749,96 @@
                 }
             });
         }
+
+        // --- ON DEMAND TRANSCRIPTION LOGIC ---
+        function transcribeRecording(index) {
+            const resp = userResponses[index];
+            if (!resp || !resp.blob) return;
+
+            const btn = document.getElementById(`btn-transcribe-${index}`);
+            // Use querySelector to find the output paragraph even if inside fallback div
+            const output = document.getElementById(`transcript-output-${index}`) || document.querySelector(`#transcript-container-${index} p`);
+            
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                if(output) output.innerText = "Error: Browser does not support Speech API.";
+                return;
+            }
+
+            // UI Update
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Listening...';
+            if(output) output.innerHTML = '<span class="text-blue-500 animate-pulse">Playing audio for transcription...</span>';
+
+            // 1. Setup Recognition
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (recognition) try { recognition.abort(); } catch(e){}
+            
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            
+            let tempFinal = '';
+            
+            recognition.onresult = (event) => {
+                let tempInterim = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        tempFinal += event.results[i][0].transcript + '. ';
+                    } else {
+                        tempInterim += event.results[i][0].transcript;
+                    }
+                }
+                if(output) output.innerText = (tempFinal + " " + tempInterim).trim();
+            };
+
+            recognition.onerror = (e) => {
+                console.log("Transcription error", e);
+                let msg = "Error";
+                if (e.error === 'no-speech') msg = "No speech detected (Check volume)";
+                if (e.error === 'not-allowed') msg = "Mic permission denied";
+                if (e.error === 'network') msg = "Network error";
+                
+                if(output) output.innerText = msg;
+                btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Retry';
+                btn.disabled = false;
+            };
+
+            recognition.onend = () => {
+                btn.innerHTML = '<i class="fas fa-redo"></i> Retry';
+                btn.disabled = false;
+                if(output) userResponses[index].transcript = output.innerText;
+            };
+
+            // 2. Start Recognition & Play Audio
+            try {
+                recognition.start();
+                
+                // Create a temporary audio player for the blob
+                const audio = new Audio(URL.createObjectURL(resp.blob));
+                audio.volume = 1.0;
+                
+                // Wait slightly for recognition to be ready
+                setTimeout(() => {
+                    audio.play().catch(e => {
+                        if(output) output.innerText = "Audio Playback Error: " + e.message;
+                        recognition.stop();
+                    });
+                }, 500);
+
+                audio.onended = () => {
+                    // Give a small buffer for the recognizer to catch the last words
+                    setTimeout(() => {
+                        recognition.stop();
+                    }, 1000);
+                };
+
+            } catch (e) {
+                console.error(e);
+                if(output) output.innerText = "Engine Start Error.";
+            }
+        }
+
     </script>
 </body>
 </html>

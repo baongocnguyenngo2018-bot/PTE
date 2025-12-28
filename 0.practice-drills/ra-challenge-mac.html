@@ -244,8 +244,9 @@
             // Split by whitespace but keep the exact word format
             const displayTokens = original.split(/\s+/).filter(w => w.length > 0);
 
-            // 2. Prepare Comparison Tokens (Lowercase, stripped punctuation)
-            const clean = (word) => word.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+            // 2. Prepare Comparison Tokens (Lowercase, strip ALL non-alphanumeric chars)
+            // This ensures robust matching: "Hello?" -> "hello", "Don't" -> "dont"
+            const clean = (word) => word.toLowerCase().replace(/[^a-z0-9]/g, "");
             
             const originalWordsRaw = displayTokens.map(w => clean(w)); 
             const userWords = user.split(/\s+/).filter(w => w.length > 0).map(w => clean(w));
@@ -259,7 +260,7 @@
             displayTokens.forEach((displayWord, index) => {
                 const targetWord = originalWordsRaw[index];
                 
-                // If it's pure punctuation (cleaned to empty), show it neutrally and skip scoring
+                // If it's pure punctuation or symbol (cleaned to empty), show it neutrally and skip scoring
                 if (!targetWord) {
                     wordsHTML += `<span class="text-slate-500 font-bold">${displayWord}</span>`;
                     return;

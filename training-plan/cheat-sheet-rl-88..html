@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 3 Mastery: Retell Lecture 88+</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Card Styles */
+        .card-template {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            border-left: 6px solid #f59e0b; /* Amber */
+        }
+        .card-notes {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            border-left: 6px solid #10b981; /* Emerald */
+        }
+        .card-emergency {
+            background: linear-gradient(145deg, #3f1818 0%, #1f0f0f 100%);
+            border-left: 6px solid #ef4444; /* Red */
+        }
+        
+        .highlight-var {
+            color: #fbbf24;
+            font-weight: bold;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(251, 191, 36, 0.1);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+        
+        .connector {
+            color: #a78bfa; /* Light Purple */
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+
+    <!-- Header -->
+    <header class="max-w-6xl mx-auto mb-10 text-center border-b border-slate-700 pb-6">
+        <div class="inline-block bg-amber-600 text-white font-bold px-3 py-1 rounded text-xs tracking-widest mb-2 uppercase">Day 3 Drill</div>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-2">RETELL LECTURE MASTERY</h1>
+        <p class="text-slate-400 text-lg">Target 88+: <span class="text-amber-400 font-bold">Content Quality</span> + <span class="text-amber-400 font-bold">Fluid Transitions</span></p>
+    </header>
+
+    <!-- The 3 Pillars -->
+    <div class="max-w-6xl mx-auto mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+            <h3 class="text-amber-400 font-bold uppercase text-xs mb-2"><i class="fas fa-ear-listen mr-2"></i>1. Active Listening</h3>
+            <p class="text-sm text-slate-300">Don't write everything. Listen for <strong>Signposts</strong> ("However", "First", "Finally", "Significantly"). These signal a scoring point is coming.</p>
+        </div>
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+            <h3 class="text-emerald-400 font-bold uppercase text-xs mb-2"><i class="fas fa-pen-nib mr-2"></i>2. Note-Taking Logic</h3>
+            <p class="text-sm text-slate-300">Write <strong>Subject + Verb</strong> pairs. Single words are dangerous because you forget the context. <br><span class="mono text-xs text-slate-500">e.g., "Population rose" NOT just "Population"</span></p>
+        </div>
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+            <h3 class="text-blue-400 font-bold uppercase text-xs mb-2"><i class="fas fa-stopwatch mr-2"></i>3. Time Mgmt</h3>
+            <p class="text-sm text-slate-300">You have 40s. Speak for <strong>30-35 seconds</strong>. If you speak too little (<20s), you lose Content points. If you ramble >40s, you get cut off.</p>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <!-- 1. THE 88+ TEMPLATE -->
+        <section class="card-template rounded-2xl p-6 shadow-xl relative">
+            <div class="absolute top-4 right-4 text-slate-600"><i class="fas fa-microphone-alt text-4xl"></i></div>
+            <h2 class="text-2xl font-bold text-white mb-4">The "Flow" Template</h2>
+            <p class="text-xs text-slate-400 mb-4">Memorize this. It forces pauses and intonation automatically.</p>
+            
+            <div class="bg-slate-900 p-6 rounded-lg border border-slate-800 text-slate-300 text-lg leading-relaxed">
+                <p class="mb-3">
+                    The speaker was discussing the main topic of <span class="highlight-var">[TOPIC / TITLE]</span>.
+                </p>
+                <p class="mb-3">
+                    <span class="connector">Firstly, he mentioned that</span> <span class="highlight-var">[KEY POINT 1 + DETAIL]</span>.
+                </p>
+                <p class="mb-3">
+                    <span class="connector">He also highlighted that</span> <span class="highlight-var">[KEY POINT 2]</span>, <span class="connector">which is significant because</span> <span class="highlight-var">[REASON / DETAIL]</span>.
+                </p>
+                <p class="mb-3">
+                    <span class="connector">Furthermore, he discussed</span> <span class="highlight-var">[KEY POINT 3]</span>.
+                </p>
+                <p class="mt-4 border-t border-slate-700 pt-2 font-bold text-amber-400">
+                    In conclusion, the lecture was very informative regarding <span class="highlight-var">[TOPIC]</span>.
+                </p>
+            </div>
+            
+            <div class="mt-4 bg-slate-800 p-3 rounded text-sm text-slate-400 border-l-2 border-amber-600">
+                <strong>Intonation Tip:</strong> Raise your pitch on the <span class="connector">Connector phrases</span> and drop your pitch at the end of the data points.
+            </div>
+        </section>
+
+        <!-- 2. NOTE-TAKING BLUEPRINT -->
+        <section class="card-notes rounded-2xl p-6 shadow-xl relative">
+            <div class="absolute top-4 right-4 text-slate-600"><i class="fas fa-sticky-note text-4xl"></i></div>
+            <h2 class="text-2xl font-bold text-white mb-4">Note-Taking Blueprint</h2>
+            <p class="text-xs text-slate-400 mb-4">How to structure your erasable notebook.</p>
+            
+            <div class="bg-white text-slate-900 p-4 rounded-lg font-handwriting shadow-inner" style="min-height: 250px;">
+                <!-- Simulated Handwriting Font -->
+                <div class="border-b-2 border-slate-200 pb-2 mb-2 font-bold text-xl text-center text-blue-800">
+                    TOPIC: Global Warming
+                </div>
+                <ul class="list-disc ml-5 space-y-3 font-mono text-sm md:text-base">
+                    <li><span class="text-red-600 font-bold">1.</span> Temp rise -> fast rate</li>
+                    <li><span class="text-red-600 font-bold">2.</span> CO2 emissions -> cars/factories</li>
+                    <li><span class="text-red-600 font-bold">3.</span> Impact -> sea level + ice melt</li>
+                    <li><span class="text-red-600 font-bold">4.</span> Sol -> green energy</li>
+                </ul>
+                <div class="mt-6 text-xs text-slate-500 text-center italic">
+                    (Write vertically. Use arrows. Ignore grammar.)
+                </div>
+            </div>
+
+            <div class="mt-4 space-y-2 text-sm text-slate-300">
+                <p><strong>Goal:</strong> Capture 3-5 distinct phrases.</p>
+                <p><strong>Bad Note:</strong> "Environment... bad... years..." (Too vague)</p>
+                <p><strong>Good Note:</strong> "Environment damaged 50 years" (Subject + Verb + Time)</p>
+            </div>
+        </section>
+
+        <!-- 3. EMERGENCY PROTOCOLS -->
+        <section class="card-emergency col-span-1 lg:col-span-2 rounded-2xl p-6 shadow-xl relative">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="bg-red-600 text-white font-bold px-3 py-1 rounded text-sm animate-pulse">PANIC MODE</span>
+                <h2 class="text-xl font-bold text-white">What if I didn't understand anything?</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Scenario A -->
+                <div>
+                    <h4 class="font-bold text-red-400 mb-2">Scenario A: You caught 1-2 words only.</h4>
+                    <p class="text-sm text-slate-300 mb-3">Do not stay silent. Use the "Keyword Loop".</p>
+                    <div class="bg-slate-900 p-3 rounded border border-red-900 text-slate-300 text-sm">
+                        "The speaker was discussing <strong>[Word you heard]</strong>. He mentioned the importance of <strong>[Word]</strong>. Furthermore, he discussed the future implications of <strong>[Word]</strong>. In conclusion, <strong>[Word]</strong> is very important."
+                    </div>
+                </div>
+
+                <!-- Scenario B -->
+                <div>
+                    <h4 class="font-bold text-red-400 mb-2">Scenario B: You can't read your own handwriting.</h4>
+                    <p class="text-sm text-slate-300 mb-3">Abandon the note immediately. Do not squint.</p>
+                    <ul class="text-sm text-slate-400 list-disc ml-4">
+                        <li>Skip to the next readable point immediately.</li>
+                        <li>Use a filler: <em>"The lecture also provided details about the subsequent factors."</em></li>
+                        <li>Then jump to your next clear note.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Day 3 Drill Instructions -->
+    <div class="max-w-6xl mx-auto mt-10 p-6 bg-slate-800 border border-slate-600 rounded-2xl">
+        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <i class="fas fa-clipboard-list text-amber-500"></i> Day 3 Drill Protocol (30 Questions)
+        </h3>
+        <p class="text-sm text-slate-400 mb-6 border-l-2 border-amber-500 pl-3">
+            Use your 30 practice questions to complete this progressive intensity drill.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+            <div class="bg-slate-900 p-4 rounded border border-slate-700">
+                <span class="text-amber-500 font-bold block mb-1">Set 1: Template Anchor (5 Qs)</span>
+                <p class="text-slate-400">Recite the template EMPTY 3 times. Then do 5 questions. Priority: <strong>Smooth flow</strong> over accurate content.</p>
+            </div>
+            <div class="bg-slate-900 p-4 rounded border border-slate-700">
+                <span class="text-amber-500 font-bold block mb-1">Set 2: Note-Taking (10 Qs)</span>
+                <p class="text-slate-400">Focus on writing "Subject + Verb" notes. Don't worry about speaking perfectly, worry about getting <strong>clear, readable notes</strong>.</p>
+            </div>
+            <div class="bg-slate-900 p-4 rounded border border-slate-700">
+                <span class="text-amber-500 font-bold block mb-1">Set 3: Exam Sim (10 Qs)</span>
+                <p class="text-slate-400">Strict timing. 10 seconds prep, 40s speak. No stopping. If you stumble, keep moving. <strong>Force fluency.</strong></p>
+            </div>
+            <div class="bg-slate-900 p-4 rounded border border-slate-700">
+                <span class="text-amber-500 font-bold block mb-1">Set 4: Audio Focus (5 Qs)</span>
+                <p class="text-slate-400">Close your eyes or turn off the screen. Rely 100% on your ears to capture the keywords. Good for difficult accents.</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

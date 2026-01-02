@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 3: Retell Lecture Intensive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        
+        .mic-active { animation: pulse-amber 1.5s infinite; }
+        @keyframes pulse-amber {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        .highlight-var { color: #d97706; font-weight: bold; background: #fef3c7; padding: 0 4px; border-radius: 4px; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white p-4 shadow-lg shrink-0 flex justify-between items-center z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center font-bold text-xl text-slate-900">3</div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">Day 3: Retell Lecture</h1>
+                <p class="text-xs text-slate-400">Audio Synthesis & Fluency</p>
+            </div>
+        </div>
+        <div class="text-sm font-mono text-amber-400" id="global-status">Ready</div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 relative overflow-hidden bg-slate-100 flex flex-col">
+
+        <!-- INTRO SCREEN -->
+        <div id="screen-intro" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+            <div class="bg-white p-10 rounded-2xl shadow-xl max-w-4xl w-full">
+                <i class="fas fa-ear-listen text-6xl text-amber-500 mb-6"></i>
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">Retell Lecture Drill Protocol</h2>
+                <p class="text-slate-500 mb-8">30 Questions • 4 Progressive Sets</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 text-left text-sm">
+                    <div class="p-4 bg-amber-50 rounded border border-amber-100">
+                        <strong class="block text-amber-800 mb-1">Set 1 (5 Qs)</strong>
+                        <span class="text-xs text-amber-600">Template Anchor.</span><br>
+                        Template is visible. Focus on fitting content into the flow.
+                    </div>
+                    <div class="p-4 bg-emerald-50 rounded border border-emerald-100">
+                        <strong class="block text-emerald-800 mb-1">Set 2 (10 Qs)</strong>
+                        <span class="text-xs text-emerald-600">Note-Taking.</span><br>
+                        Large digital notepad provided. Focus on Subject+Verb notes.
+                    </div>
+                    <div class="p-4 bg-blue-50 rounded border border-blue-100">
+                        <strong class="block text-blue-800 mb-1">Set 3 (10 Qs)</strong>
+                        <span class="text-xs text-blue-600">Exam Sim.</span><br>
+                        Strict 10s prep. No visual aids. Pure intensity.
+                    </div>
+                    <div class="p-4 bg-slate-100 rounded border border-slate-200">
+                        <strong class="block text-slate-800 mb-1">Set 4 (5 Qs)</strong>
+                        <span class="text-xs text-slate-600">Audio Focus.</span><br>
+                        Blind drill. Rely 100% on auditory memory.
+                    </div>
+                </div>
+
+                <button onclick="startDrill()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-lg transition transform hover:scale-105">
+                    Start Session (Allow Mic)
+                </button>
+            </div>
+        </div>
+
+        <!-- ACTIVE DRILL INTERFACE -->
+        <div id="screen-active" class="hidden h-full flex flex-col">
+            
+            <!-- Question Nav -->
+            <div class="bg-white border-b border-slate-200 p-2 overflow-x-auto whitespace-nowrap flex gap-2 shadow-sm shrink-0" id="question-nav"></div>
+
+            <div class="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
+                
+                <!-- LEFT: Context / Audio Area -->
+                <div class="flex-1 bg-slate-200 p-6 flex flex-col items-center justify-center relative relative">
+                    
+                    <!-- Audio Player Visualization -->
+                    <div class="bg-white p-6 rounded-2xl shadow-lg w-full max-w-lg mb-6 text-center relative overflow-hidden">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Audio Source</div>
+                        
+                        <!-- Native Audio Controls -->
+                        <audio id="main-audio-player" controls class="w-full mb-2 h-12 outline-none cursor-pointer"></audio>
+                        
+                        <div class="flex justify-between items-center mb-4">
+                            <p class="text-xs text-slate-400">Click Play to start.</p>
+                            <button onclick="toggleBackup()" class="text-xs text-amber-600 underline hover:text-amber-800">Audio not playing? Use Backup Voice</button>
+                        </div>
+
+                        <!-- Backup Link Container -->
+                        <div id="audio-backup" class="hidden mb-4 p-4 bg-amber-50 border border-amber-200 rounded text-sm text-left shadow-inner">
+                            <p class="mb-2 font-bold text-amber-800 text-xs uppercase flex items-center gap-2"><i class="fas fa-robot"></i> AI Text-to-Speech Backup</p>
+                            <div class="flex gap-2">
+                                <button id="btn-tts-play" onclick="playTTS()" class="flex-1 bg-white border border-amber-300 text-amber-700 py-2 rounded font-bold text-sm hover:bg-amber-50 transition shadow-sm flex items-center justify-center gap-2">
+                                    <i class="fas fa-play"></i> Play AI Voice
+                                </button>
+                                <button onclick="stopTTS()" class="px-4 py-2 bg-slate-200 text-slate-600 rounded font-bold text-sm hover:bg-slate-300 transition shadow-sm">
+                                    <i class="fas fa-stop"></i>
+                                </button>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-2 italic text-center">System will read the transcript. Prep starts automatically when finished.</p>
+                        </div>
+                        
+                        <!-- Status Overlay (Prep/Rec) -->
+                        <div id="status-overlay" class="absolute inset-0 bg-white/98 z-10 flex flex-col items-center justify-center hidden">
+                            <h3 class="text-2xl font-bold mb-2 text-slate-700" id="status-text">Prep</h3>
+                            <span class="text-5xl font-mono text-amber-500 mb-6" id="status-timer">10</span>
+                            
+                            <!-- Skip Button -->
+                            <button id="btn-skip-prep" onclick="skipPrep()" class="bg-slate-800 text-white px-6 py-3 rounded-full font-bold hover:bg-slate-700 transition shadow-lg flex items-center gap-2">
+                                <i class="fas fa-microphone"></i> Start Speaking Now
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SET 1: Template Helper -->
+                    <div id="helper-template" class="hidden w-full max-w-lg bg-amber-50 border-l-4 border-amber-500 p-4 rounded shadow text-sm text-slate-700 leading-relaxed">
+                        <h4 class="font-bold text-amber-700 mb-2">The Flow Template:</h4>
+                        <p class="mb-1">"The speaker was discussing <span class="highlight-var">[TOPIC]</span>."</p>
+                        <p class="mb-1">"He mentioned that <span class="highlight-var">[POINT 1]</span>."</p>
+                        <p class="mb-1">"He also highlighted <span class="highlight-var">[POINT 2]</span>."</p>
+                        <p class="mb-1">"Furthermore, he discussed <span class="highlight-var">[POINT 3]</span>."</p>
+                        <p>"In conclusion, the lecture was very informative."</p>
+                    </div>
+
+                    <!-- SET 2: Notepad -->
+                    <textarea id="helper-notepad" class="hidden w-full max-w-lg h-48 bg-yellow-100 border border-yellow-300 p-4 rounded shadow font-handwriting text-slate-800 placeholder-yellow-700/50 resize-none outline-none" placeholder="Take notes here (Subject + Verb)..."></textarea>
+
+                </div>
+
+                <!-- RIGHT: Recording & Transcript -->
+                <div class="w-full md:w-96 bg-white border-l border-slate-200 flex flex-col shrink-0">
+                    <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800">Your Response</h3>
+                        <span id="set-badge" class="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-1 rounded">Set 1</span>
+                    </div>
+
+                    <!-- Recording Waveform -->
+                    <div class="p-4 bg-slate-50 border-b border-slate-200 h-32 flex items-center justify-center relative">
+                        <div id="record-wave" class="w-full h-full opacity-60"></div>
+                        <div id="mic-icon" class="absolute text-4xl text-slate-300"><i class="fas fa-microphone-slash"></i></div>
+                    </div>
+
+                    <!-- Live Transcript -->
+                    <div class="flex-1 p-4 flex flex-col">
+                        <label class="text-xs font-bold text-slate-400 uppercase mb-2 flex justify-between items-center">
+                            <span><i class="fab fa-windows mr-1"></i> Live Transcript</span>
+                            <span class="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-100">Click & Press Win+H</span>
+                        </label>
+                        <textarea id="live-transcript" class="flex-1 w-full border border-slate-200 rounded p-3 text-sm resize-none focus:border-amber-500 outline-none mb-4" placeholder="Click here to activate dictation..."></textarea>
+                        
+                        <p class="text-[10px] text-slate-400 mb-2 italic text-center">
+                            Note: Using Windows Dictation may sometimes mute browser audio recording.
+                        </p>
+
+                        <button id="btn-next" onclick="forceNext()" class="w-full bg-slate-200 text-slate-400 font-bold py-3 rounded cursor-not-allowed" disabled>
+                            Next Question <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div id="screen-results" class="hidden h-full overflow-y-auto p-6 bg-slate-100">
+            <div class="max-w-6xl mx-auto pb-20">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">Session Complete! 🏁</h2>
+                        <p class="text-slate-500">Review your performance against the official sample answers.</p>
+                    </div>
+                    <button onclick="location.reload()" class="bg-amber-600 text-white px-6 py-2 rounded hover:bg-amber-700">New Session</button>
+                </div>
+                <div id="results-list" class="space-y-6"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JS LOGIC -->
+    <script>
+        // --- CONFIG & DATA ---
+        const BASE_AUDIO_URL = "https://baongocnguyenngo2018-bot.github.io/PTE/05.retell-lecture/";
+        const BEEP_URL = "https://baongocnguyenngo2018-bot.github.io/PTE/03.repeat-sentence/beep.mp3";
+
+        // Sample Answer Keys
+        const sampleKeys = {
+            "003": "The lecture talks about Morton Prince and his famous book Dissociation of a Personality. It describes the case of Miss Christine Beauchamp, who suffered from multiple personality disorder, including personalities B1, B2, and B3. Each personality had different levels of awareness, and the strongest personality eventually dominated. This theory later helped crime investigations.",
+            "004": "The lecture explains the three phases of biotech engineering. First, simple machines were developed to understand the human body. Second, more complex devices were used for medical treatment and studying physiology. In the third phase, advanced technologies like ECG and X-ray allowed non-intrusive observation of internal organs, greatly improving healthcare.",
+            "005": "The lecture discusses the relationship between happiness and social relationships. It suggests that higher frequency and better quality social interactions lead to greater happiness. Evidence shows happiness and social satisfaction reinforce each other. However, it remains unclear whether social activity causes happiness or happy personalities lead to more social interaction.",
+            "006": "The discussion focuses on whether a book should be about science or scientists. The speaker prefers writing about scientists because they tell stories and ask questions. He explains that his book is science fiction, so readers don’t need technical knowledge. Fiction writing differs from scientific research and is more accessible to general audiences.",
+            "007": "The lecture reviews the history of the British press since the 18th century. It highlights freedom of speech and public discussion in places like coffee houses. Over time, the press evolved with technology and now plays a key role in informing the public and holding governments accountable. It remains a symbol of democracy.",
+            "008": "The lecture explains the importance of literature in society. Literature builds empathy by exposing readers to diverse lives and perspectives. It also drives social change by challenging norms and influencing reform. The speaker concludes that literature shapes society and helps create the future.",
+            "009": "The speaker argues that climate solutions improve city life rather than requiring sacrifice. The first lesson is that climate action creates better living environments. The second lesson emphasizes ambition, illustrated by a goal to reduce emissions by 95 percent by 2030. Short-term targets encourage immediate action.",
+            "010": "This lecture compares eukaryotic and prokaryotic cells. Eukaryotic cells contain organelles, while prokaryotes like bacteria do not. Despite differences, all cells share basic features such as DNA, protein production, and energy use. Organelles are identified as the major difference.",
+            "011": "The speaker discusses authority and expertise in linguistics. Linguists have expertise, but communities should hold authority over their own languages. Language loss occurs due to dominance and power imbalance. True language revival requires returning authority to the community.",
+            "012": "The lecture explains changes in Australia’s housing cycle. Young people now live at home longer, rent longer, and carry mortgages into old age. Housing affordability and rental shortages worsen the situation. This shift reduces housing security across generations.",
+            "013": "The lecture describes how loggerhead turtles navigate using Earth’s magnetic field. Experiments show turtles respond to specific magnetic signals that guide their migration. This magnetic sensing acts like a basic GPS. It helps them survive long ocean journeys.",
+            "014": "The lecture focuses on loggerhead turtles and their declining population. Threats include pollution, fishing, and habitat loss. Loggerheads are carnivorous and migrate long distances to nest. Despite protection, their numbers continue to fall worldwide.",
+            "015": "The lecture explains why absolute zero cannot be reached. According to the third law of thermodynamics, energy always flows both in and out. A logarithmic thermometer shows temperature can get closer to zero but never reach it. Therefore, absolute zero is unattainable.",
+            "016": "The speaker challenges the idea that life emerged purely by chance. Using the monkey-typing analogy, he shows how statistically unlikely complex structures are. The immense improbability leads him to favor a creationist explanation. He concludes chance alone is insufficient.",
+            "017": "This lecture examines how maternal care affects rats. Rats that receive more licking show different gene expression and reduced stress. These changes persist into adulthood and affect behavior. The study shows environment can influence genes long-term.",
+            "018": "The lecture discusses the decline of the Welsh language. Although many residents speak Welsh, migration threatens its survival. Welsh speakers move out, while newcomers rarely learn the language. Economic factors contribute to this shift.",
+            "019": "The lecture focuses on Edmund Wilson’s role in American literature. He helped make modern literature accessible to ordinary readers. Wilson believed literature should be part of everyday life. He was also a journalist, critic, and memoirist.",
+            "020": "The lecture explains the concept of gross national happiness. Bhutan uses happiness as a central policy measure with positive results. Other countries are beginning to explore similar approaches. Happiness is becoming more relevant in public policy.",
+            "021": "The lecture outlines guidelines for using public library computers. Users must register at the service desk and bring student cards. Computers are available on each floor for internet and printing. Printing requires charging the student card.",
+            "022": "The lecture discusses bilingual parenting. Children may become confused if parents mix languages inconsistently. However, if each parent uses only one language, confusion is reduced. This method benefits language development.",
+            "023": "The lecture examines government blogging. While blogs encourage interaction, public comments can become chaotic. Moderation may appear as censorship. This creates tension between free speech and control.",
+            "024": "The lecture explains determinants of human behavior. Behavior is influenced by internal personal factors and external environmental factors. Psychologists study how these factors interact. Both play important roles in shaping behavior.",
+            "025": "The lecture introduces melatonin, produced in the pineal gland. It peaks at night and is called the darkness hormone. Melatonin regulates sleep in humans and night behavior in animals. It follows a natural rhythm.",
+            "026": "The lecture explains why language is unique among cognitive skills. Everyone learns language, unlike math or music. Despite appearing simple, language is highly complex. It is one of the most advanced human abilities.",
+            "027": "The lecture discusses photography’s role in art history. Photography challenged traditional art but also expanded creativity. It can be emotionally powerful and documentary. Artists have always used technology to aid creation.",
+            "028": "The lecture examines Alexis de Tocqueville’s political philosophy. He appealed to both political left and right. Although an aristocrat, he accepted democracy as inevitable. His visit to America helped him study democracy in practice.",
+            "029": "The lecture highlights the growing link between biology and mathematics. Math now helps explain DNA, viruses, and neuroscience. Biology increasingly drives mathematical research. Scientists must adapt to interdisciplinary approaches.",
+            "030": "The lecture explores daily life in ancient Rome. Most historical sources focus on elites, not ordinary people. Many Romans lived in poverty with little political power. Emperors responded to public unrest to maintain order.",
+            "031": "The lecture explains how climate change affects spring timing. Spring arrives earlier, especially in northern regions. This disrupts migratory birds’ food supply and breeding. The findings help guide conservation efforts.",
+            "032": "The lecture describes research in experimental phonology. The speaker uses imaging and tracking technologies to study speech production. This research improves speech pathology, recognition, and synthesis. Technology is essential to understanding speech mechanics."
+        };
+
+        // Raw Transcripts (IDs 003 to 032)
+        const rawData = [
+            {id: "003", text: "Morton Prince was an American physician and psychologist, his book 'Dissociation of a Personality' was the best-seller at that time. It tells a story of Miss Christine Beauchamp, who was suffering from MPD (Multiple Personality Disorder). Miss Christine Beauchamp has several types of personalities, namely B1, B2 and B3. There was hidden memory in these three personalities, with hallucination among them. Miss Beauchamp was B2. B2 knows about B1, B3 knows both B1 and B2, but B1 knows nothing about B2 or B3. The strongest personality accounts for most of the time and it will take over the others and become the main personality at the end. This case and theory gives great help to crime investigation."},
+            {id: "004", text: "The biotech engineering has undergone three phases. In the first phase, people designed and made some simple machines, which aimed to help people understand ourselves. And first group of people that realized we could learn from ourselves were engineers. And then, based on the studies, people began to make complicated devices, in order to cure wounds, like the practice of suture, and to study physiology. This is the second phase. Later, since we went into the third phase, more complicated machines have been developed, like ECG (electrocardiography), able to have an insight of your internal body without intruding it, which can show the human brain's functions. X-ray is a good example. In an X-ray picture, you can see the bright area is the heart with some vessels around, and the dark area is the lungs. These devices benefit humans greatly in solving health problems, such as diseases."},
+            {id: "005", text: "Happiness comes from frequency and quality of social relation. The higher the frequency is, the more happiness relations with friends and family and others produce. It is not sure why social relation is correlated with happiness. But there’s evidence that when people feel more satisfied with their social relations, they will feel happier, in turn, when people feel happier, they will get more satisfied with social relations. Happy people tend to be social more with friends and have more interaction between family. Some people wonder if their social activities make them happier or their happy personalities drive them to be social more with their friends and families."},
+            {id: "006", text: "Female: Which one are you going to write more in your book, science or scientists? Male: I do want very much to write something about science, actually. So I prefer to scientists. Female: All right. What's interesting in scientists then? Male: Science is just like complex furniture, which is all about evidence. But scientists can tell stories, do researches and propose questions to find what is true. They are like a focal point. They are always in interesting situations. Female: Whether science or scientists your book mainly about, it seems to be rather hard for general readers to understand, doesn't it? Male: I don't think so, really. In fact the book I write is a science fiction, which is related with science but is not strictly scientific. So you don't have to have a PhD degree in physics or other disciplines to understand a science fiction. And loving science is very different from being a scientist, which means fiction writing is not the same as writing scientific journals. When scientists fail, they will question the situation about why they have failed. But as a fiction writer, I don't have to. In my book, you can always see stories about 'happy family'. "},
+            {id: "007", text: "The British press came into existence in the 18th century, a time of great change and progress. Since then, it has played a pivotal role in shaping public opinion and discourse. Freedom of speech, a cornerstone of democratic societies, has been encouraged by British policy from the very beginning. This freedom allowed people to discuss anything and everything in public places, such as coffee houses or on the streets. These public spaces became hubs of intellectual exchange, where newspapers were read and issues of the day were debated. Topics ranged from politics and government policies to military matters, reflecting the diverse interests of the public. This open dialogue is a testament to the freedom enjoyed by the public. But the story doesn't end there. The British press has evolved with time, embracing new technologies and adapting to changing societal norms. Today, it continues to inform, educate, and provoke thought, reaching millions of readers through print and digital platforms. Moreover, the British press plays a crucial role in holding power to account. It scrutinizes government actions, champions the rights of the marginalized, and shines a light on issues that matter. In conclusion, the British press, with its rich history and commitment to freedom of speech, is more than just a news source. It's a symbol of public freedom, a watchdog of democracy, and an integral part of British society.Thank you for listening."},
+            {id: "008", text: "Let's unfold the realm of 'Literature' and its profound impact on society. Literature is not just an escape; it's a mirror that reflects our realities, a lens that sharpens our worldview. Literature fosters empathy. When we dive into the narratives of characters from diverse backgrounds, we live a multitude of lives. This vicarious experience enriches our understanding of others, bridging gaps across cultures and experiences. Furthermore, literature is a catalyst for social change. It has the power to challenge norms, to question policies, and to push boundaries. The works of authors like Harriet Beecher Stowe and George Orwell have spurred movements and reformed societies. As we engage with literature, let us recognize its role in shaping the contours of society. In the pages of books, we find the seeds of the future, sown with words that can move nations."},
+            {id: "009", text: "For too long, discussions about climate change have been about sacrifice. I am here to tell you that climate solutions actually make a better city and a better quality of life for everyone. This is only the first of five lessons we have learned on our journey to become an emission-free city. And I think these lessons can be applied almost anywhere. So I like to share them. So lesson number one, confronting climate change is about creating better cities and better quality of life for everyone, including those kids in the kindergarten, that don’t have to share their days with noisy excavators. The second lesson is about being ambitious. In 2015, the city council set a target of reducing greenhouse gas emissions by 95 percent by 2030 without purchasing any carbon offsets. So aiming for real reductions. Commitment to this goal changed our mindset. If we were going to reach this target, every department had to get active, figure out measures and finding out how to implement them. So second lesson, be ambitious. A target measured in years, not decades, provides no excuse for inaction."},
+            {id: "010", text: "In this lesson, we discuss the similarities and differences between the eukaryotic cells of your body and prokaryotic cells such as bacteria. Eukaryotes organize different functions within specialized membrane-bound compartments called organelles These structures do not exist in prokaryotes. Your body's composed of trillions of cells - lots of different types of cells that make up different organs and other parts of your body. Your body is also where 10 times that number of bacteria call 'home sweet home.' But don't be afraid - these bacteria do more good than harm to you. And besides, just in case you wanted to strike up a conversation with your tenants, you and your bacteria do have a few things in common. All cells share some common characteristics that make them living things. All organisms are composed of cells, the basic fundamental unit of life. They contain DNA as a heritable genetic material, and they can reproduce. They transcribe DNA into RNA and translate RNA into proteins on ribosomes. They can also regulate transport across a cell membrane and require chemical energy for some cellular processes. Organelles are the biggest difference between bacteria and cells that make up the human body Organelles"},
+            {id: "011", text: "I think with our linguistic training we also get all this invisible training to be authorities, to be the people who know. It is part of that process that you come out as a world authority on your chosen subject. But when we move into working with communities, we have to recognize that the communities have to be the authority in their language. Actually, a woman in the class I'm teaching at Sydney at the moment, a career woman, expressed this very nicely, although she was talking about something else, she was distinguishing expertise from authority. And certainly linguists, because of the training we do, have expertise in certain very narrow areas of language, but we don't have the authority over what to do with that knowledge or what to do with other knowledge that the community produces. I guess for me the bottom line is languages are lost because of the dominance of one person over another. That's not rocket science, it's not hard to work that out. But then what that means is if in working with language revival we continue to hold the authority, we actually haven't done anything towards undoing how languages are lost in the first place, so in a sense, the languages are still lost if the authority is still lost."},
+            {id: "012", text: "The impact on young Australians who are interested in buying a home of their own has been very significant. Australia's housing affordability now shapes the typical housing cycle or housing career as some people call it. Most Australians in the normal course of events are people who move through the housing cycle in a way that matches the stages of life that they're at. So, they move out of the family home in their late teens or early 20s as they gain their independence from their families, then they rent to save for a home they can afford as either a group or maybe a couple. And maybe they can upgrade it when they have a family in their middle age, they are more than likely to have paid off their mortgage. And that means they have housing security in their old age. That's no longer the typical housing cycle for Australians, young people generally live at home for much longer than they once did. They generally rent for longer and they're more likely to be saddled with a mortgage not just into their middle age but more often than not into their retirement as well. In fact, in 2006, 65,000 retiree households were still paying off the mortgage. Affordable rent is also an elusive right around Australia. We have very low rental vacancies, we see high turnover as landlords want to maximize their profits in a tight market, and we see less long-term or lifelong rental, as we see in other countries and other economies."},
+            {id: "013", text: "It's time for this young loggerhead turtle to go to work. We can tether turtles in these little clock harnesses put them into this tank and they'll swim in place. University of North Carolina biologist Canelo men study see turtles that are programmed from birth for an extraordinary journey. The mother turtles bury the eggs on the beach and then returned to the sea and the eggs hatch about 50 to 60 days later. The support for National Science Foundation Lomond is learning how these reptiles use the earth's magnetic field to navigate 5 to 10-year journey around the Atlantic Ocean. The turtles seem to inherit a set of responses that tell them what to do when they encounter specific magnetic fields at particular locations. This animal magnetism can be a lifesaver one field off Portugal triggers the turtles to turn south if they don't they'll likely die swept into frigid North Atlantic waters in one lab test turtles responded to magnetic field similar to what they would encounter off the coast of Florida the great majority of them turned southeast. Now, this is an exciting finding because south-easterly orientation in this part of the world would presumably take turtles further into the Gulf Stream so the turtles actually have what might be considered a crude Global Positioning System that is based on the earth's magnetic field. And check out this experiment these turtle moves may look odd. The turtles will actually act out there swimming behavior in air. But this wave simulator recreates the first environmental cue hatchling turtles respond to. And to swimming into waves is a highly reliable trick the turtles use to guide themselves up short."},
+            {id: "014", text: "Loggerhead turtles are the most abundant of all the marine turtle species in U.S. waters. But persistent population declines due to pollution, shrimp trawling, and development in their nesting areas, among other factors, have kept this wide-ranging sea-goer on the threatened species list since 1978. Their enormous range encompasses all but the most frigid waters of the world's oceans. They seem to prefer coastal habitats, but often frequent inland water bodies and will travel hundreds of miles out to sea. The largest of all hard-shelled turtles leatherbacks are bigger but have soft shells loggerheads have massive heads, strong jaws, and a reddish-brown shell, or carapace. Adult males reach about three feet in shell length and weigh about 250 pounds, but large specimens of more than 1,000 pounds have been found. They are primarily carnivores, munching jellyfish, conchs, crabs, and even fish, but will eat seaweed and sargassum occasionally. Mature females will often return, sometimes over thousands of miles, to the beach where they hatched to lay their eggs. Worldwide population numbers are unknown, but scientists studying nesting populations are seeing marked decreases despite endangered species protections."},
+            {id: "015", text: "Can we never get to absolute zero? What a wonderful question. I wish I had a wonderful answer to go with it. Here is the problem, there is actually a law of physics called the third law of thermodynamics, that says you cannot get to the absolute zero, but we don't really know it's true, but we are pretty sure it is for the following reason: every time you think of some way of cooling something down a little bit, it means you try to get energy out of that thing and make the temperature lower. Well if you can get energy out, usually there is a way that the energy can go in as well. And that always means there is a competition between taking the energy out and putting the energy in. Now you can try to make it, so you are favoring getting energy out, but you can't completely stop the energy from going in and that means you might be able to get colder and colder, but you won't be able to get all the way to absolute zero. Could we go back to my PowerPoint, because I think that one of these slides will illustrate that point a little bit better? Yes, here, remember the logarithmic thermometer? There is no zero on this logarithmic thermometer, just keeps going down, you make it a fact of 10 colder, you're not a zero. You make it a fact of 10 colder, you're still not a zero. You make it a fact of 10 colder, you're still not a zero. So, you start a million of a degree, now you are 10 millions of a degree, now you are 100 millions of a degree. Now you are billions of degrees. You never get to zero that way. You get closer and closer, but you never get to zero. So that's why we cannot get to absolute zero."},
+            {id: "016", text: "On this illustration often used is the one that the monkeys and the typewriters. Ok, we have a monkey sitting at a typewriter and the claim here is basically if you leave chance in time long enough you will get a life, don't worry about it, yes, its's strange, yes, it's wonderful, but leave enough matter 600 million years on earth and you will have life. So, the monkey sifting at the typewriter the chances are eventually he produces the complete works of Shakespeare so what's the problem. But he doesn't manage to do it in 600 million years. So, what I decided to do is to run the numbers. I, instead of saying typing the complete work of Shakespeare, I just run the numbers for how long would it take a monkey typing one key striker a second. To type to be or not to be that is the question'. Right? On average how long is it gonna take my monkey friend one keystroke a second? I don't know how you think it would be. Maybe you could have a guess. Would it be less or more than 600 million years, which is the period life on earth isn't supposed to have emerged within and when I run the numbers' to be or not to be is the question' takes 12.6 trillion trillion trillion trillion years to type just that phrase and a DNA string has got as much as information the encyclopedia Britannica? Are we saying that something of that complexity emerges by chance undirected within 600 million years? Again, it's mathematically possible but it's so incredibly unlikely that it would have that it tilts me in favor of the Christian story in which God created life, simply a question of saying let that be and there was."},
+            {id: "017", text: "The way a mother rat takes care of its pups is by licking and grooming, nipple switching an arch back nursing. So the rats that do a lot of licking and grooming and their last rats that rule very little. But most rats are in between. So that resembles a human behaviour as well, right you have mothers that are highly mothering and mothers that couldn't care less and most mothers are somewhere in between. So if you look at these rats. So all you do you observe them and put them in separate cages. So you put the high lickers in one cage not the mothers, but the offspring and the low lickers in another cage and then you let them grow and they're adults now, their mothers are long buried and you look in the brain and you see that those who had high licking mothers express a lot of glucocorticoid receptor, gene and though so our lawmakers express to know that reflects a number of factors and that results in a different stress response, but this is not the only difference. We found, later on, there are hundreds of genes that are differently expressed. So if you get in a mutation, you know polymorphism once in a million. Here, just the motherly launching just hundreds of genes in one shot and it changes them in a very stable way that you can look at the old rat and you can say whether it was licked or not. But you can also save by behaviour. So if you walk to the cages to the room the rats that were poorly lit are highly anxious, hard to handle, aggressive and the rats that were very well handled as off as little pups. They are much more relaxed much easier to handle. So you know, like every technician in the lab knows to look at the adult rat how it was licked when it was a little tough any question of course. mechanism. how does this work? "},
+            {id: "018", text: "This busy little town is named after St. David's first cousin. It's also a Welsh language stronghold. According to the 2001 census results, seventy percent of the town's population could speak Welsh but even here the language may not be completely safe. The Welsh language board expects last year's census results to show a fall in the number of Welsh speakers living in its northern and western heartlands. One of the main reasons for that the board says is migration. Many Welsh speakers are choosing to leave the country. At the same time, only a small percentage of those moving in can speak the language or choose to learn it. Historically, over the past 1788 Wales people have continually left in order to find better standard of pay maybe in quality of employment and the things have change was probably is that them there is a larger amount of English people now who have found Wales of the last 20-25 years particularly this corner of Wales and regarded is a desirable place to come and live and as opposed to many areas in England and cheaper as well."},
+            {id: "019", text: "But there was no modern lit Wilson came then from a different world and he became the focal point of a broad mainstream American culture that thought that modern literature and wanted modern literature to be able to be read and appreciated by ordinary people, they were not modernists in an abstract sense and certainly some of them like TS Eliot and Faulkner were too difficult for some of their writings to be read by ordinary people, but this was a world before the division between the brows or between a lead or whatever had established itself as part of our consciousness. Wilson was a major player in the successful effort of his generation to establish at the heart of American life and innovative literature that would equal the great cultures of Europe. And he knew that the great cultures of Europe were there he was not a product of a narrow American Studies kind of training at all. He joined a high artistic standard with an openness to all experience and a belief that literature was as much a part of life for everyone as a conversation. He thought that Proust and Joyce and Yeats and Eliot could and should be read by ordinary Americans and helped that to happen. Wilson was a very various man over a period of almost 50 years. He was a dedicated literary journalist, an investigative reporter, a brilliant memoirist, and a dedicated journal keeper."},
+            {id: "020", text: "As Joanne pointed out only one country tiny little Bhutan wedged between China and India has adopted the gross national happiness as the central index of government policy and actually has had a good deal of success in education and in health and in economic growth and in environmental preservation and they have rather sophisticated way of measuring the effects of different policies on people's happiness but they're the only country to go that far but you're now beginning to get other countries interested enough to do kind of white paper policy analyses about whether happiness research what effects would it have we used it more for public policy you're beginning to get to countries like Australia, France, Great Britain that are considering pushing regular statistics on happiness so it's beginning to become a subject of greater interest for policymakers and legislators and different advanced countries."},
+            {id: "021", text: "These guidelines are designed to assist clients to access the free public computers and the internet in a responsible and informed way. Although all care is taken to ensure a virus free computer for public use. You’ve to use the service desk after entering the library and you can have these services at the service desk. There are computers on each floor. You can use computers to access the internet, check emails & library catalogs. Follow the arm signs to find printers. Follow the instructions to use the printer. Remember to bring your student cards. You can charge the card to use printers."},
+            {id: "022", text: "Many parents communicate and educate their children with two languages, probably because they both know more than one language, or they come from different countries. Most of these parents think this can benefit their children’s language learning. But actually kids will get confused when their parents use different languages from each other to describe the same object. If one parent sticks to one language, and the other one sticks to another language, their children will not be confused any more."},
+            {id: "023", text: "We normally see blogging as a two-way interaction, in which the blogger/author creates the content and the readers interact or challenge the author. But the case will be much difficult when it comes to government, such as the White House. Because people will become coarser and ride online, especially in the comment area. Hence the government blog may go wild and chaotic. So the government will have to administrate the comment. Once the government starts administrating the comment, citizens may find the government manipulating what should be said and what should be shown, which contradicts the original intention."},
+            {id: "024", text: "Determinant, human behavior is affected by internal and external factors. At the end of lecture, the speaker mentioned that psychologists are interested in explaining human behavior. Determinant is influenced by two factors, the personal factors which are internal and the environmental factors which are external. The personal factors include people's belief on certain things and their individual thinking about it, while the environmental factors include temperature, air pressure and the others' thinking about them. In conclusion, one's determinants are affected by both himself and the environment. Sample answer: This lecture is about determinants of human behavior. It is affected by both internal and external factors. At the end of lecture, the speaker mentioned that psychologists are interested in explaining human behavior. Generally, the personal factors are considered to be internal and environmental factors are external. Personal factors include people's belief on certain things and their individual thinking about it, while the environmental factors include temperature, air pressure and the others' thinking about them. In conclusion, human behavior is affected by both himself and the environment. "},
+            {id: "025", text: "I'm just going to take on where Stafford left off and the hormone I want to talk to you about is called melatonin and is synthesized in the pineal gland which is very small it's the size of a pea in your brain Jaykar called the seat of the soul and it is where melatonin is made. So it's working and it has a rhythm as well and in a sense, it's the opposite of cortisol it peaks at night we call it the darkness hormone in every species that we studied melatonin occurs at night and it's a hormone that prepares you for the things that your species does at nights so of course in humans we sleep but animals like rodents they're awake so it's a hormone that is related to darkness behavior."},
+            {id: "026", text: "It is wrong, however, to exaggerate the similarity between language and other cognitive skills, because language stands apart in several ways. For one thing, the use of language is universal-all normally developing children learn to speak at least one language, and many learn more than one. By contrast, not everyone becomes proficient at complex mathematical reasoning, few people learn to paint well, and many people cannot carry a tune. Because everyone is capable of learning to speak and understand language, it may seem to be simple. But just the opposite is true-language is one of the most complexes of all human cognitive abilities."},
+            {id: "027", text: "It is almost impossible these days not to include photography in a course on the history of arts,agent who suggests that technology and art didn't go well together, photography with its realism its accurate representation of the thing in front of you, initially deprived many artists of their subject matter forcing them to look in new ways no bad thing, true mass produced images saved the Monalisa obviously can't provide the same experience as seeing the real painting on the other hand there are photographs which to my mind a formal suit provoking and have great emotional impact than a painting of the same subject ever could, some people say that the traditional idea of an artist with a trained hand and eye is old fashioned, we no longer believe that an artist needs specialist knowledge but rather that he or she can simply point the camera at the scene and record it, however on the one hand that ignores the creative skill involved in producing photograph on the other hand it also ignores the fact that even in the past painters used in various technological aids, foe example the dutch painter Xenia used a camera obscure to help him create his images, we will go into that later but for now i want to look the documentary and cultural value of photography."},
+            {id: "028", text: "Alexis de Tocqueville, as we have noted, appears to have had some appeal to both ends of the political spectrum - left and right or rather, both have found him to be useful for their purposes in certain circumstances. His rational acceptance of the new forces of democracy brought about by the American and French revolutions made him an icon of left-wing liberals. However, during the Cold War - that is, from the end of World War II until the collapse of communism he was adopted by some leading thinkers on the right. So, there are two sides to his political philosophy, and the man himself. that we need to look at. Now, I would suggest that de Tocqueville's biography is important here. You must always bear in mind when reading him that he was an aristocrat and one whose family had suffered in the French Revolution. He wasn't your typical aristocrat because his politics differed from others of his family and social rank. He abandoned the Catholic church and married beneath his class. Yet he never quite threw off the prejudices of that class. However, and what is important, he did recognize and believe that the tendency of history, which in those days could be traced back to the Middle Ages, was towards the leveling of social ranks, and more equal and democratic conditions. The French Revolution had in the end brought Napoleon, whom he hated, but democracy would inevitably come to France. His trip to America was to see democracy in practice. make note of its shortcomings and errors, and then find safeguards against them."},
+            {id: "029", text: "Now, you might think it strange that in a lecture on biology, I will be talking a lot about mathematics... umm ... If I may digress a bit ... When I was a student, mathematics, the language of dear abstraction, had nothing to do with life sciences like biology, the sphere of messy organic forms, cutting up frogs in the lab, and so on... um ... In fact, I started doing biology precisely to avoid maths and physics. So, I've had a lot of catching up to do. We are all aware of how the sciences have come to inter-relate more and more, and not only will mathematics impinge more and more on biology but also, I am told, in the 21 century, the driving force behind mathematics will be biology. This is partly because mathematicians are always on the lookout for more areas to conquer. But a far greater reason is that the subject has been boiled down to physics and chemistry - obvious attractions for mathematicians. A number of mathematical fields can be applied to biology. For example, knot theory is used in the analysis of the tangled strands of DNA, and abstract geometry in four or more dimensions is used to tell us about viruses. Again, neuroscience appears to be maths friendly and equations can also explain why hallucinogenic drugs cause the users to see spirals. So, if mathematicians are taking such a keen interest in biology, the least we can do as biologists is return the compliment."},
+            {id: "030", text: "Most of what the general public knows about daily life in ancient Rome comes from art, architecture, and literature, which tell us more about the elites, especially ... umm ... the goings-on of the emperors... but how much do we know of the lives of ordinary Romans? Did they have a voice, apart, that is, from what we can gather from graffiti? The usual picture is one of time spent at festivals, baths, and, typically, the games. However, for many Romans, terrible living conditions, poverty, debt and the chance of being sold into slavery at any moment - that is, if they weren't slaves already - left no time or energy for such forms of entertainment, or for any interest in politics, for that matter. Indeed, after the death of Augustus, executive power was taken from the elected assemblies of the Roman people. Now it was the emperor's job to look after the people, and his generosity often depended on the mood and behavior of the people - on how often and how violently they protested and rioted. One example would be clauctius ensuring a steady grain supply, even in winter, after rioters pelted him with stale crusts of bread. There is an anecdote about, umm, Hadrian. While touring the provinces, an old lady approached him with a complaint; he made excuses and tried to getaway. She said that if he wouldn't give her a hearing, he shouldn't be emperor. She got her hearing."},
+            {id: "031", text: "Climate change means springtime's arriving earlier across North America. But the season's onset isn't changing at the same rate across the nation. 'Spring is not advancing as quickly in southern regions as it is in northern regions.' Eric Waller, a bio geographer at the U.S. Geological Survey. He and his team analyzed more than a hundred years of data on when the first leaves and flowers emerge across North America. And they found that although spring has sprung earlier nearly everywhere, in certain wildlife refuges, the season hits extremely early. And that mismatch could be a problem for migratory birds, who might leave their temperate overwintering grounds down south at the usual time, only to find out they've arrived up north too late. 'Their food resources might be withering and they might not have as much food available to them. And that could affect their reproduction, their breeding.' The analysis is in the journal PLOS ONE. The upshot: it may be more difficult than we thought to predict the effects of climate change on migratory birds. But the data might help land managers decide which plots of land to acquire, to augment existing reserves and in doing so, ensure that even later birds still get the worm."},
+            {id: "032", text: "I was right in Shasta and I'm a politician and experimental phonologists, and my research mainly concentrates on how human speech sounds are produced, and the relationship between that physical production and the vocal tract and the acoustics of the speech sound itself. So, in order to study things like position of the tongue, the lips, the soft palate, the larynx, the jaw, it's important to be able to use a number of different technologies in tandem with acoustic recording. So, technology that I use includes magnetic resonance imaging, electromagnetic articulography, electropalatography, and speech aerodynamics to better create models and maps between the position and movement of the articulators in the vocal tract and the acoustics of speech. This work has important implications for speech pathology, speech recognition, and speech synthesis."}
+        ];
+
+        // --- GLOBAL STATE ---
+        let currentIndex = 0;
+        let audioPlayer = null; 
+        let mediaRecorder = null;
+        let globalStream = null; // New global stream variable
+        let chunks = [];
+        let timerInterval = null;
+        let prepInterval = null;
+        let activeWaveSurfer = null;
+        let userResponses = new Array(rawData.length).fill(null);
+        let currentStage = 'IDLE';
+
+        // --- HELPERS ---
+        const getAudioUrl = (id) => `${BASE_AUDIO_URL}${id}.mp3`;
+        
+        function playBeep() {
+            return new Promise(resolve => {
+                const audio = new Audio(BEEP_URL);
+                audio.volume = 0.5;
+                audio.onended = resolve;
+                audio.onerror = resolve; 
+                audio.play().catch(resolve);
+            });
+        }
+
+        // --- DOM REFERENCES ---
+        const els = {
+            nav: document.getElementById('question-nav'),
+            intro: document.getElementById('screen-intro'),
+            active: document.getElementById('screen-active'),
+            results: document.getElementById('screen-results'),
+            
+            audioPlayer: document.getElementById('main-audio-player'), 
+            audioBackup: document.getElementById('audio-backup'),
+            
+            statusOverlay: document.getElementById('status-overlay'),
+            statusText: document.getElementById('status-text'),
+            statusTimer: document.getElementById('status-timer'),
+            btnSkipPrep: document.getElementById('btn-skip-prep'),
+            
+            helperTemplate: document.getElementById('helper-template'),
+            helperNotepad: document.getElementById('helper-notepad'),
+            
+            micIcon: document.getElementById('mic-icon'),
+            liveTranscript: document.getElementById('live-transcript'),
+            btnNext: document.getElementById('btn-next'),
+            setBadge: document.getElementById('set-badge'),
+            
+            resultsList: document.getElementById('results-list')
+        };
+
+        function toggleBackup() {
+            els.audioBackup.classList.toggle('hidden');
+        }
+
+        // --- INIT ---
+        async function startDrill() {
+            // Request Mic Permission ONCE here
+            try {
+                globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            } catch (e) {
+                alert("Microphone access is required to use this tool. Please allow permission.");
+                return;
+            }
+
+            els.intro.classList.add('hidden');
+            els.active.classList.remove('hidden');
+            renderNav();
+            loadQuestion(0);
+        }
+
+        function renderNav() {
+            els.nav.innerHTML = '';
+            rawData.forEach((_, i) => {
+                const btn = document.createElement('button');
+                btn.className = `w-8 h-8 rounded shrink-0 text-xs font-bold border transition ${i === 0 ? 'bg-amber-500 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`;
+                btn.innerText = i + 1;
+                btn.id = `nav-btn-${i}`;
+                
+                // Set Colors
+                if (i < 5) btn.classList.add('border-amber-200'); // Set 1
+                else if (i < 15) btn.classList.add('border-emerald-200'); // Set 2
+                else if (i < 25) btn.classList.add('border-blue-200'); // Set 3
+                else btn.classList.add('border-slate-300'); // Set 4
+
+                btn.onclick = () => jumpToQuestion(i);
+                els.nav.appendChild(btn);
+            });
+        }
+
+        function jumpToQuestion(index) {
+            if (els.audioPlayer) {
+                els.audioPlayer.pause();
+                els.audioPlayer.currentTime = 0;
+            }
+            stopTTS();
+            stopAllTimers();
+            stopRecording(false);
+            loadQuestion(index);
+        }
+
+        function loadQuestion(index) {
+            currentIndex = index;
+            const q = rawData[index];
+            
+            // UI Updates
+            document.querySelectorAll('#question-nav button').forEach(b => b.className = b.className.replace('bg-amber-500 text-white', 'bg-white text-slate-500'));
+            document.getElementById(`nav-btn-${index}`).className = document.getElementById(`nav-btn-${index}`).className.replace('bg-white text-slate-500', 'bg-amber-500 text-white');
+            document.getElementById(`nav-btn-${index}`).scrollIntoView({ inline: 'center', behavior: 'smooth' });
+
+            els.statusOverlay.classList.add('hidden');
+            els.liveTranscript.value = "";
+            els.liveTranscript.removeAttribute('readonly'); // Make sure it's editable
+            els.btnNext.disabled = true;
+            els.btnNext.className = "w-full bg-slate-200 text-slate-400 font-bold py-3 rounded cursor-not-allowed";
+            els.micIcon.className = "absolute text-4xl text-slate-300"; 
+            els.audioBackup.classList.add('hidden');
+            
+            // Sets Logic
+            els.helperTemplate.classList.add('hidden');
+            els.helperNotepad.classList.add('hidden');
+            let setLabel = "";
+            
+            if (index < 5) {
+                setLabel = "Set 1: Template";
+                els.helperTemplate.classList.remove('hidden');
+            } else if (index < 15) {
+                setLabel = "Set 2: Note-Taking";
+                els.helperNotepad.classList.remove('hidden');
+            } else if (index < 25) {
+                setLabel = "Set 3: Exam Sim";
+            } else {
+                setLabel = "Set 4: Audio Focus";
+            }
+            els.setBadge.innerText = setLabel;
+
+            const audioUrl = getAudioUrl(q.id);
+            els.audioPlayer.src = audioUrl;
+            els.audioPlayer.onerror = () => els.audioBackup.classList.remove('hidden');
+            els.audioPlayer.onended = () => startPrep();
+        }
+
+        // --- TTS Logic ---
+        function playTTS() {
+            stopTTS(); 
+            const text = rawData[currentIndex].text; // Need full text for this to work well
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9; 
+            
+            utterance.onstart = () => {
+                const btn = document.getElementById('btn-tts-play');
+                btn.innerHTML = '<i class="fas fa-volume-up animate-pulse"></i> Speaking...';
+                btn.classList.add('bg-amber-100', 'text-amber-700');
+                els.audioPlayer.pause(); 
+            };
+            
+            utterance.onend = () => {
+                resetTTSBtn();
+                startPrep(); 
+            };
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function stopTTS() {
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            resetTTSBtn();
+        }
+
+        function resetTTSBtn() {
+            const btn = document.getElementById('btn-tts-play');
+            if(btn) {
+                btn.innerHTML = '<i class="fas fa-play"></i> Play AI Voice';
+                btn.classList.remove('bg-amber-100', 'text-amber-700');
+            }
+        }
+
+        // --- FLOW LOGIC ---
+
+        function startPrep() {
+            stopTTS();
+            els.statusOverlay.classList.remove('hidden');
+            els.statusText.innerText = "Prep Time";
+            
+            let timeLeft = 10;
+            els.statusTimer.innerText = timeLeft;
+            
+            prepInterval = setInterval(() => {
+                timeLeft--;
+                els.statusTimer.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(prepInterval);
+                    startRecording();
+                }
+            }, 1000);
+        }
+
+        function skipPrep() {
+            clearInterval(prepInterval);
+            startRecording();
+        }
+
+        async function startRecording() {
+            clearInterval(prepInterval);
+            
+            // Check if global stream is active, if not (rare error case), try to get it again
+            if (!globalStream || !globalStream.active) {
+                try {
+                    globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                } catch (e) {
+                    alert("Microphone disconnected. Please refresh.");
+                    return;
+                }
+            }
+
+            els.statusText.innerText = "Recording";
+            els.statusOverlay.classList.remove('hidden');
+            els.btnSkipPrep.classList.add('hidden');
+            els.micIcon.className = "absolute text-4xl text-red-500 mic-active";
+            
+            // Focus textarea so Win+H works immediately
+            els.liveTranscript.focus();
+
+            await playBeep();
+
+            try {
+                // Use the Global Stream
+                mediaRecorder = new MediaRecorder(globalStream);
+                chunks = [];
+                
+                mediaRecorder.ondataavailable = e => chunks.push(e.data);
+                
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'audio/webm' });
+                    userResponses[currentIndex] = {
+                        id: rawData[currentIndex].id,
+                        blob: blob,
+                        transcript: els.liveTranscript.value
+                    };
+                    
+                    document.getElementById(`nav-btn-${currentIndex}`).classList.add('bg-green-100', 'border-green-300', 'text-green-700');
+                    els.btnNext.disabled = false;
+                    els.btnNext.className = "w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded shadow transition";
+                };
+                
+                mediaRecorder.start();
+
+                let timeLeft = 40;
+                els.statusTimer.innerText = timeLeft;
+                els.btnSkipPrep.classList.remove('hidden'); 
+                els.btnSkipPrep.onclick = () => stopRecording(true);
+                els.btnSkipPrep.innerText = "Stop Recording";
+                
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    els.statusTimer.innerText = timeLeft;
+                    if (timeLeft <= 0) {
+                        stopRecording(true);
+                    }
+                }, 1000);
+
+            } catch (e) {
+                alert("Recorder Error: " + e.message);
+            }
+        }
+
+        function stopRecording(save) {
+            stopAllTimers();
+            els.statusOverlay.classList.add('hidden');
+            els.micIcon.className = "absolute text-4xl text-slate-300";
+            
+            els.btnSkipPrep.onclick = () => skipPrep();
+            els.btnSkipPrep.innerText = "Start Speaking Now";
+
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                if(save) {
+                    mediaRecorder.stop(); 
+                } else {
+                    mediaRecorder.onstop = null;
+                    mediaRecorder.stop();
+                    // DO NOT STOP TRACKS HERE - WE KEEP STREAM ALIVE
+                }
+            }
+        }
+
+        function forceNext() {
+            if (currentIndex < rawData.length - 1) {
+                loadQuestion(currentIndex + 1);
+            } else {
+                finishDrill();
+            }
+        }
+
+        function stopAllTimers() {
+            clearInterval(prepInterval);
+            clearInterval(timerInterval);
+        }
+
+        function formatTime(s) {
+            if(isNaN(s)) return "0:00";
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return `${m}:${sec < 10 ? '0'+sec : sec}`;
+        }
+
+        // --- RESULTS ---
+        function finishDrill() {
+            // STOP THE MIC TRACKS HERE (Final cleanup)
+            if (globalStream) {
+                globalStream.getTracks().forEach(track => track.stop());
+                globalStream = null;
+            }
+
+            document.getElementById('screen-active').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('hidden');
+            
+            const list = els.resultsList;
+            list.innerHTML = '';
+            
+            userResponses.forEach((resp, i) => {
+                if(!resp) return; 
+                
+                // Get Key from ID
+                const sampleKey = sampleKeys[resp.id] || "Sample Answer Not Available.";
+                
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-4";
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                        <span class="font-bold text-slate-700">Question ${i+1} (ID: ${resp.id})</span>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded">Recorded</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div>
+                                <strong class="text-xs text-slate-400 uppercase">Original Transcript (Reference)</strong>
+                                <p class="text-xs text-slate-600 bg-slate-50 p-2 rounded h-24 overflow-y-auto mt-1 opacity-70">
+                                    ${rawData[i].text}
+                                </p>
+                            </div>
+                            <div>
+                                <strong class="text-xs text-amber-500 uppercase">Official Sample Answer</strong>
+                                <p class="text-sm text-amber-900 bg-amber-50 p-2 rounded border border-amber-100 mt-1 italic leading-relaxed">
+                                    "${sampleKey}"
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <strong class="text-xs text-blue-500 uppercase">Your Recording</strong>
+                                <div id="wave-${i}" class="w-full h-16 bg-slate-50 rounded mt-1 border border-slate-200"></div>
+                                <button id="play-res-${i}" class="mt-2 text-xs font-bold text-slate-600 hover:text-blue-600 flex items-center gap-1">
+                                    <i class="fas fa-play"></i> Playback
+                                </button>
+                            </div>
+                            <div>
+                                <strong class="text-xs text-slate-400 uppercase">Your Transcript</strong>
+                                <p class="text-sm text-slate-800 bg-white border border-slate-200 p-2 rounded min-h-[4rem]">${resp.transcript || "No text entered."}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                list.appendChild(card);
+
+                if(resp.blob) {
+                    setTimeout(() => {
+                        const ws = WaveSurfer.create({
+                            container: `#wave-${i}`,
+                            waveColor: '#94a3b8',
+                            progressColor: '#3b82f6',
+                            height: 64,
+                            barWidth: 2,
+                            url: URL.createObjectURL(resp.blob)
+                        });
+                        document.getElementById(`play-res-${i}`).onclick = () => ws.playPause();
+                    }, 100);
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

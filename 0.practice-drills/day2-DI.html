@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 2 Practice Drill: Describe Image</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        
+        .mic-active { animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        
+        .hidden-section { display: none; }
+        .active-section { display: block; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #e2e8f0; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white p-4 shadow-lg shrink-0 flex justify-between items-center z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-xl">2</div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">Day 2: Describe Image</h1>
+                <p class="text-xs text-slate-400">Warm-up & Intensive Drills</p>
+            </div>
+        </div>
+        <div class="flex gap-2 text-sm font-bold">
+            <button onclick="switchSection('warmup')" id="btn-sec-warmup" class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 transition">Warm-up</button>
+            <button onclick="switchSection('intensive')" id="btn-sec-intensive" class="px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 transition">Intensive Drills</button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 relative overflow-hidden bg-slate-100">
+
+        <!-- ================= SECTION 1: WARM UP ================= -->
+        <div id="section-warmup" class="active-section h-full overflow-y-auto p-6">
+            <div class="max-w-5xl mx-auto space-y-8 pb-20">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">🔥 Section 1: Structure Warm-up</h2>
+                    <p class="text-slate-600">Practice one sample for each type to get comfortable with the templates.</p>
+                </div>
+
+                <div id="warmup-list" class="space-y-12">
+                    <!-- Warmup Items injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 2: INTENSIVE DRILL ================= -->
+        <div id="section-intensive" class="hidden-section h-full flex flex-col">
+            
+            <!-- Setup / Intro Screen -->
+            <div id="intensive-intro" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                <div class="bg-white p-10 rounded-2xl shadow-xl max-w-2xl">
+                    <i class="fas fa-dumbbell text-6xl text-indigo-500 mb-6"></i>
+                    <h2 class="text-3xl font-bold text-slate-800 mb-4">Intensive Speed Drill</h2>
+                    <p class="text-slate-600 mb-8 text-lg">36 Questions Total • 3 Sets • High Intensity</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-left text-sm">
+                        <div class="p-4 bg-blue-50 rounded border border-blue-100">
+                            <strong class="block text-blue-700 mb-1">Set 1 (12 Qs)</strong>
+                            Data Charts (Bar, Line, Pie, Table).<br>Standard 25s Prep.
+                        </div>
+                        <div class="p-4 bg-emerald-50 rounded border border-emerald-100">
+                            <strong class="block text-emerald-700 mb-1">Set 2 (6 Qs)</strong>
+                            Maps & Processes.<br>Standard 25s Prep.
+                        </div>
+                        <div class="p-4 bg-red-50 rounded border border-red-100">
+                            <strong class="block text-red-700 mb-1">Set 3 (18 Qs)</strong>
+                            Mixed Speed Drill.<br><strong>⚡ 15s Prep Only!</strong>
+                        </div>
+                    </div>
+
+                    <button onclick="startIntensiveDrill()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-lg transition transform hover:scale-105">
+                        Start Drill Sequence
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Question Interface -->
+            <div id="intensive-active" class="hidden h-full flex flex-col relative">
+                
+                <!-- Nav Bar -->
+                <div class="bg-white border-b border-slate-200 p-2 overflow-x-auto whitespace-nowrap flex gap-2 shadow-sm shrink-0" id="intensive-nav">
+                    <!-- Nav buttons injected here -->
+                </div>
+
+                <!-- Main Workspace -->
+                <div class="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
+                    
+                    <!-- Left: Image -->
+                    <div class="flex-1 bg-slate-200 p-4 flex items-center justify-center relative overflow-hidden">
+                        <img id="intensive-img" src="" alt="Question Image" class="max-w-full max-h-full object-contain shadow-lg rounded bg-white transition-opacity duration-300">
+                        
+                        <!-- Status Overlay -->
+                        <div id="intensive-status-overlay" class="absolute top-6 left-1/2 transform -translate-x-1/2 bg-slate-900/90 text-white px-6 py-2 rounded-full font-bold shadow-xl z-10">
+                            Prep Time: <span id="intensive-timer">25</span>s
+                        </div>
+                    </div>
+
+                    <!-- Right: Controls & Dictation -->
+                    <div class="w-full md:w-96 bg-white border-l border-slate-200 flex flex-col shrink-0">
+                        <div class="p-4 border-b border-slate-100 bg-slate-50">
+                            <div class="flex justify-between items-center mb-2">
+                                <span id="intensive-q-type" class="text-xs font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded">Bar Chart</span>
+                                <span class="text-xs text-slate-400 font-mono" id="intensive-counter">1/36</span>
+                            </div>
+                            <h3 class="font-bold text-slate-800">Describe the image</h3>
+                        </div>
+
+                        <!-- Waveform -->
+                        <div class="p-4 bg-slate-50 border-b border-slate-200 h-24 flex items-center justify-center">
+                            <div id="intensive-waveform" class="w-full h-full opacity-50"></div>
+                        </div>
+
+                        <!-- Dictation Area -->
+                        <div class="flex-1 p-4 flex flex-col">
+                            <label class="text-xs font-bold text-slate-400 uppercase mb-2 flex justify-between">
+                                <span><i class="fab fa-windows mr-1"></i> Dictation (Win+H)</span>
+                                <span class="text-slate-300" id="dictation-status">Ready</span>
+                            </label>
+                            <textarea id="intensive-transcript" class="flex-1 w-full border border-slate-200 rounded p-3 text-sm resize-none focus:border-indigo-500 outline-none mb-4" placeholder="Place cursor here, press Win+H, and read..."></textarea>
+                            
+                            <!-- Control Buttons -->
+                            <div class="flex gap-2">
+                                <button id="btn-skip-prep" onclick="skipPrep()" class="flex-1 bg-slate-200 text-slate-700 font-bold py-3 rounded hover:bg-slate-300">Skip Prep</button>
+                                <button id="btn-stop-rec" onclick="stopRecording()" class="flex-1 bg-red-500 text-white font-bold py-3 rounded hover:bg-red-600 hidden">Stop & Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Review -->
+            <div id="intensive-results" class="hidden h-full overflow-y-auto p-6 bg-slate-100">
+                <div class="max-w-5xl mx-auto pb-20">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6 flex justify-between items-center">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">Drill Complete! 🏁</h2>
+                            <p class="text-slate-500">Review your recordings and transcripts below.</p>
+                        </div>
+                        <button onclick="location.reload()" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">New Session</button>
+                    </div>
+                    <div id="intensive-results-list" class="grid grid-cols-1 gap-6">
+                        <!-- Results injected here -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Templates & Scripts -->
+    <script>
+        // --- BASE DATA ---
+        const BASE_URL = "https://baongocnguyenngo2018-bot.github.io/PTE/04.describe-image/";
+        const BEEP_URL = "https://baongocnguyenngo2018-bot.github.io/PTE/03.repeat-sentence/beep.mp3";
+        
+        // Helper to generate full path
+        const getImg = (name) => `${BASE_URL}${encodeURIComponent(name)}`;
+
+        // --- SAMPLE ANSWERS DATABASE ---
+        const sampleAnswers = {
+            "Bar Chart - Annual Tourist Numbers.png": "The bar chart illustrates annual tourist numbers for the USA, France, and Japan from 2010 to 2020. Overall, all three countries show fluctuations over time with no consistent upward trend. France generally attracts the highest number of tourists, peaking around one million in some years. The USA remains relatively stable in the middle range, while Japan records the lowest figures but shows noticeable growth after 2015. In summary, France dominates tourist arrivals, whereas Japan experiences gradual improvement.",
+            "Bar Chart - Australian Population and Births.png": "The chart shows Australia’s population by foreign country of birth in 2013, 2018, and 2023. Overall, all listed countries experience significant growth over time. India has the largest increase, becoming the top source country by 2023, followed closely by China. Other countries such as Nepal, the Philippines, and Vietnam also show steady rises, though at lower levels. In conclusion, Australia’s overseas-born population has expanded rapidly, led mainly by Asian countries.",
+            "Bar Chart - Average Weekly Household Spending.png": "The bar chart presents average weekly household spending on various goods and services in 2015–16. Overall, housing costs account for the highest expenditure, followed by food and non-alcoholic beverages and transport. In contrast, spending on tobacco products, personal care, and alcoholic beverages is relatively low. Recreational and medical expenses fall in the middle range. In summary, essential living costs dominate household budgets compared to discretionary items.",
+            "Bar Chart - Box Office Revenue.png": "The bar chart compares box office revenue across different movie genres, measured in millions of US dollars. Overall, horror and documentary films generate the highest revenue, exceeding four million dollars each. Comedy, thriller, and drama show moderate earnings, while action and animation record lower figures. Science fiction also remains below the top-performing genres. In conclusion, revenue varies significantly by genre, with horror films leading the market.",
+            "Bar Chart - Canada Tourism Stats.png": "The bar chart illustrates inbound tourist arrivals to Canada from 2017 to 2023. Overall, tourism increases steadily until 2019, reaching just over 22 million visitors. However, there is a dramatic decline in 2020 and 2021 due to global travel restrictions. From 2022 onward, tourist numbers recover strongly, rising to more than 18 million in 2023. In summary, Canada’s tourism sector shows a sharp downturn followed by a clear recovery.",
+            "Bar Chart - Cat Owners.png": "The bar chart shows the percentage of people who own a cat in selected countries in 2017. Overall, Russia has the highest proportion of cat owners at about 59 percent. This is followed by the United States and Argentina, with around 43 and 41 percent respectively. Several European countries such as Italy and France are close to 40 percent. In contrast, Asian countries show lower ownership, with Japan and China at about 16 percent and South Korea at only 9 percent. In conclusion, cat ownership is most common in Russia and least common in South Korea.",
+            "Line Chart - Agewise Volunteer Trends.png": "The line graph illustrates volunteer rates across different age groups for males and females. Overall, females tend to volunteer more than males in most age categories. Volunteer participation increases from young adulthood and peaks around the 35 to 44 age group, especially for females. After that, rates gradually decline with age. In the oldest age group, participation drops significantly for both genders. In summary, middle-aged adults volunteer the most, and females consistently show higher rates.",
+            "Line Chart - Annual Height Increase.png": "This line graph compares the annual height increase in centimeters for boys and girls from birth to age 18. In early childhood, both genders experience rapid growth, with boys growing slightly faster than girls. Growth rates stabilize during middle childhood at around 6 centimeters per year. During adolescence, boys show a higher growth spurt, peaking later than girls. After age 15, growth sharply declines for both groups. Overall, boys experience a stronger and longer adolescent growth phase.",
+            "Line Chart - Atlantic Cod Stocks.png": "The area chart shows fish landings of Atlantic cod on the east coast of Newfoundland from 1850 to 2000. Initially, cod stocks increased gradually and remained relatively stable for many decades. However, there was a dramatic peak in the late 1960s, followed by a sharp decline. By 1992, fish landings collapsed to almost zero. In conclusion, the chart clearly highlights a severe overfishing crisis leading to the collapse of cod stocks.",
+            "Line Chart - Car Fuel Consumption.png": "The line graph illustrates car fuel consumption measured in liters per 100 kilometers from 2000 to 2020. Overall, fuel consumption fluctuates significantly over the period. It starts at around 12 liters in 2000, drops sharply in the early 2000s, and then rises to a peak of over 14 liters around 2007 and 2013. Towards 2020, consumption declines again to below 7 liters. In summary, the trend shows irregular changes with a noticeable reduction in recent years.",
+            "Line Chart - Consumption of Meat.png": "The line graph compares the consumption of pig, lamb, and cattle meat from 1993 to 2020 in kilograms. Overall, lamb consumption is the highest throughout the period and increases steadily until it peaks around 2018, before slightly declining. Cattle meat shows moderate growth with some fluctuations, while pig meat remains the lowest but gradually rises over time. In conclusion, lamb is the most consumed meat, while pig consumption remains comparatively low.",
+            "Line Chart - Newspaper Circulation.png": "The line graph shows newspaper circulation in the USA as a percentage of households from 1960 to 2017, comparing weekday and Sunday editions. Overall, both categories show a clear downward trend. Weekday circulation starts at over 110 percent and declines steadily to below 30 percent by 2017. Sunday circulation also falls from about 90 percent to around 30 percent. In summary, newspaper readership has decreased significantly over time for both weekday and Sunday editions.",
+            "Pie Chart - Daily Activity of a Student.png": "The pie chart illustrates the daily activities of a student. Overall, sleep occupies the largest proportion at 30 percent. College hours account for 25 percent, followed by study time at 20 percent. Recreation represents 12 percent, while other activities make up 8 percent. Play has the smallest share at only 5 percent. In conclusion, most of the student’s day is spent on essential activities such as sleep, college, and study.",
+            "Pie Chart - English Influences.png": "The pie chart shows the origins of English vocabulary. Latin and French are the dominant sources, each contributing 29 percent. Germanic languages account for 26 percent, forming a significant portion as well. Greek and other languages each represent 6 percent, while words derived from proper names form the smallest share at 4 percent. Overall, English is heavily influenced by European languages, especially Latin and French.",
+            "Pie Chart - Favorite Types of Movies.png": "This pie chart displays people’s favorite types of movies. Romance is the most preferred genre at 30 percent, followed by action movies at 25 percent. Comedy and science fiction are equally popular, each accounting for 20 percent. Drama is the least favored category at just 5 percent. In summary, romantic and action movies dominate viewer preferences.",
+            "Pie Chart - Foreign Language Motivation.png": "The pie chart illustrates reasons for learning a foreign language. Career opportunities form the largest share, followed closely by education-related purposes. Travel and cultural interest contribute moderately, while personal interest accounts for a smaller portion. Overall, practical motivations such as jobs and studies are more significant than leisure-related reasons.",
+            "Pie Chart - Global Language Distribution.png": "The pie chart represents the global distribution of languages by number of speakers. Other languages collectively form the largest share at 30 percent. Mandarin is the most spoken individual language at 19 percent, followed by English at 17 percent and Hindi at 13 percent. Spanish, French, and Arabic together make up smaller proportions. In conclusion, while many languages exist globally, a few major ones dominate usage.",
+            "Pie Chart - Nutritional Composition.png": "The pie chart shows the nutritional composition of food. Vitamins make up the largest proportion at approximately 33 percent, followed by minerals at 28 percent. Protein and fats each account for around 11 percent, while fiber represents about 9 percent. Carbohydrates have the smallest share at 8 percent. Overall, the chart highlights a balanced distribution with a strong emphasis on vitamins and minerals.",
+            "Table - Middle School Timetable.png": "The table presents a middle school timetable from Monday to Friday. Students attend subjects such as Math, English, Science, and Language Arts throughout the week. Lunch breaks occur daily from 12:35 to 2:00 pm. Physical education, art, and computer science are also included. In summary, the timetable shows a balanced mix of academic and practical subjects.",
+            "Table - Sport Participation.png": "The table compares the percentage of boys aged 6–11 and 12–16 participating in five sports in the UK in 2010. Football is the most popular sport for both age groups, at 87 percent and 78 percent respectively. Cricket and basketball show moderate participation, while rugby and swimming have lower figures. Overall, younger boys tend to participate more actively than older boys.",
+            "Table - Students Migrating to UK.png": "The table shows the number of students migrating to the UK in 2023 by country. China ranks first with over 150,000 students, followed by India with approximately 125,000. Nigeria is third at 50,000, while the United States and Pakistan contribute smaller numbers. In conclusion, Asian countries dominate international student migration to the UK.",
+            "Table - Transportation Preferences.png": "The table illustrates transportation mode usage by different age groups. Cars are the most commonly used mode across all ages, peaking at over 78 percent among people aged 36 to 50. Public transport is more popular among younger and older groups. Walking, cycling, and ride-sharing account for smaller percentages. Overall, private car usage dominates transportation preferences.",
+            "Table - University Enrollment.png": "The table presents university enrollment by department. Engineering has the highest total enrollment with over 3,300 students, followed by Business and Medicine. Medicine also has the largest number of faculty members at 167. Social Sciences show the lowest enrollment figures. In summary, technical and professional fields attract more students than arts-related disciplines.",
+            "Table - Nitrogen and Phosphorus.png": "The table compares nitrogen and phosphorus emissions from different animal protein sources, measured in kilograms per tonne of protein produced. Beef has the highest emissions, with around 1200 kilograms of nitrogen and 180 kilograms of phosphorus. Pork and chicken show lower values, while fish averages are moderate. Interestingly, bivalves have negative emissions, indicating environmental benefits. Overall, the table highlights that red meat production causes significantly higher nutrient pollution compared to poultry and seafood.",
+            "Process - Apple Life cycle.png": "The diagram illustrates the life cycle of an apple tree. It begins with seeds, which grow into a tree. The tree then produces buds that develop into flowers. After pollination, the flowers turn into fruits, which contain seeds inside. Finally, these seeds can be planted again, continuing the cycle. Overall, it shows a continuous and natural growth process.",
+            "Process - Food Preparation.png": "The image shows the process of food preparation. It starts with washing hands to maintain hygiene. Next, raw meat is cut on a chopping board. Then the food is cooked in an oven. Finally, the prepared food is stored in a refrigerator to keep it fresh. Overall, the process emphasizes cleanliness, cooking, and safe storage.",
+            "Process - Handwashing.png": "The diagram explains the correct steps of handwashing. First, hands are wet with water and soap is applied. Then the hands are rubbed palm to palm, between fingers, and over the backs of hands and thumbs. These steps ensure proper cleaning. Overall, the image highlights the importance of hand hygiene to prevent disease.",
+            "Process - Human Evolution.png": "The image illustrates the stages of human evolution. It begins with apes, followed by Australopithecus and Homo erectus. This progresses to Homo sapiens, and finally modern humans using technology. The figures become more upright over time. Overall, it shows the gradual physical and behavioral development of humans.",
+            "Process - Hydrological cycle.png": "The diagram represents the hydrological cycle. Water evaporates from oceans and rivers, forming clouds through condensation. It then falls as precipitation in the form of rain or snow. Water flows as runoff or infiltrates the ground before returning to rivers and seas. Overall, it demonstrates the continuous movement of water in nature.",
+            "Process - Laundry.png": "The image shows the steps involved in doing laundry. First, clothes are sorted and checked. Then they are placed into a washing machine with detergent. After washing, the clothes are dried and folded. Overall, it presents a simple and organized household process.",
+            "Image - Sunset.png": "The image shows people taking photos of a city during sunset from a high viewpoint. The sky is filled with warm orange and blue colors, creating a peaceful atmosphere. Tall buildings and a long road can be seen below. Overall, the image captures a calm and scenic urban moment.",
+            "Image - Family Meal.png": "The picture shows a family enjoying a meal together at a dining table. People of different ages are smiling and interacting happily. There is a variety of food on the table, suggesting a shared family dinner. Overall, the image represents togetherness and happiness.",
+            "Image - Fire Emergency.png": "The image illustrates fire emergency procedures. It shows actions such as sounding the alarm, staying low in smoke, evacuating the building, assembling at a safe point, and reporting the incident. Symbols and icons make the steps clear. Overall, the image emphasizes safety and quick response during a fire.",
+            "Image - Geocentric Theory.png": "The image illustrates the geocentric theory of the universe. In the center of the diagram, the Earth is shown as stationary, while the Moon, Sun, and planets such as Mercury, Venus, Mars, Jupiter, and Saturn revolve around it in circular orbits. The outermost layer represents fixed stars. Overall, the diagram explains the ancient belief that Earth was the center of the universe, which was later replaced by the heliocentric model.",
+            "Image - Internet Interaction.png": "The diagram shows how users access a website through the internet. First, users connect to the internet via an ISP. Then, a request is sent to a DNS server to obtain the website’s IP address. After receiving the IP, the user connects to the web server and requests the webpage. Finally, the web server returns the webpage content. Overall, the image clearly explains the step-by-step process of internet communication.",
+            "Image - Parts of Tree.png": "The image displays the structure of a tree and its main parts. Above the ground, it shows leaves, branches, twigs, and the trunk, while below the ground, the roots are illustrated spreading widely. Each part has a specific function, such as leaves for photosynthesis and roots for absorption. Overall, the diagram clearly explains the anatomy of a tree in a natural environment.",
+            "Mixed Charts - College Courses.png": "The pie charts compare the distribution of college courses in 2010 and 2012. In 2010, social studies and nursing accounted for the largest proportions, while carpentry had the smallest share. In 2012, sports science increased significantly, becoming the largest category, whereas nursing declined sharply. Overall, the charts show a noticeable shift in students’ course preferences over time.",
+            "Mixed Charts - BBC and CNN.png": "The chart compares monthly news reports by CNN and BBC. CNN is represented by bar charts, while BBC is shown using a line graph. CNN reports remain relatively high throughout the year, peaking in May and December. In contrast, BBC reports fluctuate, with noticeable peaks in June and October. Overall, the image highlights different reporting patterns between the two news organizations.",
+            "Mixed Charts - Crime and Poverty.png": "The chart presents crime rates and poverty rates in Australia from 2010 to 2019. Crime rates, shown by bars, generally decline after peaking around 2014. Meanwhile, the poverty rate, illustrated by a line graph, shows a steady downward trend throughout the period. Overall, both indicators decrease over time, suggesting an improvement in social conditions.",
+            "Mixed Charts - Fossil Fuel.png": "The image compares fossil fuel reserves and renewable energy usage over time. Fossil fuel reserves, shown by bars, decrease steadily from 2010 to 2020. In contrast, renewable energy usage, represented by a line graph, rises consistently during the same period. Overall, the chart clearly indicates a transition from fossil fuels to renewable energy sources.",
+            "Mixed Charts - News Platforms.png": "The chart shows how Americans consume news across different platforms. Television remains the most popular source, followed by online platforms, radio, and print newspapers. The data also highlights age differences, with younger adults preferring online news, while older age groups rely more on television and print media. Overall, the image illustrates changing news consumption habits across generations.",
+            "Maps - European Countries.png": "The image is a political map of Europe showing different countries in distinct colors. Major countries such as France, Germany, Spain, Italy, and Poland are clearly labeled along with their capitals. Northern Europe includes Norway, Sweden, and Finland, while Southern Europe features Greece and Italy. Overall, the map highlights national boundaries and geographical locations across the European continent.",
+            "Maps - European Nuclear Plant Distribution.png": "This map illustrates nuclear power generation across Europe. Different shades represent the percentage of electricity produced from nuclear energy. France has the highest share, exceeding fifty-five percent, followed by Slovakia and Ukraine. Symbols indicate nuclear plants that are operational, under construction, or permanently shut down. Overall, the map shows that nuclear energy plays a significant role in several European countries.",
+            "Maps - Main Hall.png": "The image shows a floor plan of a building’s main hall. It includes an office and a kitchen on the left side, while the right side contains male, female, and handicapped toilets. The layout is simple and well-organized, with clearly labeled sections. Overall, the diagram provides a clear overview of room locations and facility arrangement.",
+            "Maps - Africa.png": "The map displays the African continent with country boundaries and names. Major countries such as Algeria, Libya, Egypt, Sudan, and South Africa are clearly marked. Central Africa includes the Democratic Republic of the Congo, while Madagascar appears off the southeastern coast. Overall, the image provides a simplified geographical overview of Africa and its political divisions.",
+            "Maps - Agriculture.jpeg": "This image shows agricultural land-use patterns across Asia. Different colors represent various farming activities such as rice cultivation, livestock farming, aquaculture, tea plantations, and spice farming. China and India are dominated by livestock farming, while Southeast Asia shows extensive rice cultivation. Overall, the map highlights regional agricultural diversity across the continent.",
+            "Maps - Ladybird.png": "The map illustrates the distribution of the harlequin ladybird in England. Red dots represent sightings in 2004, while black dots indicate sightings in 2005. Most observations are concentrated in the eastern and southern regions of England. Overall, the image shows a rapid spread of the species over a short period of time."
+        };
+
+        // Helper to play beep
+        function playBeep() {
+            return new Promise((resolve) => {
+                const audio = new Audio(BEEP_URL);
+                audio.onended = resolve;
+                audio.onerror = resolve; // Fallback if error
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.warn("Beep autoplay blocked", error);
+                        resolve(); // Resolve anyway to not block flow
+                    });
+                }
+            });
+        }
+
+        // DATASETS
+        const warmUpData = [
+            { type: "Bar Chart", img: "Bar Chart - Annual Tourist Numbers.png" },
+            { type: "Line Chart", img: "Line Chart - Annual Height Increase.png" },
+            { type: "Pie Chart", img: "Pie Chart - Daily Activity of a Student.png" },
+            { type: "Table", img: "Table - Middle School Timetable.png" },
+            { type: "Process", img: "Process - Apple Life cycle.png" },
+            { type: "Map", img: "Maps - European Countries.png" },
+            { type: "Photo/Scene", img: "Image - Sunset.png" },
+            { type: "Diagram", img: "Image - Geocentric Theory.png" },
+            { type: "Mixed Chart", img: "Mixed Charts - College Courses.png" }
+        ];
+
+        const intensiveSet1 = [
+            // Bar (3)
+            "Bar Chart - Australian Population and Births.png", "Bar Chart - Average Weekly Household Spending.png", "Bar Chart - Box Office Revenue.png",
+            // Line (3)
+            "Line Chart - Atlantic Cod Stocks.png", "Line Chart - Car Fuel Consumption.png", "Line Chart - Consumption of Meat.png",
+            // Pie (3)
+            "Pie Chart - English Influences.png", "Pie Chart - Favorite Types of Movies.png", "Pie Chart - Foreign Language Motivation.png",
+            // Table (3)
+            "Table - Sport Participation.png", "Table - Students Migrating to UK.png", "Table - Transportation Preferences.png"
+        ].map(i => ({ img: i, type: i.split(' - ')[0] }));
+
+        const intensiveSet2 = [
+            // Map (3)
+            "Maps - European Nuclear Plant Distribution.png", "Maps - Main Hall.png", "Maps - Africa.png",
+            // Process (3)
+            "Process - Food Preparation.png", "Process - Handwashing.png", "Process - Human Evolution.png"
+        ].map(i => ({ img: i, type: i.split(' - ')[0] }));
+
+        const speedDrillPool = [
+            // Mix of everything (18 items selected for brevity in code, but conceptually random)
+            "Bar Chart - Canada Tourism Stats.png", "Bar Chart - Cat Owners.png",
+            "Line Chart - Newspaper Circulation.png", "Line Chart - Agewise Volunteer Trends.png",
+            "Pie Chart - Global Language Distribution.png", "Pie Chart - Nutritional Composition.png",
+            "Table - University Enrollment.png", "Table - Nitrogen and Phosphorus.png",
+            "Process - Hydrological cycle.png", "Process - Laundry.png",
+            "Maps - Agriculture.jpeg", "Maps - Ladybird.png",
+            // Image (4)
+            "Image - Family Meal.png", "Image - Fire Emergency.png", "Image - Internet Interaction.png", "Image - Parts of Tree.png",
+            // Mixed (2)
+            "Mixed Charts - BBC and CNN.png", "Mixed Charts - Crime and Poverty.png"
+        ].map(i => ({ img: i, type: i.split(' - ')[0] }));
+
+        // Combined for Intensive Logic
+        let intensiveQuestions = [];
+        
+        // --- GLOBAL STATE ---
+        let currentSection = 'warmup';
+        let mediaRecorder;
+        let audioChunks = [];
+        let activeWaveSurfer;
+        let recordingTimer;
+        let prepTimer;
+        let currentIntensiveIndex = 0;
+        let userResponses = []; // Store blobs and transcripts
+
+        // --- DOM ELEMENTS ---
+        const els = {
+            warmupList: document.getElementById('warmup-list'),
+            intensiveIntro: document.getElementById('intensive-intro'),
+            intensiveActive: document.getElementById('intensive-active'),
+            intensiveResults: document.getElementById('intensive-results'),
+            intensiveImg: document.getElementById('intensive-img'),
+            intensiveOverlay: document.getElementById('intensive-status-overlay'),
+            intensiveTimer: document.getElementById('intensive-timer'),
+            intensiveQType: document.getElementById('intensive-q-type'),
+            intensiveCounter: document.getElementById('intensive-counter'),
+            intensiveNav: document.getElementById('intensive-nav'),
+            intensiveTranscript: document.getElementById('intensive-transcript'),
+            btnSkip: document.getElementById('btn-skip-prep'),
+            btnStop: document.getElementById('btn-stop-rec'),
+            resultsList: document.getElementById('intensive-results-list')
+        };
+
+        // --- INITIALIZATION ---
+        
+        function init() {
+            renderWarmup();
+        }
+
+        function switchSection(sec) {
+            currentSection = sec;
+            document.getElementById('section-warmup').className = sec === 'warmup' ? 'active-section h-full overflow-y-auto p-6' : 'hidden-section';
+            document.getElementById('section-intensive').className = sec === 'intensive' ? 'active-section h-full flex flex-col' : 'hidden-section';
+            
+            // Toggle Button Styles
+            const btnW = document.getElementById('btn-sec-warmup');
+            const btnI = document.getElementById('btn-sec-intensive');
+            if(sec === 'warmup') {
+                btnW.className = "px-4 py-2 rounded bg-indigo-600 text-white transition";
+                btnI.className = "px-4 py-2 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 transition";
+            } else {
+                btnI.className = "px-4 py-2 rounded bg-indigo-600 text-white transition";
+                btnW.className = "px-4 py-2 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 transition";
+            }
+        }
+
+        // --- WARM UP LOGIC ---
+
+        function renderWarmup() {
+            els.warmupList.innerHTML = '';
+            warmUpData.forEach((item, index) => {
+                const answerText = sampleAnswers[item.img] || "Sample Answer not available for this image.";
+                
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-xl shadow-md border-l-4 border-indigo-500 flex flex-col md:flex-row gap-6";
+                card.innerHTML = `
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">${item.type}</span>
+                            <span class="text-slate-400 text-xs font-mono">Warm-up #${index+1}</span>
+                        </div>
+                        <img src="${getImg(item.img)}" class="w-full rounded border border-slate-200 mb-4 hover:scale-[1.02] transition-transform duration-300 cursor-zoom-in" onclick="window.open(this.src)">
+                    </div>
+                    <div class="flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-slate-700">Practice Mode</h3>
+                                <button onclick="toggleWarmupRec(${index})" id="btn-warmup-start-${index}" class="bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold px-4 py-2 rounded shadow flex items-center gap-2">
+                                    <i class="fas fa-microphone"></i> Start
+                                </button>
+                            </div>
+                            
+                            <!-- Dictation Area -->
+                            <textarea id="warmup-text-${index}" class="w-full h-32 border border-slate-200 rounded p-3 text-sm resize-none focus:border-indigo-500 outline-none mb-4" placeholder="1. Click 'Start' (Timer runs). 2. Press Win+H to dictate answer here..."></textarea>
+                            
+                            <!-- Timer & Wave -->
+                            <div id="warmup-ui-${index}" class="hidden mb-4 p-3 bg-slate-50 rounded border border-slate-100">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs text-slate-500 font-bold uppercase">Status</span>
+                                    <span id="warmup-timer-${index}" class="font-mono font-bold text-red-600">40s</span>
+                                </div>
+                                <div id="warmup-wave-${index}" class="w-full h-12 opacity-80"></div>
+                            </div>
+                        </div>
+
+                        <!-- Sample Answer (Collapsible) -->
+                        <div class="border-t border-slate-100 pt-4">
+                            <button onclick="document.getElementById('ans-${index}').classList.toggle('hidden')" class="text-indigo-600 text-sm font-bold hover:underline flex items-center gap-2">
+                                <i class="fas fa-key"></i> Show Sample Answer
+                            </button>
+                            <div id="ans-${index}" class="hidden mt-3 p-3 bg-green-50 text-green-800 text-sm rounded border border-green-100 italic leading-relaxed">
+                                ${answerText}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                els.warmupList.appendChild(card);
+            });
+        }
+
+        let warmupRecorder = null;
+        let warmupInterval = null;
+
+        async function toggleWarmupRec(index) {
+            const btn = document.getElementById(`btn-warmup-start-${index}`);
+            const ui = document.getElementById(`warmup-ui-${index}`);
+            const timerDisplay = document.getElementById(`warmup-timer-${index}`);
+            const waveContainer = document.getElementById(`warmup-wave-${index}`);
+
+            if (btn.innerText.includes("Start") || btn.innerText.includes("Retry")) {
+                // START SEQUENCE
+                try {
+                    // Play Beep first
+                    await playBeep();
+
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    warmupRecorder = new MediaRecorder(stream);
+                    let chunks = [];
+                    
+                    // Setup UI for recording state
+                    waveContainer.innerHTML = ''; 
+                    const wsLive = WaveSurfer.create({
+                        container: waveContainer,
+                        waveColor: '#ef4444',
+                        height: 48,
+                        barWidth: 2,
+                        cursorWidth: 0,
+                        interact: false
+                    });
+                    
+                    warmupRecorder.ondataavailable = e => chunks.push(e.data);
+                    
+                    warmupRecorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'audio/webm' });
+                        const audioUrl = URL.createObjectURL(blob);
+                        
+                        // Switch to Playback UI
+                        waveContainer.innerHTML = ''; 
+                        const wsPlayback = WaveSurfer.create({
+                            container: waveContainer,
+                            waveColor: '#4f46e5',
+                            progressColor: '#818cf8',
+                            height: 48,
+                            barWidth: 2,
+                            url: audioUrl
+                        });
+                        
+                        // Interactive Playback
+                        wsPlayback.on('interaction', () => wsPlayback.play());
+                        wsPlayback.on('finish', () => wsPlayback.stop());
+                        
+                        // Reset Button
+                        btn.className = "bg-slate-800 hover:bg-slate-900 text-white text-sm font-bold px-4 py-2 rounded shadow flex items-center gap-2";
+                        btn.innerHTML = '<i class="fas fa-redo"></i> Retry';
+                        timerDisplay.innerText = "Review";
+                        timerDisplay.className = "font-mono font-bold text-indigo-600";
+                    };
+
+                    warmupRecorder.start();
+                    
+                    btn.className = "bg-red-500 hover:bg-red-600 text-white text-sm font-bold px-4 py-2 rounded shadow flex items-center gap-2 mic-active";
+                    btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+                    ui.classList.remove('hidden');
+                    
+                    let timeLeft = 40;
+                    timerDisplay.innerText = "40s";
+                    timerDisplay.className = "font-mono font-bold text-red-600";
+                    
+                    warmupInterval = setInterval(() => {
+                        timeLeft--;
+                        timerDisplay.innerText = timeLeft + "s";
+                        if(timeLeft <= 0) {
+                            if(warmupRecorder.state === 'recording') warmupRecorder.stop();
+                            clearInterval(warmupInterval);
+                        }
+                    }, 1000);
+
+                } catch(e) { alert("Mic access required"); console.error(e); }
+            } else if (btn.innerText.includes("Stop")) {
+                // STOP MANUALLY
+                clearInterval(warmupInterval);
+                if(warmupRecorder && warmupRecorder.state === 'recording') warmupRecorder.stop();
+            }
+        }
+
+
+        // --- INTENSIVE DRILL LOGIC ---
+
+        function startIntensiveDrill() {
+            // Build the master list in order
+            // Set 1 (Prep 25)
+            const s1 = intensiveSet1.map(q => ({...q, set: 1, prep: 25}));
+            // Set 2 (Prep 25)
+            const s2 = intensiveSet2.map(q => ({...q, set: 2, prep: 25}));
+            // Set 3 (Prep 15) - Shuffle speed drill?
+            const s3 = speedDrillPool.map(q => ({...q, set: 3, prep: 15}));
+            
+            intensiveQuestions = [...s1, ...s2, ...s3];
+            userResponses = new Array(intensiveQuestions.length).fill(null);
+            
+            els.intensiveIntro.classList.add('hidden');
+            els.intensiveActive.classList.remove('hidden');
+            
+            initIntensiveWave();
+            renderIntensiveNav();
+            loadIntensiveQuestion(0);
+        }
+
+        function initIntensiveWave() {
+            if(activeWaveSurfer) activeWaveSurfer.destroy();
+            activeWaveSurfer = WaveSurfer.create({
+                container: '#intensive-waveform',
+                waveColor: '#4f46e5',
+                progressColor: '#818cf8',
+                barWidth: 3,
+                height: 80,
+                cursorWidth: 0,
+                normalize: true
+            });
+        }
+
+        function renderIntensiveNav() {
+            els.intensiveNav.innerHTML = '';
+            intensiveQuestions.forEach((q, i) => {
+                const btn = document.createElement('button');
+                btn.className = `w-8 h-8 rounded shrink-0 text-xs font-bold border transition ${i === 0 ? 'bg-indigo-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`;
+                btn.innerText = i + 1;
+                btn.id = `nav-btn-${i}`;
+                
+                // Color code sets
+                if(q.set === 3) btn.classList.add('border-red-200');
+                else btn.classList.add('border-slate-200');
+
+                btn.onclick = () => {
+                    // Only allow jumping if not currently recording to avoid logic mess
+                    stopTimer();
+                    if(mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+                    loadIntensiveQuestion(i);
+                };
+                els.intensiveNav.appendChild(btn);
+            });
+        }
+
+        function loadIntensiveQuestion(index) {
+            if(index >= intensiveQuestions.length) {
+                finishIntensiveDrill();
+                return;
+            }
+
+            currentIntensiveIndex = index;
+            const q = intensiveQuestions[index];
+            
+            // Update UI
+            els.intensiveImg.src = getImg(q.img);
+            els.intensiveQType.innerText = q.type;
+            els.intensiveCounter.innerText = `${index + 1}/${intensiveQuestions.length}`;
+            els.intensiveTranscript.value = userResponses[index]?.transcript || "";
+            
+            // Highlight Nav
+            document.querySelectorAll('#intensive-nav button').forEach(b => b.className = b.className.replace('bg-indigo-600 text-white', 'bg-white text-slate-500'));
+            const activeBtn = document.getElementById(`nav-btn-${index}`);
+            if(activeBtn) {
+                activeBtn.className = activeBtn.className.replace('bg-white text-slate-500', 'bg-indigo-600 text-white');
+                activeBtn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+            }
+
+            // Start Flow
+            startPrep(q.prep);
+        }
+
+        // --- TIMER & RECORDING FLOW ---
+
+        function startPrep(duration) {
+            stopTimer();
+            // UI Reset
+            els.intensiveOverlay.className = "absolute top-6 left-1/2 transform -translate-x-1/2 bg-slate-900/90 text-white px-6 py-2 rounded-full font-bold shadow-xl z-10";
+            els.btnSkip.classList.remove('hidden');
+            els.btnStop.classList.add('hidden');
+            
+            let timeLeft = duration;
+            els.intensiveTimer.innerText = timeLeft;
+            els.intensiveOverlay.innerHTML = `Prep Time: <span id="prep-cd">${timeLeft}</span>s`;
+
+            prepTimer = setInterval(() => {
+                timeLeft--;
+                if(document.getElementById('prep-cd')) document.getElementById('prep-cd').innerText = timeLeft;
+                
+                if(timeLeft <= 0) {
+                    clearInterval(prepTimer);
+                    startRecordingIntensive();
+                }
+            }, 1000);
+        }
+
+        function skipPrep() {
+            clearInterval(prepTimer);
+            startRecordingIntensive();
+        }
+
+        async function startRecordingIntensive() {
+            els.btnSkip.classList.add('hidden');
+            els.btnStop.classList.remove('hidden');
+            
+            // UI visual update first
+            els.intensiveOverlay.className = "absolute top-6 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-2 rounded-full font-bold shadow-xl z-10 mic-active";
+            els.intensiveOverlay.innerHTML = `Recording: <span id="rec-cd">40</span>s`;
+
+            // Play Beep BEFORE starting recording logic
+            await playBeep();
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                
+                mediaRecorder.start();
+
+                let timeLeft = 40;
+                recordingTimer = setInterval(() => {
+                    timeLeft--;
+                    if(document.getElementById('rec-cd')) document.getElementById('rec-cd').innerText = timeLeft;
+                    if(timeLeft <= 0) stopRecording();
+                }, 1000);
+
+            } catch(e) {
+                console.error(e);
+                alert("Mic error");
+            }
+        }
+
+        function stopRecording() {
+            stopTimer();
+            if(mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    // Save response
+                    userResponses[currentIntensiveIndex] = {
+                        blob: blob,
+                        transcript: els.intensiveTranscript.value,
+                        q: intensiveQuestions[currentIntensiveIndex]
+                    };
+                    
+                    // Mark as done in nav
+                    const btn = document.getElementById(`nav-btn-${currentIntensiveIndex}`);
+                    if(btn) btn.classList.add('border-green-400', 'bg-green-50');
+
+                    // Next
+                    loadIntensiveQuestion(currentIntensiveIndex + 1);
+                };
+            } else {
+                // If skipped/not recorded, just save text
+                 userResponses[currentIntensiveIndex] = {
+                    blob: null,
+                    transcript: els.intensiveTranscript.value,
+                    q: intensiveQuestions[currentIntensiveIndex]
+                };
+                loadIntensiveQuestion(currentIntensiveIndex + 1);
+            }
+        }
+
+        function stopTimer() {
+            clearInterval(prepTimer);
+            clearInterval(recordingTimer);
+        }
+
+        // --- RESULTS ---
+
+        function finishIntensiveDrill() {
+            els.intensiveActive.classList.add('hidden');
+            els.intensiveResults.classList.remove('hidden');
+            
+            const list = els.resultsList;
+            list.innerHTML = '';
+            
+            userResponses.forEach((resp, i) => {
+                if(!resp) return;
+                
+                const answerText = sampleAnswers[resp.q.img] || "Sample Answer not available for this image.";
+                
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-lg shadow border border-slate-200 flex flex-col md:flex-row gap-4";
+                
+                card.innerHTML = `
+                    <div class="w-32 shrink-0">
+                        <img src="${getImg(resp.q.img)}" class="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80" onclick="window.open(this.src)">
+                        <span class="text-[10px] bg-slate-100 px-1 rounded mt-1 block truncate">${resp.q.type}</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold text-slate-700">Question #${i+1}</h4>
+                            ${resp.blob ? '<span class="text-green-600 text-xs font-bold"><i class="fas fa-check"></i> Recorded</span>' : '<span class="text-red-400 text-xs">No Audio</span>'}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <p class="text-xs font-bold text-slate-400 uppercase">Your Transcript (Manual Entry):</p>
+                            <p class="text-sm text-slate-700 bg-slate-50 p-2 rounded border border-slate-100 italic">
+                                ${resp.transcript || "No text entered."}
+                            </p>
+                        </div>
+
+                        ${resp.blob ? `<div id="result-wave-${i}" class="w-full h-16 bg-slate-50 rounded mb-2"></div>
+                        <button id="play-btn-${i}" class="text-indigo-600 text-xs font-bold hover:underline"><i class="fas fa-play"></i> Play Recording</button>` : ''}
+                    </div>
+                    <div class="w-64 shrink-0 border-l border-slate-100 pl-4 text-xs text-slate-500">
+                        <strong class="block text-slate-700 mb-1">Sample Answer Key</strong>
+                        ${answerText}
+                    </div>
+                `;
+                
+                list.appendChild(card);
+
+                if(resp.blob) {
+                    setTimeout(() => {
+                        const ws = WaveSurfer.create({
+                            container: `#result-wave-${i}`,
+                            waveColor: '#94a3b8',
+                            progressColor: '#4f46e5',
+                            height: 60,
+                            barWidth: 2,
+                            url: URL.createObjectURL(resp.blob)
+                        });
+                        document.getElementById(`play-btn-${i}`).onclick = () => ws.playPause();
+                    }, 100);
+                }
+            });
+        }
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>

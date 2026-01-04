@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 6: Answer Short Question Drill</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .read-font { font-family: 'Merriweather', serif; line-height: 1.8; }
+        .waveform-canvas { width: 100%; height: 80px; background-color: #1e293b; border-radius: 0.5rem; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .btn-primary { @apply bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-lg; }
+        .btn-danger { @apply bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-lg; }
+        
+        .active-nav { border-left: 4px solid #06b6d4; background: #1e293b; color: #fff; }
+        .inactive-nav { border-left: 4px solid transparent; color: #94a3b8; }
+        
+        .timer-display { font-variant-numeric: tabular-nums; }
+        
+        textarea:focus { outline: 2px solid #06b6d4; }
+        
+        /* Progress Bar Animation */
+        .progress-bar-animate { transition: width 1s linear; }
+        
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-900 border-b border-slate-700 p-4 flex justify-between items-center z-10 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-cyan-600 w-8 h-8 rounded flex items-center justify-center font-bold text-white">D6</div>
+            <h1 class="font-bold text-lg hidden md:block text-white">Answer Short Question <span class="text-cyan-400 font-normal">| Intensive Drill</span></h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-xs text-slate-400 font-mono hidden sm:block">
+                <i class="fas fa-bolt text-yellow-400 mr-1"></i> Rapid Fire Mode
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex overflow-hidden relative">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-slate-900 border-r border-slate-700 overflow-y-auto shrink-0 flex flex-col">
+            <div class="p-4 border-b border-slate-800 bg-slate-900 sticky top-0 z-10">
+                <h3 class="font-bold text-slate-400 uppercase text-xs tracking-wider flex justify-between items-center">
+                    Question List
+                    <span class="bg-slate-800 text-slate-500 px-2 py-0.5 rounded text-[10px]">100 Qs</span>
+                </h3>
+            </div>
+            <div id="intensive-nav" class="flex-1">
+                <!-- Nav Items generated via JS -->
+            </div>
+            <div class="p-4 border-t border-slate-800 bg-slate-900 sticky bottom-0">
+                <button onclick="showIntensiveResults()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded text-sm transition-all">
+                    <i class="fas fa-flag-checkered mr-2"></i> Finish Session
+                </button>
+            </div>
+        </aside>
+
+        <!-- Player Area -->
+        <div class="flex-1 bg-slate-950 p-4 md:p-8 overflow-y-auto flex flex-col items-center justify-center relative" id="intensive-player-container">
+            
+            <!-- Question Card -->
+            <div id="intensive-card" class="bg-slate-900 border border-slate-700 rounded-2xl p-6 md:p-10 w-full max-w-4xl shadow-2xl relative flex flex-col h-full md:h-auto">
+                
+                <!-- Header: Title & Timer -->
+                <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-cyan-900 text-cyan-200 text-xs font-bold px-3 py-1 rounded uppercase tracking-wider">ASQ</span>
+                        <h2 id="intensive-title" class="text-xl font-bold text-white">Question 1</h2>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-slate-500 uppercase font-bold mb-1" id="timer-label">Status</div>
+                        <div id="intensive-timer" class="text-4xl font-mono font-bold text-slate-200 timer-display">00:00</div>
+                    </div>
+                </div>
+
+                <!-- LISTENING VISUALIZATION -->
+                <div class="mb-8 relative group text-center py-12 bg-slate-800/50 rounded-xl border-2 border-slate-700">
+                    <div class="absolute -top-3 left-4 bg-slate-900 px-2 text-xs text-cyan-400 font-bold uppercase tracking-wider">
+                        <i class="fas fa-headphones mr-1"></i> Listen Carefully
+                    </div>
+                    
+                    <div id="visual-icon-container" class="flex justify-center items-center h-24">
+                        <i id="visual-icon" class="fas fa-volume-up text-6xl text-slate-600 transition-all duration-300"></i>
+                    </div>
+                    <p class="text-slate-400 mt-4 text-sm font-mono" id="audio-status-text">Waiting to start...</p>
+                    
+                    <!-- Hidden Audio Player -->
+                    <audio id="intensive-audio-player" class="hidden"></audio>
+
+                    <!-- Progress Bar for Timer -->
+                    <div class="absolute bottom-0 left-0 h-1 w-full bg-slate-800 rounded-b-xl overflow-hidden">
+                        <div id="timer-progress" class="h-full bg-cyan-500 w-0"></div>
+                    </div>
+                </div>
+
+                <!-- Recording & Dictation Area -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Visualizer -->
+                    <div class="bg-slate-800 rounded-lg p-3 border border-slate-700 flex flex-col justify-end relative">
+                        <div class="absolute top-2 left-2 flex items-center gap-2" id="rec-status-badge">
+                            <div class="w-2 h-2 rounded-full bg-slate-600"></div>
+                            <span class="text-[10px] uppercase font-bold text-slate-500">Mic Idle</span>
+                        </div>
+                        <canvas id="intensive-canvas" class="waveform-canvas"></canvas>
+                    </div>
+
+                    <!-- Dictation Box -->
+                    <div class="relative">
+                        <div class="flex justify-between items-end mb-1 px-1">
+                            <span class="text-[10px] text-slate-500 uppercase font-bold">Answer Transcription</span>
+                            <span class="text-[10px] text-slate-500"><i class="fas fa-keyboard"></i> Editable</span>
+                        </div>
+                        <textarea id="intensive-live-text" class="w-full h-[80px] bg-slate-800 rounded p-3 text-sm text-slate-300 border border-slate-700 resize-none font-mono focus:bg-slate-800 focus:border-cyan-500 transition-colors" placeholder="Answer..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="mt-auto md:mt-0 flex justify-center gap-4">
+                    <button id="btn-intensive-start" onclick="startIntensiveSequence()" class="btn-primary w-64 text-lg hidden">
+                        <i class="fas fa-play mr-2"></i> Start Question
+                    </button>
+                    
+                    <!-- Recording Control -->
+                    <div id="intensive-control-group" class="hidden flex gap-4 w-full justify-center">
+                        <button onclick="stopIntensiveRecording()" class="btn-danger w-full md:w-auto flex items-center justify-center transform transition-transform hover:scale-105">
+                            <i class="fas fa-forward mr-3"></i> Stop & Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Results View (Hidden initially) -->
+        <div id="intensive-results" class="flex-1 bg-slate-950 p-4 md:p-8 overflow-y-auto hidden">
+            <div class="max-w-5xl mx-auto">
+                <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white mb-1">Drill Results</h2>
+                        <p class="text-slate-400 text-sm">Review your reflex answers.</p>
+                    </div>
+                    <button onclick="backToDrill()" class="text-cyan-400 hover:text-white font-bold transition-colors flex items-center gap-2">
+                        <i class="fas fa-arrow-left"></i> Back to Drill
+                    </button>
+                </div>
+                <div id="intensive-results-list" class="space-y-8 pb-20"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- 1. DATA DEFINITIONS ---
+        // 100 Questions provided
+        const RAW_QUESTIONS = [
+            { id: 1, q: "Which type of legal document protects a person’s invention or intellectual property rights?", a: "Patent" },
+            { id: 2, q: "What is the antonym of the word ‘export’?", a: "Import" },
+            { id: 3, q: "What is a visible mass of condensed water vapor floating in the atmosphere, typically high above the ground called?", a: "Cloud" },
+            { id: 4, q: "What geometric shape are circumference, diameter, and radius related to?", a: "Circle" },
+            { id: 5, q: "What is the term used for an amount that is regularly received by a retiree?", a: "Pension" },
+            { id: 6, q: "In a marriage, what is the male partner known as?", a: "Husband" },
+            { id: 7, q: "What do you call your cousin's father?", a: "Uncle" },
+            { id: 8, q: "What is the place where passengers get on and off from the trains called?", a: "Railway Station / Train Station / Platform" },
+            { id: 9, q: "What is the term used to specifically describe either a brother or a sister?", a: "Sibling" },
+            { id: 10, q: "What subject studies the life and structure of humans, animals, and plants?", a: "Biology" },
+            { id: 11, q: "What is the mountain that is filled with melting rocks in hot gases?", a: "Volcano" },
+            { id: 12, q: "What is the name of a male sheep?", a: "Ram" },
+            { id: 13, q: "What is buying or bringing goods into a country from another country called?", a: "Import / Importing" },
+            { id: 14, q: "Which shape in geometry has only three sides?", a: "Triangle" },
+            { id: 15, q: "What is the direction of the longitudinal lines on the Earth's surface?", a: "Vertical" },
+            { id: 16, q: "A powered industrial truck used to lift and move materials over short distances is called?", a: "Forklift / Lift Truck" },
+            { id: 17, q: "What is a mythical, horse-like creature with a horn on its head known as?", a: "Unicorn" },
+            { id: 18, q: "A professional who prescribes medicines to patients is called?", a: "Doctor" },
+            { id: 19, q: "What is the opposite of horizontal?", a: "Vertical" },
+            { id: 20, q: "What are the people living in Switzerland called?", a: "Swiss" },
+            { id: 21, q: "If a company requires its employees to wear identical clothes, what is the clothing called?", a: "Uniform" },
+            { id: 22, q: "What is a disturbing or frightening dream called?", a: "Nightmare" },
+            { id: 23, q: "What do you call a person who lives next to your house?", a: "Neighbour" },
+            { id: 24, q: "What do people usually use to cut food?", a: "Knife" },
+            { id: 25, q: "How many years are celebrated in a bicentennial?", a: "200" },
+            { id: 26, q: "What clothing do people wear, such as students or nurses, to show that they belong to the same organization?", a: "Uniform" },
+            { id: 27, q: "Which part of the body do we use the nasal spray in?", a: "Nose" },
+            { id: 28, q: "What does a poisonous animal carry?", a: "Venom" },
+            { id: 29, q: "In the solar system, which heavenly body produces sunshine?", a: "Sun" },
+            { id: 30, q: "If a magazine is published quarterly, how many times a year is it published?", a: "Four times" },
+            { id: 31, q: "What is the occupation that transfers one language to another language?", a: "Translator" },
+            { id: 32, q: "What is the job title of someone who works at the beach and save people’s lives when they are in danger in the sea?", a: "Lifesavers" },
+            { id: 33, q: "Which part of the body do mammals use to feed their next generations?", a: "Breast" },
+            { id: 34, q: "What is the activity of inhalation of tobacco substance that is harmful to our health?", a: "Smoking" },
+            { id: 35, q: "What order is a bibliography usually listed in?", a: "Alphabetical order" },
+            { id: 36, q: "What do meter and millimeter measure: weight or length?", a: "Length" },
+            { id: 37, q: "When something is given in a pair, how many of them are there?", a: "2" },
+            { id: 38, q: "What is the device that shows the time of the day according to the shadow of sunlight?", a: "Sundial" },
+            { id: 39, q: "What device is used to measure a 200-meter sprint?", a: "Stopwatch" },
+            { id: 40, q: "What is the hardest part of your hand?", a: "Nails" },
+            { id: 41, q: "When you use Microsoft Word, which category does “Times New Roman” belong to?", a: "Fonts" },
+            { id: 42, q: "What is the term used to describe a period of seven days?", a: "Week" },
+            { id: 43, q: "How often does February have one extra day?", a: "Every four years" },
+            { id: 44, q: "What's the process of people paying money to governments for public services?", a: "Taxation" },
+            { id: 45, q: "What shines at night in the sky and uses its own brightness?", a: "Star / Stars" },
+            { id: 46, q: "What rises from the east in the morning and sets to the west in the evening every day?", a: "The Sun" },
+            { id: 47, q: "Where can you normally find the index in a book?", a: "At the end" },
+            { id: 48, q: "What movement can babies do before they can sit and walk?", a: "Crawling" },
+            { id: 49, q: "A newspaper is published every day, and a journal is published every month. What do you call the publication that is published four times a year?", a: "Quarterly" },
+            { id: 50, q: "What would you call a doctor who treat sick animals?", a: "Vet/ Veterinarian" },
+            { id: 51, q: "When you have the primary and the secondary, what do you have next?", a: "Tertiary" },
+            { id: 52, q: "What do we call a car that uses two types of fuels?", a: "A hybrid car" },
+            { id: 53, q: "If a meeting is scheduled on Wednesday, and today is Tuesday, then will the meeting be held, tomorrow? the day after tomorrow? or next week?", a: "Tomorrow" },
+            { id: 54, q: "How many wheels does a tricycle have?", a: "3" },
+            { id: 55, q: "Which part at the end of the book can be used for further reading? An index or a bibliography?", a: "Bibliography" },
+            { id: 56, q: "How many years does a centennial celebrate?", a: "100 years" },
+            { id: 57, q: "Which Animal has white ivory and long trunk?", a: "Elephant" },
+            { id: 58, q: "What is one half of 100%？", a: "50% / fifty percent" },
+            { id: 59, q: "What does a Sundial measure according to the shadow in the sunlight?", a: "Time" },
+            { id: 60, q: "What does ASAP mean?", a: "As soon as possible" },
+            { id: 61, q: "Who is the person who works in a hospital and can do operations?", a: "Surgeon" },
+            { id: 62, q: "If someone has a couple of kids, how many kids does he have?", a: "Two" },
+            { id: 63, q: "A famous canal links the Mediterrane Sea with the Indian Ocean, is it the Curran or Suez Canal?", a: "The Suez Canal" },
+            { id: 64, q: "A list of events placed in time order is usually described as what?", a: "A chronology / A timeline" },
+            { id: 65, q: "A manufacturing process releases noxious gases. What is the most important safety measure for workers at this plant – ensuring good ventilation, or appropriate footwear?", a: "Good ventilation" },
+            { id: 66, q: "A specialist who repairs leaking water pipes is called a ___?", a: "Plumber" },
+            { id: 67, q: "Despite all the advances in the equality between the sexes, would more men or women play professional football?", a: "More men" },
+            { id: 68, q: "How many days are in a leap year?", a: "366" },
+            { id: 69, q: "How many seasons are in a year?", a: "4" },
+            { id: 70, q: "How many sides are there in a bilateral agreement?", a: "2" },
+            { id: 71, q: "How many years are there in a century?", a: "100 years" },
+            { id: 72, q: "How many years are there in a decade?", a: "10 years" },
+            { id: 73, q: "How many years does it take to finish an undergraduate study?", a: "4 years / 3 years" },
+            { id: 74, q: "If a figure is hexagonal, how many sides does it have?", a: "Six" },
+            { id: 75, q: "If someone lives in an urban area, where do they live?", a: "City / Town" },
+            { id: 76, q: "If something such as fabric or medicine is artificially made, not natural, what do we say it is?", a: "Artificial / Manmade synthesis" },
+            { id: 77, q: "If telescopes are used to locate distant objects, what instrument is employed to magnify minuscule objects?", a: "Microscope" },
+            { id: 78, q: "If you are feeling fed up, is it a positive or a negative feeling?", a: "A negative feeling" },
+            { id: 79, q: "In a recession, does economic activity increase or slow down?", a: "Slow down" },
+            { id: 80, q: "In the animal kingdom, is the purpose of camouflage to attract a mate, to find food, or to hide?", a: "To hide" },
+            { id: 81, q: "In which direction does the sun come up?", a: "East" },
+            { id: 82, q: "In which room of their home would someone usually wash their clothes?", a: "In the laundry room" },
+            { id: 83, q: "Some calendars begin the week on Sunday, what is the other day which commonly starts a week?", a: "Monday" },
+            { id: 84, q: "To improve their health and fitness, most people either try to improve their diet or?", a: "Do more physical exercise" },
+            { id: 85, q: "To which of our senses do all of the following words relate, opaque, vivid, brilliant, and shiny?", a: "Vision" },
+            { id: 86, q: "Tons, kg, and stones measure what property?", a: "Weight" },
+            { id: 87, q: "What are winter, spring, summer, and autumn?", a: "Seasons" },
+            { id: 88, q: "What desk should you go to when you first arrive to stay at a hotel?", a: "Reception" },
+            { id: 89, q: "What do we call a company or organization that gives money to a sports or arts event in exchange for advertising?", a: "Sponsor" },
+            { id: 90, q: "What do we call it when the moon completely blocks out the light from the Sun?", a: "A solar eclipse" },
+            { id: 91, q: "What do we call the date that a piece of work must be finished by?", a: "Due Date" },
+            { id: 92, q: "What do we call the meeting where an employer asks a potential employee question about their work experience?", a: "Interview" },
+            { id: 93, q: "What do we call the organs in our chest that we use to breathe?", a: "Lungs" },
+            { id: 94, q: "What do we call the piece of paper that proves you have bought an item?", a: "A receipt" },
+            { id: 95, q: "What do we call the study of living things?", a: "Biology" },
+            { id: 96, q: "What do you call an apartment that is below ground level, a basement apartment or a penthouse apartment?", a: "A basement apartment" },
+            { id: 97, q: "What do you call the alphabetical list at the end of a textbook that tells you where to find specific information?", a: "Index" },
+            { id: 98, q: "What do you call the document that gives you details about your qualifications and work experience?", a: "Resume" },
+            { id: 99, q: "What do you call the very long essay that students have to write for a doctoral degree?", a: "Thesis / Dissertation" },
+            { id: 100, q: "What do you need to see thing which are far away?", a: "Binoculars" }
+        ];
+
+        // --- 2. STATE ---
+        let currentIntensiveIndex = 0;
+        let globalMicStream = null;
+        let globalAudioContext = null;
+        let audioContext, analyser, microphone;
+        let mediaRecorder;
+        let audioChunks = [];
+        let recognition;
+        let visualizerFrameId;
+        let sequenceTimeout; // Added for clearing timeouts
+        window.isNavigating = false;
+        const userResults = {}; 
+
+        // --- 3. INITIALIZATION ---
+        window.onload = function() {
+            renderIntensiveNav();
+            setupSpeechRecognition();
+            loadIntensiveQuestion(0);
+            
+            document.body.addEventListener('click', () => {
+                if (globalAudioContext && globalAudioContext.state === 'suspended') {
+                    globalAudioContext.resume();
+                }
+            }, { once: true });
+        };
+
+        function setupSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+            }
+        }
+
+        // --- 4. LOGIC ---
+
+        function renderIntensiveNav() {
+            const nav = document.getElementById('intensive-nav');
+            nav.innerHTML = RAW_QUESTIONS.map((item, index) => `
+                <button onclick="loadIntensiveQuestion(${index})" id="nav-item-${index}" class="w-full text-left p-4 text-sm font-bold border-b border-slate-800 hover:bg-slate-800 transition-colors inactive-nav group">
+                    <div class="flex justify-between items-center">
+                        <span class="truncate group-hover:text-cyan-400 transition-colors">Question ${item.id}</span>
+                        <i class="fas fa-circle text-[8px] ${userResults[item.id] ? 'text-emerald-500' : 'text-slate-700'} shrink-0 ml-2" id="nav-dot-${index}"></i>
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        function loadIntensiveQuestion(index) {
+            // Clear any pending sequence start
+            if (sequenceTimeout) clearTimeout(sequenceTimeout);
+
+            if(window.stopCurrentRecording) {
+                window.isNavigating = true; 
+                window.stopCurrentRecording();
+                window.isNavigating = false; 
+            }
+
+            if (index >= RAW_QUESTIONS.length) {
+                showIntensiveResults();
+                return;
+            }
+
+            currentIntensiveIndex = index;
+            const item = RAW_QUESTIONS[index];
+            
+            // UI Updates
+            document.querySelectorAll('#intensive-nav button').forEach(b => {
+                b.className = "w-full text-left p-4 text-sm font-bold border-b border-slate-800 hover:bg-slate-800 transition-colors inactive-nav group";
+            });
+            document.getElementById(`nav-item-${index}`).className = "w-full text-left p-4 text-sm font-bold border-b border-slate-800 bg-slate-800 transition-colors active-nav group";
+
+            document.getElementById('intensive-player-container').classList.remove('hidden');
+            document.getElementById('intensive-results').classList.add('hidden');
+            
+            document.getElementById('intensive-title').innerText = `Question ${item.id}`;
+            document.getElementById('intensive-timer').innerText = "00:00";
+            document.getElementById('intensive-live-text').value = "";
+            document.getElementById('audio-status-text').innerText = "Starting...";
+            document.getElementById('visual-icon').className = "fas fa-volume-up text-6xl text-slate-600 transition-all duration-300";
+            
+            document.getElementById('timer-progress').style.width = '0%';
+            
+            const numStr = item.id.toString().padStart(3, '0');
+            const audioSrc = `https://baongocnguyenngo2018-bot.github.io/PTE/06.answer-short-question/${numStr}.mp3`;
+            const audioPlayer = document.getElementById('intensive-audio-player');
+            audioPlayer.src = audioSrc;
+            
+            // Hide Controls
+            document.getElementById('btn-intensive-start').classList.add('hidden');
+            document.getElementById('intensive-control-group').classList.add('hidden');
+            
+            // Reset Badge
+            document.getElementById('rec-status-badge').innerHTML = `<div class="w-2 h-2 rounded-full bg-slate-600"></div><span class="text-[10px] uppercase font-bold text-slate-500">Mic Idle</span>`;
+
+            // Use global timeout var so we can cancel it if needed
+            sequenceTimeout = setTimeout(startIntensiveSequence, 600);
+        }
+
+        async function startIntensiveSequence() {
+            const index = currentIntensiveIndex;
+            const item = RAW_QUESTIONS[index];
+            const statusText = document.getElementById('audio-status-text');
+            const visualIcon = document.getElementById('visual-icon');
+            const audioPlayer = document.getElementById('intensive-audio-player');
+            const btnStart = document.getElementById('btn-intensive-start');
+            
+            // 1. Play Audio
+            statusText.innerText = "Listening...";
+            visualIcon.classList.replace('text-slate-600', 'text-cyan-400');
+            visualIcon.classList.add('animate-pulse');
+            
+            try {
+                await audioPlayer.play();
+            } catch(e) {
+                console.warn("Autoplay blocked");
+                btnStart.classList.remove('hidden');
+                statusText.innerText = "Click Start";
+                return;
+            }
+
+            await new Promise(resolve => {
+                audioPlayer.onended = resolve;
+            });
+
+            // Audio Ended
+            visualIcon.classList.remove('animate-pulse');
+            visualIcon.classList.replace('text-cyan-400', 'text-slate-600');
+            
+            // 2. Immediate Record (ASQ has no prep)
+            statusText.innerText = "Recording";
+            const timerDisplay = document.getElementById('intensive-timer');
+            timerDisplay.classList.add('text-red-500');
+            
+            document.getElementById('intensive-control-group').classList.remove('hidden');
+            
+            // Update Badge
+            document.getElementById('rec-status-badge').innerHTML = `<div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div><span class="text-[10px] uppercase font-bold text-red-400">Recording</span>`;
+
+            const canvas = document.getElementById('intensive-canvas');
+            const dictBox = document.getElementById('intensive-live-text');
+            
+            // 10s Recording Time for ASQ
+            startRecordingCommon(canvas, dictBox, (blob, text) => {
+                userResults[item.id] = {
+                    audioBlob: blob,
+                    dictation: dictBox.value, 
+                    id: item.id
+                };
+                
+                document.getElementById(`nav-dot-${index}`).classList.replace('text-slate-700', 'text-emerald-500');
+                document.getElementById('intensive-control-group').classList.add('hidden');
+                statusText.innerText = "Saved";
+                timerDisplay.classList.remove('text-red-500');
+                
+                if (!window.isNavigating) {
+                    setTimeout(() => {
+                        loadIntensiveQuestion(index + 1);
+                    }, 800);
+                }
+
+            }, 10, timerDisplay);
+        }
+
+        function stopIntensiveRecording() {
+            if(window.stopCurrentRecording) window.stopCurrentRecording();
+        }
+
+        function showIntensiveResults() {
+            // STOP EVERYTHING
+            window.isNavigating = true; // Prevent auto-advance in callbacks
+            if (sequenceTimeout) clearTimeout(sequenceTimeout); // Stop pending start sequence
+            const player = document.getElementById('intensive-audio-player');
+            if(player) { player.pause(); player.currentTime = 0; } // Stop audio
+            if(window.stopCurrentRecording) window.stopCurrentRecording(); // Stop recording
+            setTimeout(() => { window.isNavigating = false; }, 500); // Reset flag after ensuring stop
+
+            const container = document.getElementById('intensive-results-list');
+            
+            const htmlContent = RAW_QUESTIONS.map((item) => {
+                const res = userResults[item.id];
+                if (!res) return ''; 
+                
+                const audioUrl = URL.createObjectURL(res.audioBlob);
+                
+                return `
+                    <div class="bg-slate-900 border border-slate-700 rounded-lg p-6 relative shadow-lg">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="font-bold text-white text-lg">Question ${item.id}</h3>
+                            <span class="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded">ASQ</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Left: Key (Always Visible) -->
+                            <div class="bg-slate-800/50 p-4 rounded border border-slate-700">
+                                <h4 class="text-xs uppercase text-cyan-400 font-bold mb-3 border-b border-slate-600 pb-2">Question & Answer</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <strong class="text-slate-500 block text-[10px] uppercase">Question:</strong>
+                                        <p class="text-slate-200 text-sm italic leading-relaxed">"${item.q}"</p>
+                                    </div>
+                                    <div>
+                                        <strong class="text-emerald-500 block text-[10px] uppercase">Correct Answer:</strong>
+                                        <p class="text-emerald-400 font-bold text-lg">${item.a}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Performance -->
+                            <div>
+                                <span class="text-xs uppercase text-slate-500 block mb-2 font-bold">Your Response</span>
+                                <canvas id="res-canvas-${item.id}" class="waveform-canvas mb-3 w-full"></canvas>
+                                <audio src="${audioUrl}" controls class="w-full mb-4 h-8"></audio>
+                                <div class="bg-slate-800 p-3 rounded text-sm text-slate-300 italic h-20 overflow-y-auto border border-slate-700 font-mono">
+                                    ${res.dictation || "(No text captured)"}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = htmlContent;
+            
+            setTimeout(() => {
+                RAW_QUESTIONS.forEach(item => {
+                    const res = userResults[item.id];
+                    if (res) {
+                        drawStaticWaveform(`res-canvas-${item.id}`, res.audioBlob);
+                    }
+                });
+            }, 200);
+
+            if(container.innerHTML === '') container.innerHTML = '<p class="text-slate-400 text-center py-10">No questions completed yet.</p>';
+
+            document.getElementById('intensive-player-container').classList.add('hidden');
+            document.getElementById('intensive-results').classList.remove('hidden');
+        }
+
+        function backToDrill() {
+            document.getElementById('intensive-results').classList.add('hidden');
+            document.getElementById('intensive-player-container').classList.remove('hidden');
+        }
+
+        // --- UTILS ---
+
+        async function startRecordingCommon(canvasElem, textElem, onComplete, maxSeconds, timerElem) {
+            try {
+                if (!globalMicStream || !globalMicStream.active) {
+                    globalMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                }
+                
+                if (!globalAudioContext) {
+                    globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (globalAudioContext.state === 'suspended') {
+                    try { await globalAudioContext.resume(); } catch(e) {}
+                }
+
+                const stream = globalMicStream;
+                const context = globalAudioContext;
+
+                analyser = context.createAnalyser();
+                microphone = context.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                analyser.fftSize = 256;
+                drawVisualizer(canvasElem, analyser);
+                
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+                
+                if(recognition) {
+                    recognition.onresult = (event) => {
+                        let final = '';
+                        for (let i = event.resultIndex; i < event.results.length; ++i) {
+                            if (event.results[i].isFinal) final += event.results[i][0].transcript + ' ';
+                        }
+                        if(final) textElem.value += final; 
+                    };
+                    try { recognition.start(); } catch(e) {}
+                }
+
+                let remaining = maxSeconds;
+                let total = maxSeconds;
+                const progressBar = document.getElementById('timer-progress');
+                
+                timerElem.innerText = `00:${remaining.toString().padStart(2, '0')}`;
+                progressBar.className = `h-full bg-red-500 w-full progress-bar-animate`;
+                progressBar.style.width = '100%';
+                
+                // Animate progress bar
+                requestAnimationFrame(() => {
+                    progressBar.style.width = '0%';
+                });
+                
+                const recInterval = setInterval(() => {
+                    remaining--;
+                    timerElem.innerText = `00:${remaining.toString().padStart(2, '0')}`;
+                    if (remaining < 0) stopFn();
+                }, 1000);
+
+                const stopFn = () => {
+                    clearInterval(recInterval);
+                    cancelAnimationFrame(visualizerFrameId);
+                    
+                    if (mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+                    try { if(recognition) recognition.stop(); } catch(e){}
+                    
+                    if (microphone) { microphone.disconnect(); microphone = null; }
+                    if (analyser) { analyser.disconnect(); analyser = null; }
+                };
+
+                window.stopCurrentRecording = stopFn;
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    onComplete(blob, textElem.value);
+                };
+
+                mediaRecorder.start();
+            } catch (err) { 
+                alert("Microphone access is required."); 
+                console.error(err);
+            }
+        }
+
+        function drawVisualizer(canvas, analyser) {
+            const ctx = canvas.getContext('2d');
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            const WIDTH = canvas.width;
+            const HEIGHT = canvas.height;
+            function draw() {
+                visualizerFrameId = requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+                ctx.fillStyle = 'rgb(30, 41, 59)'; 
+                ctx.fillRect(0, 0, WIDTH, HEIGHT);
+                const barWidth = (WIDTH / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = (dataArray[i] / 255) * HEIGHT;
+                    if(barHeight > HEIGHT * 0.7) ctx.fillStyle = '#ef4444'; 
+                    else ctx.fillStyle = '#06b6d4'; 
+                    ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
+            }
+            draw();
+        }
+
+        async function drawStaticWaveform(canvasId, audioBlob) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            ctx.fillStyle = 'rgb(30, 41, 59)'; ctx.fillRect(0, 0, width, height);
+            
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const arrayBuffer = await audioBlob.arrayBuffer();
+                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                const rawData = audioBuffer.getChannelData(0);
+                const step = Math.ceil(rawData.length / width);
+                const amp = height / 2;
+                
+                ctx.fillStyle = '#06b6d4'; 
+                for (let i = 0; i < width; i++) {
+                    let min = 1.0; let max = -1.0;
+                    for (let j = 0; j < step; j++) {
+                        const datum = rawData[(i * step) + j];
+                        if (datum < min) min = datum;
+                        if (datum > max) max = datum;
+                    }
+                    if (max === -1.0 && min === 1.0) { ctx.fillRect(i, amp, 1, 1); }
+                    else {
+                         const y_min = (1 + min) * amp;
+                         const y_max = (1 + max) * amp;
+                         ctx.fillRect(i, y_min, 1, Math.max(1, y_max - y_min));
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+    </script>
+</body>
+</html>

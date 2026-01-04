@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 4: Group Discussion Drill</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .waveform-canvas { width: 100%; height: 60px; background-color: #1e293b; border-radius: 0.5rem; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .btn-primary { @apply bg-violet-600 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded transition-colors; }
+        
+        .active-nav { border-left: 4px solid #8b5cf6; background: #1e293b; color: #fff; }
+        .inactive-nav { border-left: 4px solid transparent; color: #94a3b8; }
+        
+        .timer-display { font-variant-numeric: tabular-nums; }
+        
+        textarea:focus { outline: 2px solid #8b5cf6; }
+        
+        /* Custom Audio Player Styling */
+        audio {
+            width: 100%;
+            height: 40px;
+            border-radius: 8px;
+        }
+        audio::-webkit-media-controls-panel {
+            background-color: #334155; /* Slate 700 */
+        }
+        audio::-webkit-media-controls-current-time-display,
+        audio::-webkit-media-controls-time-remaining-display {
+            color: #e2e8f0;
+        }
+        
+        details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-900 border-b border-slate-700 p-4 flex justify-between items-center z-10 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-violet-600 w-8 h-8 rounded flex items-center justify-center font-bold">D4</div>
+            <h1 class="font-bold text-lg hidden md:block">Summarize Group Discussion <span class="text-slate-500 font-normal">| Day 4 Drill</span></h1>
+        </div>
+        <div class="flex gap-4">
+            <button onclick="switchMode('warmup')" id="btn-mode-warmup" class="px-4 py-1 rounded-full text-sm font-bold bg-violet-600 text-white transition-all">Warm-up</button>
+            <button onclick="switchMode('intensive')" id="btn-mode-intensive" class="px-4 py-1 rounded-full text-sm font-bold bg-slate-800 text-slate-400 hover:text-white transition-all">Intensive Drills</button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-hidden relative">
+        
+        <!-- SECTION 1: WARM UP -->
+        <div id="section-warmup" class="h-full overflow-y-auto p-4 md:p-8 max-w-5xl mx-auto space-y-8">
+            <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 mb-8">
+                <h2 class="text-2xl font-bold text-violet-400 mb-2">Part I: Guided Warm-up</h2>
+                <p class="text-slate-400">Listen to the audio discussion, take notes, and then record your summary. 3 Questions.</p>
+            </div>
+
+            <!-- Warmup List Container (Populated via JS) -->
+            <div id="warmup-list" class="space-y-6 pb-20"></div>
+        </div>
+
+        <!-- SECTION 2: INTENSIVE DRILLS -->
+        <div id="section-intensive" class="h-full flex hidden">
+            <!-- Sidebar Navigation -->
+            <aside class="w-64 bg-slate-900 border-r border-slate-700 overflow-y-auto shrink-0 flex flex-col">
+                <div class="p-4 border-b border-slate-800">
+                    <h3 class="font-bold text-slate-400 uppercase text-xs tracking-wider">Question List</h3>
+                </div>
+                <div id="intensive-nav" class="flex-1">
+                    <!-- Nav Items generated via JS -->
+                </div>
+                <div class="p-4 border-t border-slate-800">
+                    <button onclick="showIntensiveResults()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded text-sm">
+                        <i class="fas fa-flag-checkered mr-2"></i> Finish & Review
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Player Area -->
+            <div class="flex-1 bg-slate-950 p-4 md:p-8 overflow-y-auto flex flex-col items-center justify-center relative" id="intensive-player-container">
+                
+                <!-- Question Card -->
+                <div id="intensive-card" class="bg-slate-900 border border-slate-700 rounded-2xl p-8 w-full max-w-3xl shadow-2xl relative">
+                    <div class="flex justify-between items-start mb-6">
+                        <span class="bg-violet-900 text-violet-200 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Exam Simulation</span>
+                        <div id="intensive-timer" class="text-4xl font-mono font-bold text-slate-200 timer-display">00:00</div>
+                    </div>
+
+                    <h2 id="intensive-title" class="text-2xl font-bold text-white mb-8">Question 1</h2>
+
+                    <!-- Audio Player (Intensive) -->
+                    <div class="mb-8 p-4 bg-slate-800 rounded-lg border border-slate-700">
+                        <div class="flex items-center justify-between mb-2">
+                             <div class="text-sm text-slate-400 uppercase font-bold">Question Audio</div>
+                             <div id="audio-status-text" class="text-xs text-white font-bold bg-slate-700 px-2 py-1 rounded">Ready</div>
+                        </div>
+                        <audio id="intensive-audio-player" controls class="w-full"></audio>
+                    </div>
+
+                    <!-- Recording Visualizer -->
+                    <div class="mb-6 relative">
+                        <canvas id="intensive-canvas" class="waveform-canvas border border-slate-700"></canvas>
+                        <div id="intensive-rec-indicator" class="absolute top-2 right-2 flex items-center gap-2 hidden">
+                            <span class="animate-pulse w-3 h-3 bg-red-500 rounded-full"></span>
+                            <span class="text-xs text-red-400 font-bold uppercase">Recording</span>
+                        </div>
+                    </div>
+
+                    <!-- Live Dictation (Editable) -->
+                    <div class="mb-8">
+                        <div class="flex justify-between items-end mb-2">
+                            <p class="text-xs text-slate-500 uppercase">Live Dictation (Editable)</p>
+                            <span class="text-[10px] text-slate-500"><i class="fas fa-keyboard mr-1"></i>Win+H for Windows Dictation</span>
+                        </div>
+                        <textarea id="intensive-live-text" class="w-full h-32 bg-slate-800 rounded p-3 text-sm text-slate-300 border border-slate-700 resize-none font-mono focus:bg-slate-800" placeholder="Click here to type or use Windows Dictation..."></textarea>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="flex justify-center gap-4">
+                        <button id="btn-intensive-start" onclick="startIntensiveSequence()" class="btn-primary w-48 text-lg hidden">
+                            <i class="fas fa-play mr-2"></i> Start Sequence
+                        </button>
+                        <div id="intensive-control-group" class="hidden flex gap-4 w-full justify-center">
+                            <button onclick="stopIntensiveRecording()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg flex items-center transition-all transform hover:scale-105">
+                                <i class="fas fa-forward mr-3"></i> Stop Recording & Next Question
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Results View (Hidden initially) -->
+            <div id="intensive-results" class="flex-1 bg-slate-950 p-4 md:p-8 overflow-y-auto hidden">
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-bold text-white">Drill Results</h2>
+                        <button onclick="backToDrill()" class="text-slate-400 hover:text-white"><i class="fas fa-arrow-left mr-2"></i> Back to Questions</button>
+                    </div>
+                    <div id="intensive-results-list" class="space-y-6"></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Beep Audio Element -->
+    <audio id="beep-audio" src="https://baongocnguyenngo2018-bot.github.io/PTE/03.repeat-sentence/beep.mp3" preload="auto"></audio>
+
+    <script>
+        // --- 1. DATA DEFINITIONS (MOVED TO TOP) ---
+        
+        // Full Transcripts Data Dictionary
+        const ALL_TRANSCRIPTS = {
+            21: `<p><strong class="text-indigo-400">Liam:</strong> I have been wondering why our university doesn't do more to promote sustainable transport. The parking lots are full every day, and barely anyone seems to use bikes or public transport. Shouldn't they be encouraging greener options?</p>
+<p><strong class="text-pink-400">Ava:</strong> That's a good point. At my old college, they gave students discounts on bus passes and set up bike-sharing stations. It made leaving the car at home a lot more practical. I'm surprised our university hasn't implemented something similar yet.</p>
+<p><strong class="text-cyan-400">Noah:</strong> I think part of the problem is infrastructure. Even if the university promotes cycling, the surrounding roads don't have enough safe bike lanes. People worry about safety, and I can't really blame them for preferring cars.</p>
+<p><strong class="text-indigo-400">Liam:</strong> True. But maybe the university could start small, like adding more bike racks and secure storage areas on campus. That might encourage students who already own bikes to start riding more.</p>
+<p><strong class="text-pink-400">Ava:</strong> And they could also launch a carpooling app for students. I've seen this work well at other universities. Students save money, reduce emissions, and meet others going the same way.</p>
+<p><strong class="text-cyan-400">Noah:</strong> Electric shuttle buses could be another option, especially for students living in nearby neighborhoods. They would cut down on traffic congestion and be a visible commitment to sustainability.</p>
+<p><strong class="text-indigo-400">Liam:</strong> That's a great idea. Also, raising awareness about existing public transport could help. Some students probably don't realize there are already bus routes passing close to campus.</p>
+<p><strong class="text-pink-400">Ava:</strong> Agreed. And the university could partner with local transport providers for further discounts or promotional campaigns. It's about making sustainable choices the most convenient option.</p>
+<p><strong class="text-cyan-400">Noah:</strong> Right. At the end of the day, small initiatives add up. If the university leads with these efforts, students are much more likely to change their habits.</p>`,
+            
+            22: `<p><strong class="text-indigo-400">Zane:</strong> I’ve been thinking about doing a Master’s degree after graduation. It feels like I need more qualifications to stand out.</p>
+<p><strong class="text-pink-400">Maya:</strong> I used to think that too, but now I’m leaning toward working first. Real-world experience might give me better directionand maybe even help me figure out what I really want to study later.</p>
+<p><strong class="text-cyan-400">Elina:</strong> I’m kind of stuck. My family wants me to apply abroad, but I’m worried about the cost. It’s not just tuition it’s the living expenses, visas, everything.</p>
+<p><strong class="text-indigo-400">Zane:</strong> Yeah, studying abroad sounds great on paper, but it’s not easy financially. Did you check out scholarships?</p>
+<p><strong class="text-cyan-400">Elina:</strong> I did, but they’re super competitive. Plus, I don’t even know which country or program I’d choose. It feels like such a big commitment when I’m still unsure.</p>
+<p><strong class="text-pink-400">Maya:</strong> That’s completely normal. Maybe take a gap year work, save, and explore your options with a clear head. I think we all feel some pressure to keep moving, but reflection is just as important.</p>
+<p><strong class="text-indigo-400">Zane:</strong> I agree. I’m applying to a couple of local universities just to keep my options open. Even if I get in, I might defer for a year to gain some experience or do an internship.</p>
+<p><strong class="text-cyan-400">Elina:</strong> That’s smart. And it takes the pressure off a bit you’re not closing doors, just buying time.</p>
+<p><strong class="text-pink-400">Maya:</strong> And you’d be surprised how much you learn outside the classroom. Things like confidence, communication, and just figuring out what you’re passionate about.</p>
+<p><strong class="text-indigo-400">Zane:</strong> I guess we’ve all realized that there’s no “one right path,” right?</p>
+<p><strong class="text-cyan-400">Elina:</strong> Exactly. I think I’ll talk to my academic advisor and look into programs that allow flexibility maybe even online options for later.</p>
+<p><strong class="text-pink-400">Maya:</strong> That sounds like a great plan. Do what feels right for you, not what others expect.</p>
+<p><strong class="text-indigo-400">Zane:</strong> Totally. Better to move with intention than just follow the crowd.</p>
+<p><strong class="text-cyan-400">Elina:</strong> Thanks, guys. I feel way less stressed after talking this out.</p>
+<p><strong class="text-pink-400">Maya:</strong> Anytime! We’re all in this together.</p>`,
+
+            23: `<p><strong class="text-indigo-400">Student:</strong> I think the university could do a lot more to engage alumni in supporting current students. There's so much untapped potential. Alumni could provide mentorship, internships, career advice, and even contribute financially through scholarships or program funding. It feels like we aren't fully leveraging those connections.</p>
+<p><strong class="text-pink-400">Professor:</strong> I completely agree. Strong alumni networks can have a significant impact, not just on student success, but also on the university's global reputation. Graduates who are actively involved often help universities gain visibility in industries and professional circles. But maintaining those relationships after graduation requires consistent outreach and thoughtful engagement strategies.</p>
+<p><strong class="text-cyan-400">Alumni Relations Officer:</strong> Exactly. From an administrative perspective, we do maintain some alumni engagement through newsletters, social media updates, and occasional reunions. But sustaining long-term interest is challenging. Many graduates move to different cities or countries, change careers, or simply lose their connection to the campus over time.</p>
+<p><strong class="text-indigo-400">Student:</strong> Maybe we need more regular alumni-led events, both online and in person. Hearing from graduates about their career journeys, challenges, and achievements could be incredibly inspiring for students like me. It might also encourage alumni to stay connected by reminding them how they can make a difference.</p>
+<p><strong class="text-pink-400">Professor:</strong> That's a great suggestion. Alumni could also contribute in other ways, such as supporting faculty research projects, participating in advisory boards, or offering internship placements for students within their organizations. But it's vital we create a culture where alumni feel valued for their time and expertise, not just approached for financial donations.</p>
+<p><strong class="text-cyan-400">Alumni Relations Officer:</strong> I think a virtual platform for alumni-student mentoring would be a good starting point. It would allow graduates, even those living abroad, to engage with students. Plus, it could include features like industry-specific networking groups or guest speaker opportunities.</p>
+<p><strong class="text-indigo-400">Student:</strong> That sounds promising. A pilot mentorship program could help test the concept. Pairing alumni with students from similar academic backgrounds or career interests would make those connections meaningful and relevant.</p>
+<p><strong class="text-pink-400">Professor:</strong> Agreed. Strengthening alumni ties benefits everyone involved—the students gain valuable insights, the university strengthens its community, and alumni get the satisfaction of giving back. It's a win-win situation if implemented thoughtfully.</p>
+<p><strong class="text-cyan-400">Alumni Relations Officer:</strong> With careful planning, we could transform alumni engagement into a key pillar of university development.</p>
+<p><strong class="text-indigo-400">Student:</strong> I really hope this happens. It would make such a difference for students like me, knowing we have a network of supportive graduates to learn from.</p>
+<p><strong class="text-pink-400">Professor:</strong> And from a faculty perspective, it would enrich our teaching and research too. Alumni bring fresh perspectives from the industry, and their involvement keeps us aligned with real-world trends. Their contribution could help bridge the gap between academia and professional practice more effectively.</p>`,
+
+            3: `<p><strong class="text-violet-400">Narration:</strong> Three students are chatting in the school library after class about how to improve presentation skills.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Hey guys, I really feel overwhelmed about the ten-minute presentation next week. I keep worrying I'll blank out in front of the whole class and embarrass myself. I really want to come across as calm and prepared, but I'm scared I'll just freeze up and lose my train of thought.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> I totally get how you feel presenting can be super intimidating at first. But your tutor is right— the point is to take notes. Also, do not make your speech too long, or your audience will feel bored. And one thing I've learned is that you definitely shouldn't read from the script word by word; it makes you sound like a robot and loses people's attention. Also, something that really helped me was to practice and practice in front of a mirror—it lets you notice your body language and adjust your tone.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> I used to be nervous, too, especially in middle school my voice would shake every time. One thing that helps me now is I try to avoid the audience's eyes directly; instead, I look at their noses or foreheads so it still seems like I'm engaged. Another tip is to use visual cues on your notes like, you can highlight the script with pens of different colors for different sections.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Those are really helpful suggestions thanks, both of you. I've always thought I had to memorize everything perfectly, but focusing on keywords and structure sounds a lot more manageable. Do you think these techniques would help in more formal settings too?</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> Absolutely! In fact, presentation skills are useful after graduation, for example, for an interview—you'll need to present yourself confidently under pressure. It's a very important ability to be confident to express yourself, whether you're pitching a project or just sharing your opinion in a meeting.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Yeah, and it's not just about the presentation itself it's also about building self-confidence over time. Maybe we can set up a small practice session together this week? We could take turns giving feedback and trying out different methods.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> That's a great idea! We could even record each other on our phones—sometimes seeing yourself present helps you notice little things you want to improve. Plus, if we make it a regular thing, we could all become much better speakers by the end of the semester.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Exactly! And it doesn't have to be only for big presentations we can practice explaining anything, maybe even topics we're learning in other classes. Who knows, maybe we'll even start enjoying speaking in front of people someday! I think we could start with something low-pressure, like explaining a favorite book or an interesting concept to each other that way it feels more casual and easier to relax.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> I'd really appreciate that having you two listen and give advice would make me feel a lot more prepared. Let's meet tomorrow after school and run through it a few times. Thanks again, you've already helped me feel less anxious about the whole thing! Also, if you're both okay with it, we could each prepare a short three-minute practice beforehand so we can give more focused feedback during our session tomorrow.</p>`,
+
+            4: `<p><strong class="text-violet-400">Narration:</strong> Three students are discussing the best ways to get to university, each sharing their own experiences, worries and suggestions.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> I really hate taking the train to university it’s always late, and that’s made me late for class so many times. I’ve been thinking about buying a car lately, but honestly, a car might be way too expensive for me right now. I can barely cover my tuition and rent as it is.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> Oh, I’ve never had that trouble with buses! I love commuting by bus every morning I take the first bus, which gets me to campus with plenty of time. On the ride, I can prepare for my lectures, go over class materials, read academic articles, or even watch short study videos. Plus, I really enjoy the quietness of the early morning; it helps me calm down before a busy day. Though I have to admit, a bus may be stuck in the traffic sometimes.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> That traffic issue is real, but cars aren’t the solution either parking on campus is a nightmare, and gas costs add up fast! I live super close to campus, so I just run to school every day. It saves me money and keeps me in shape. Instead of a car, why not try a bicycle? It’s fast enough to get to university on time, and it’s great exercise too. And honestly, I think buses are better than cars.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> You’re right about buses getting stuck in traffic. I’ve heard so many people complain about that, but since my train is even less reliable, I’m actually willing to try taking the bus. Though I’m still worried—what if the first bus is full and I have to wait for the next one? That might make me late too.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> Oh, I’ve never had that problem! The first bus at 6 a.m. is usually pretty empty most students don’t want to get up that early. If you leave 10 minutes earlier than me, you can definitely get a seat. And even if the bus is a little slow, you’ll still have time to grab a coffee before class, which is way better than rushing because the train’s late.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> And if the bus doesn’t work out, the bicycle is still a backup! I used to cycle to school when I lived a little farther away, and I didn’t have to worry about traffic jams. The only downside someone mentioned before is that cycling’s inconvenient on rainy days, but you can keep a foldable umbrella in your bag, or just switch to the bus that day.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> That makes sense having a backup plan would ease my worry. I think I’ll start with the first bus next week, and if it doesn’t work, I’ll look into buying a second-hand bicycle. It’s way cheaper than a car, and I could use the extra exercise too.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> Yay, that’s a good call! If you take the 6 a.m. bus, we might even run into each other we can walk to the classroom together after getting off.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Perfect! And if you need help picking out a bicycle, just tell me I know a few good shops near campus that sell affordable used ones. No need to spend a lot when you’re just starting out.</p>`,
+
+            5: `<p><strong class="text-violet-400">Narration:</strong> Three students are discussing the accommodation options next academic year</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Hey guys, I was wondering if you've made any decisions about where you're planning to live next academic year? I know the housing application deadlines are coming up soon, and I'm still trying to weigh my options between staying in university accommodation or finding a private flat. Honestly, I like living in the dormitory because I can learn cooking from other students, share food and make friends.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> I have to agree with staying in university housing, though for slightly different reasons. The convenience factor is unbeatable - my dorm is literally a three-minute walk from all my lecture halls. When I have 9am classes, I can wake up at eight forty-five and still make it on time</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Actually, I just signed a contract yesterday for a studio apartment in the city center, and I couldn't be more relieved! After a full year in the noisy dormitory, I'm really looking forward to having my own quiet space. What I hated most about dorm life was the constant disturbance - people coming and going at all hours, loud music in the evenings, and the worst part was definitely sharing kitchen facilities</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> That's interesting because my experience has been completely the opposite! I've actually grown to love dormitory living, especially because of the shared kitchen. Cooking has always been my passion, and I've found it's such a wonderful way to connect with people from different cultures. Just last week, my French roommate taught me how to make authentic crêpes, and in return I showed her some traditional dishes from my country.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> I'm quite particular about my food, and it drove me crazy when people would help themselves to things from my shelf in the fridge. This new place is slightly more expensive, but for me, having that privacy and peace is absolutely worth the extra cost. Also in the dormitory I have little personal privacy, where I have to share the kitchen and someone else steals my food, like drinking my milk, eating my food.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> And it’s not just about convenience for me. During exam periods last semester, we organized nightly study groups in the common room where we could quiz each other and explain difficult concepts. That collaborative environment really helped boost my grades in ways I don't think would have happened if I was living alone off-campus.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> That’s exactly why the shared kitchen feels so special to me. Those spontaneous cooking sessions often turn into great conversations where we learn so much about each other's backgrounds. For me, that cultural exchange is one of the most valuable parts of university life that I'd miss in private accommodation.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Speaking of dorm downsides, noise is a huge one for me. It makes me hard to focus on study. So, I have rented an off-campus room and have signed the contract. But the place I've found is just a little far from the university.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> You two have covered culture and quiet - let me loop back to academics for a second. But more importantly, I've found the academic support system invaluable. The dorm has a study lounge on each floor, and there's always someone around to bounce ideas off.</p>`,
+
+            6: `<p><strong class="text-violet-400">Narration:</strong> Three students are discussing their project meeting place on campus.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> I think we should meet in a conference room in the university library. We can conveniently borrow books we need right there while we work. It's a quiet space with plenty of resources, and we won't have to carry heavy books around later. Plus, the library has those small study rooms we can book if we need complete privacy.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> I'm not so sure about that idea the library is always so crowded during this time of day. There will be too many people studying and chatting outside the rooms, and it will be very noisy even inside the conference areas. Last time I tried to study there, I could hardly concentrate with all the distractions. Maybe we should consider someplace else that's actually quiet.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> I have a compromise we can go to the library first to borrow all the books we need for our research. Then, we can move to a coffee shop to sit down and assign tasks to each other properly. If we run into any issues later or can't meet in person, we can always continue our discussion online. This way we get the resources we need and a comfortable space to talk.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> That's actually a smart plan. Which coffee shop were you thinking about? There are several near campus, but most tend to be quite busy in the afternoons. I remember the one near the south gate has good space, but it's always packed with students. Maybe we should look for someplace less popular?</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> I like the idea, but I have to go back home around 4 PM to receive a package that's being delivered. I don't want to miss it since it's something important for the project. I can join you guys after that, though it might make me a little late for the meeting. Would it be okay if I catch up with you both later?</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> That should be fine. Just remember to call us when you go out of home so we know when to expect you. We can start without you and fill you in when you arrive. If anything urgent comes up, we can always hop on a quick online call to keep you in the loop.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Sounds good! Now back to picking a coffee shop I've been to almost all of them around here, and most do have too many people during this time. What about that new place called "Honey Cup"? It's a bit farther from campus, but I heard they have amazing pastries and plenty of seating.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> I've passed by Honey Cup a few times it does look cozy, and they have those big booths at the back. More importantly, it usually has fewer people compared to chains like Starbucks. Plus, who can say no to sweet treats while working, right?</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Great, then it's settled! We'll meet at the library at 3 PM, get our books, then walk over to Honey Cup to assign tasks and discuss the project outline. Don't forget to call us when you're on your way!</p>`,
+
+            7: `<p><strong class="text-violet-400">Narration:</strong> Three students are talking about their volunteering experiences.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Hey, everyone. I can't believe how quickly this semester is flying by. I've been super busy with my role as an orientation leader at the university. I have to invest time and effort in planning and organizing events for new students. The good part is that I get to meet so many new people and help them learn about university life, which is really fulfilling. On the downside, it can be a bit stressful, especially during orientation week, when everything needs to run smoothly. But it's worth it because it helps me develop my leadership and public speaking skills. What about you, Amy? How's volunteering at the library going?</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> Well, it has its own set of challenges and rewards. I really enjoy the organizational aspect of it. I've gained valuable skills in cataloguing and event planning, and I feel like I'm giving something back to the community. But some of the tasks like putting books on shelves and data entry can get pretty boring. And standing for long periods isn't great either.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> I get that. Working at the animal shelter takes a lot of physical energy and time, which can sometimes be so tiring. But the best part is interacting with the animals, and knowing that I'm making a difference in their lives. But it can also be emotionally difficult, especially when you see animals who have been through a lot.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> It's clear you're passionate about what you do, Sam. One thing I found is that being an orientation leader has made me more adaptable. Every group of students is different, and you have to be ready to handle any situation that comes up. I think these skills will be invaluable in my future career.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> That's a great point, Alex. Volunteering at the library has definitely made me better at problem solving. Whenever someone needs help with finding a source of information in some specialist area, it's like a little puzzle that I have to solve. So I think it's made me more analytical and improved my problem solving skills, which will come in useful in practically any job I pursue in the future.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> It's interesting to hear how we've all developed different skills from our volunteering experiences. For me, the animal shelter work has made me much better at multitasking. There are always so many things happening at once, and you need to stay calm and collected. It's also taught me a lot about teamwork as we all need to work together to ensure the animals are well taking care of. And I get to work with a variety of personalities.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Absolutely. I think volunteering, no matter where or what you do, involves a lot of teamwork. At the end of the day, it's about investing time and effort in something you're passionate about and gaining invaluable skills from it. Plus, it feels great to give back to the community.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Let's just hope we'll be able to find time to do this next semester too. Managing my time around coursework and volunteering can be tricky.</p>`,
+
+            8: `<p><strong class="text-violet-400">Narration:</strong> Three teachers are discussing how to celebrate the mathematics department's ten-year anniversary.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> For our mathematics department's 10th anniversary, I think the Greek restaurant downtown is a good option. It has been most recommended by customers around the city, and people always say the atmosphere there is really enjoyable. I believe it will be memorable for all of us to spend such an important anniversary there! They even have a private room that could accommodate our entire department perfectly.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> I have also heard about the Greek restaurant's popularity, but it may be quite expensive for us. And it's so far from campus that colleagues might find it inconvenient to get there after work. Maybe we should celebrate the anniversary on campus instead? It would be more budget-friendly and accessible for everyone here, especially for those who have evening classes or other commitments.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Okay, but never in the mathematics building restaurant, though the space is too cramped, and its outdated decor is so dull. I can't imagine our cheerful celebration would happen in that place. Anywhere else is fine, as long as it provides a proper celebratory atmosphere for this special milestone.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> What about the Business Building's dining room? It's spacious enough for us to arrange the catering, and it's recently renovated in a modern style, offering intoxicating vibes. The natural lighting and city view from there would create a wonderful backdrop for our celebration.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> Great. That's a wonderful place. Now, how many people should we invite? I previously thought about faculty members only, but it might be too small an occasion. We should consider making this a proper celebration that reflects our department's growth and achievements over the past decade.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> So, why not invite alumni who graduated from our department to come? They also witnessed our early years, and the ten-year anniversary is meaningful to them as well. If the space is too limited for too many people, we can only invite the first graduating students, as they would appreciate this milestone the most.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> But what if they want to bring a partner? We need to establish a clear policy about plus-ones to ensure we don't exceed the room's capacity and maintain the intimate atmosphere we're hoping to create.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> I bet they'll definitely have a lot to talk about with each other, so they may not come with a partner, and besides, their partners might easily get bored in such an event. Keeping it to just our mathematics community will help everyone feel more comfortable sharing memories and stories.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Well, I agree with you. So, a mix of current faculty and selected alumni. I will book the dining room as soon as possible, and you two can prepare the guest list together. Let's aim to have the preliminary list ready by next week so we can start sending out invitations.</p>`,
+
+            9: `<p><strong class="text-violet-400">Narration:</strong> Three students are discussing managing written assignments.</p>
+<p><strong class="text-sky-400">Speaker1:</strong> Lately, when I’ve been working on my assignments, I find it really hard to organize everything. I feel a lot of pressure, and even when I try to write a goal, I just cannot stick to it. Do you guys ever deal with this situation? How do you usually cope?</p>
+<p><strong class="text-emerald-400">Speaker2:</strong> Oh, I totally get you. I’ve been there. What helped me before was breaking those lengthy assignments into smaller ones. For example, if the due date is still pretty long, I’ll first make a plan, then create an outline, and finally schedule everything step by step.</p>
+<p><strong class="text-pink-400">Speaker3:</strong> Yeah, I do something similar, pretty much the same approach. And if I have different assignments at the same time, I try to allocate different amounts of time to each one, depending on how urgent or difficult they are.</p>
+<p><strong class="text-sky-400">Speaker1:</strong> I've actually tried to do that too, but the problem is I never do it consistently. I always end up losing momentum halfway or getting sidetracked by other things, and then the whole plan falls apart. Maybe what I’m really missing is some kind of external structure or immediate accountability.</p>
+<p><strong class="text-emerald-400">Speaker2:</strong> That's the tricky part. If you let yourself get distracted, the whole thing will take longer. You really need to avoid things like mobile phones, TV, emails, and just try to focus. By the way, do you two have a specific time for study? Like a fixed routine, maybe in the morning or evening?</p>
+<p><strong class="text-pink-400">Speaker3:</strong> For me, I work best at night. Of course, everyone is different, but I think the most important thing is to study when you feel the most productive. Personally, I usually write essays in the evening after dinner, so that's when I focus.</p>
+<p><strong class="text-sky-400">Speaker1:</strong> Hmm, I’m still not sure what works best for me. But I think the most important thing is to have a work buddy. It really helps when someone else knows your goals and checks in on you it adds a sense of responsibility and support that I often miss when working alone.</p>
+<p><strong class="text-emerald-400">Speaker2:</strong> Exactly! Why don’t we just do the next assignment together? That way, we can plan together, keep each other motivated, and also practice as a group. We could even set up weekly check-ins to share progress and adjust our plans if something isn’t working. Having a structured yet flexible approach might help us all stay on track.</p>
+<p><strong class="text-pink-400">Speaker3:</strong> That sounds like a great idea. Having a study group not only keeps us accountable but also allows us to share ideas and feedback in real time. We could even set mini-deadlines for each stage of the assignment and review each other’s progress. It’s easier to stay consistent when you’re not doing it alone. Plus, collaborating early helps avoid last-minute stress and improves the overall quality of our work—everyone brings something different to the table.</p>`,
+
+            10: `<p><strong class="text-violet-400">Narration:</strong> Three students are walking to the gym for their PE class, discussing whether the school should cancel the PE proficiency test as a graduation requirement.</p>
+<p><strong class="text-sky-400">Speaker1:</strong> Ugh, I’m so stressed about the upcoming 1000-meter run test! No matter how much I practice, I can never meet the passing standard. Why should I risk not graduating just because I’m not good at running?</p>
+<p><strong class="text-emerald-400">Speaker2:</strong> I totally agree! I have a knee injury from last year’s basketball game, and even walking for a long time hurts, let alone running or doing pull-ups. If it’s no longer a graduation requirement, students with injuries or physical limitations won’t have to worry about their academic future being affected by something they can’t control.</p>
+<p><strong class="text-pink-400">Speaker3:</strong> Wait, hold on I don’t think canceling the PE proficiency test is a good idea. PE class is supposed to encourage us to stay active, and the test is a way to make sure we’re keeping up with basic fitness. Without it, a lot of students would just skip PE and become less healthy, which isn’t good for our long-term well-being.</p>
+<p><strong class="text-sky-400">Speaker1:</strong> But the test doesn’t encourage fitness it just makes people anxious! I have a friend who starved herself for a week before the weight and BMI test because she was scared of failing. That way, we stay active without the stress of passing a strict test.</p>
+<p><strong class="text-emerald-400">Speaker2:</strong> Yeah, and not everyone is good at traditional sports like running or swimming. I love dancing, and I practice it every weekend, but the PE test doesn’t count that as fitness. Also, the test only checks one moment of fitness, not our overall lifestyle what’s the point of that?</p>
+<p><strong class="text-pink-400">Speaker3:</strong> But basic fitness is important for everyone, even if you don’t like sports. Being able to run a short distance or do a few push-ups helps with daily life like carrying heavy books or walking up stairs. And if the school makes exceptions for students with injuries, like letting them do modified exercises, then the test can still work without being unfair.</p>
+<p><strong class="text-sky-400">Speaker1:</strong> Hmm, I get what you’re saying about basic fitness, but exceptions are hard to get. Maybe the school could replace the proficiency test with a “fitness portfolio” we track our own physical activities over the semester, like how many times we work out, and get credit for consistency instead of a single test.</p>
+<p><strong class="text-emerald-400">Speaker2:</strong> That’s a great idea! A fitness portfolio would let us choose what activities we like, and it focuses on effort instead of results. Also, it teaches us to be responsible for our own fitness, which is a better lesson than just passing a test.</p>
+<p><strong class="text-pink-400">Speaker3:</strong> Okay, that does sound more reasonable than just canceling the test entirely. The school could ask us to submit photos or videos of our workouts, or have PE teachers check in with us regularly. If they do that, then the portfolio could work as a fair replacement.</p>`,
+
+            11: `<p><strong class="text-violet-400">Narrator:</strong> Two students and one admin staff member are discussing whether universities should provide free access to public transportation for students.</p>
+<p><strong class="text-sky-400">Student 1:</strong> Do you think universities should offer free access to public transportation for all students? It would make commuting more affordable, especially for those living off campus. Many students already face financial stress, and covering daily travel costs on top of tuition and living expenses adds to the burden.</p>
+<p><strong class="text-emerald-400">Student 2:</strong> I completely agree. Free public transport could also encourage more sustainable habits. Instead of driving cars or relying on ride shares, students might opt for buses and trains, which helps reduce traffic congestion and lowers the university's overall carbon footprint. It's a win-win for students and the environment.</p>
+<p><strong class="text-pink-400">Admin Staff:</strong> It's certainly an appealing idea. But implementing such a scheme would require strong partnerships between the university and local transportation authorities. Negotiating subsidies or bulk discounts isn't easy, and the cost implications for the institution could be significant.</p>
+<p><strong class="text-sky-400">Student 1:</strong> That's true, but some universities in other countries have managed it by integrating transportation fees into student services charges. It spreads out the cost, and no individual student feels a huge impact. And it provides equitable access for everyone.</p>
+<p><strong class="text-emerald-400">Student 2:</strong> And let's not forget accessibility. Free transportation means students from lower-income households won't have to limit their course choices based on proximity or face difficulties attending evening lectures, internships, or campus events. It helps level the playing field.</p>
+<p><strong class="text-pink-400">Admin Staff:</strong> Those are good points. However, we'd also need to assess usage patterns. Some students live within walking distance or cycle to campus, so they may not benefit directly from such a program. Offering an opt-in system could be one way to balance fairness with feasibility.</p>
+<p><strong class="text-sky-400">Student 1:</strong> Or perhaps the university could negotiate partial discounts instead of full coverage. Even a 50% reduction on fares would make a big difference for many students and still promote public transportation.</p>
+<p><strong class="text-pink-400">Admin Staff:</strong> That would certainly provide useful data. It's also worth considering how this initiative could align with broader university goals, like promoting sustainability and enhancing students' well-being.</p>
+<p><strong class="text-sky-400">Student 1:</strong> Ultimately, making public transportation free or more affordable isn't just a convenience. It's an investment in creating an inclusive and environmentally conscious campus community.</p>
+<p><strong class="text-emerald-400">Student 2:</strong> Exactly. Supporting students with their commuting needs shows the university is serious about removing barriers to education and improving their overall experience.</p>
+<p><strong class="text-pink-400">Admin Staff:</strong> If implemented carefully, this initiative could serve as a model for other institutions, demonstrating how universities can partner with local governments to support students and the wider community.</p>`,
+
+            12: `<p><strong class="text-violet-400">Narration:</strong> Three students are debating the value of required physical education courses</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> I can't believe we're forced to take two semesters of PE. I tried badminton last term and it was so humiliating. I have zero coordination. The coach kept correcting my posture in front of everyone. I'd rather use that time for my major courses instead of wasting afternoons running around a court.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> Actually, I think PE requirements are pretty valuable. Before college, I never exercised regularly. Now, because it's mandatory, I've discovered I actually enjoy swimming. It's a great stress reliever from all the academic pressure. Plus, it gets me away from my desk and screens for a few hours each week.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> That's fine for you, but not everyone enjoys competitive activities. I have asthma and always struggle to pass the fitness tests. Last semester I got docked points because I couldn't complete the running requirement. It's unfair to judge everyone by the same physical standards when we have different abilities and health conditions.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Exactly! And the grading is so subjective. Why should my GPA suffer because I'm not athletic? I'm here to get an education, not train for the Olympics. The time spent changing clothes, showering, and traveling to the sports complex adds over three hours to my weekly schedule time I could use studying.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> I understand your concerns, but that's missing the bigger picture. We sit in classrooms and libraries all day. PE forces us to maintain some physical activity, which actually improves concentration and sleep quality. I've noticed I focus better on readings after some exercise. And it's not about being the best it's about participation and basic health awareness.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> But why make it graded then? If it's about health benefits, it should be pass/fail without affecting our transcripts. I'd be less opposed if it wasn't impacting my academic standing. The current system causes unnecessary anxiety for those of us who aren't naturally sporty.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Same here! At least make it optional or offer more alternatives like yoga or walking clubs that accommodate different fitness levels. The one-size-fits-all approach just doesn't work.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> I agree there should be more options, but I still think some physical activity requirement is important. Many students would never exercise otherwise. Maybe they could expand the choices to include less intensive activities.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> I'd support that compromise. If they offered activities like hiking or dance without the competitive element, I might actually enjoy it. But the current system needs reform—it's too rigid and stressful for non-athletes.</p>`,
+
+            13: `<p><strong class="text-violet-400">Narration:</strong> Three students are discussing what they feel about a course.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Ugh, I don't know about you guys, but I think today's lecture was way too hard. The professor kept jumping between different theories, and I could barely keep up with what he was saying. By the time he started explaining that third concept, my notes were just a jumble of scribbles. I even missed the part about next week's quiz.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> Yeah, I get what you mean. But honestly, I think it gets easier if you go through the reading list first. The professor mentioned those books for a reason. If you read them before class, the lecture makes a lot more sense.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Hmm, maybe. But the reading list is so long there are like seven books and four articles! I don't even know where to start. Do I need to read every single page, or is there a way to pick out the important parts?</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Well, actually, it's pretty easy to find those books on the library website. They usually have all the course readings listed there, organized by week, and you can just search by title. Oh, and most of them have PDF previews, so you can flip through the contents to see which chapters the professor highlighted.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Oh, really? I didn't know that. I’ve been wasting time scrolling through random websites trying to find summaries. Most of them are either too vague or don't match what the professor talked about. I should have checked the library first instead of struggling with those.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> It’s totally fine - half the class didn’t realize the library had all this stuff at first. If you get stuck, the librarian is super helpful. Last week, I couldn't find one of the recommended articles, and she showed me exactly how to access it online. She taught me how to use the library’s archive database, and we found it in five minutes. She even printed out the key sections for me.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> With the library and the librarian helping find reading materials, doesn't that just show how important the reading list is? See? That's why I keep saying the reading list is your best friend. If you read ahead, you're not going in blind during the lecture. And trust me, once you've read them, the lecture won't feel half as hard.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Okay, you've convinced me. I was skeptical at first, but hearing you both talk about it makes sense. If the library’s that easy to use and the reading list actually lines up with the lectures, I'll try checking the library website tonight, and maybe talk to the librarian if I get lost. Sounds like she knows her stuff. I'm willing to give it a shot.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Good plan. Once you get the hang of it, finding the readings is pretty quick. I used to spend hours stressing over it, but now I can pull up what I need in 10 minutes. Also you can bookmark the course page so you don’t have to hunt for it every time.</p>`,
+
+            14: `<p><strong class="text-violet-400">Narration:</strong> Three students are discussing whether they should take part in a field trip organized by the university.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Honestly, my part-time shifts conflict with the field trip, and it will cost me a lot of money. But even if I take the day off, the lost wages would set me back more than I can afford right now. So I think I'll have to sit this one out. After all, the trip is just an optional one.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> You are right, optional. But I will definitely go. The trip will be so great for all people. Business majors can visit a hotel by sea to see how it is run. Those who major in geography will be glad to see a beach and I believe the beach cleanup activity will attract them. I am a history major and the field trip includes a history museum, which ties perfectly into my research on maritime trade. So, why miss out on a free trip with friends?</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Let me think twice. A free trip with a lot of friends? I have to admit it will definitely a great chance to socialize. You know, I’ve been wanting to meet more people outside my major. Maybe I'll see if I can swap my work shift my coworker owes me a favor, so fingers crossed!</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> I won't go, either. Although I am from the business department, I see no point for business students to go so far just to visit a seashore hotel. Hotels are almost everywhere in the city, aren't they? A seashore one won't make any difference. Isn't it just a glorified ad for the resort sponsor?</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> All the same as hotels in the city? I am afraid not. In fact a hotel by sea involves very different management than the urban counterparts, and you can imagine guests on the beach will raise many different requests to the hotel. So you can learn a new style of hotel management.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> You are so persuasive and now I'd love to, but I will have a very, very important football match that weekend to take part in. I am one of the team's starters, so my absence would drive the coach and my teammates mad. You don't know how long and how hard all of us have been preparing for the match.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> I see your point. However, I really hope you can reconsider the field trip and join us. Besides the hotel will help you a lot on your major, don't forget the history museum I just mentioned. I hear the museum has a wonderful sports history section. Didn't you say your team's researching athlete nutrition trends? You could totally find relevant archives or old studies there, and that could even give your team an edge!</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Well, the sports history section does sound interesting our coach has been pushing us to study past training methods lately. But the football tournament is a big deal for our team; we’ve been practicing for months. I'll think about it, but don't get your hopes up!</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Hmm. Okay, now you guys have got me tempted. Everyone keeps saying the beach cleanup activity is a good icebreaker among people from different departments. Plus, I've never been to that history museum, and it might be a nice change from my usual routine. But no promises!</p>`,
+
+            15: `<p><strong class="text-violet-400">Narration:</strong> Joe prefers on-campus, Emily chooses independence off-campus, Barista reminds decisions due next week.</p>
+<p><strong class="text-amber-400">Barista:</strong> The people at the accommodation office wanted to know who is coming by to live on campus next year. We got to let them know for sure by next week. It sounds like most people are coming back. What are you guys going to do? Have you decided yet?</p>
+<p><strong class="text-sky-400">Joe:</strong> Really? They need to know so soon. Well, I have already decided. I am coming back next year, I think on-campus accommodation provides a better atmosphere for studying.</p>
+<p><strong class="text-pink-400">Emily:</strong> Honestly, I've been considering living outside. I think I would prefer a bit more independence. Plus I've found an affordable place that is pretty close to campus. Plus, I think living off campus could be a good way to experience more of the city.</p>
+<p><strong class="text-sky-400">Joe:</strong> Really, Emily? I hadn't heard you made a decision. That's interesting. Well, those are both good points. I'm kind of torn between the convenience of living on campus, and the independence of living off-campus.</p>
+<p><strong class="text-pink-400">Emily:</strong> Hey, why don't you make a list of pros and cons? That might help you in your decision-making. Or you could just flip a coin, Joe. But really, think about what will make your life easier and happier. Consider the cost, travel time, studies, and distractions in both scenarios.</p>
+<p><strong class="text-amber-400">Barista:</strong> Interesting! I will keep these points in mind when submitting the response. Whatever the case, everyone needs to make up their mind by next week for sure.</p>
+<p><strong class="text-sky-400">Joe:</strong> Sure, I've made up my mind.</p>
+<p><strong class="text-pink-400">Emily:</strong> Same here. I feel good about my choice too.</p>
+<p><strong class="text-amber-400">Barista:</strong> That’s great. Honestly, what matters most is choosing what works best for your lifestyle. And even if you two live in different places, you’ll still see each other every day on campus.</p>
+<p><strong class="text-sky-400">Joe:</strong> Exactly. We can still study together or hang out at the café.</p>
+<p><strong class="text-pink-400">Emily:</strong> And who knows, maybe one day I’ll even miss the campus life and come back.</p>
+<p><strong class="text-amber-400">Barista:</strong> (laughs) Well, nothing is permanent. The good thing is you both sound confident in your choices now.</p>
+<p><strong class="text-sky-400">Joe:</strong> Yeah, and either way, next year is going to be an exciting one.</p>
+<p><strong class="text-pink-400">Emily:</strong> Absolutely, I’m really looking forward to it.</p>`,
+
+            16: `<p><strong class="text-violet-400">Narration:</strong> Three students are discussing finding a job after graduation.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Hey guys, have you thought about what you want to do after graduation? I've been researching job opportunities, and I'm leaning toward joining a big company. The structured training programs they offer seem really valuable for professional development, not to mention the clear promotion paths. I think starting in a well-established organization could really set the foundation for a successful career.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> That's interesting! I’ve actually been volunteering at a small charity organization, and I've really enjoyed the experience. For me, success isn't about climbing the corporate ladder or earning a high salary. I find the work meaningful, and the environment is so supportive. I might even consider staying in the non-profit sector after graduation.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Wow, you both already have such clear plans! I'm still figuring things out. To be honest, I'm thinking about staying here to pursue a postgraduate degree. I feel like I have time to explore my options, and further study might help me narrow down what I really want to do.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> That's fair, but it's still good to start planning early. Maybe you could try out different jobs or internships while you’re studying? That way, you can get a sense of what you enjoy or what you're good at before committing to a specific path.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> I agree! Keeping an open mind and gaining diverse experiences can be really helpful. What you do now doesn't have to define your future career - it’s more about exploring and learning about yourself. Plus, you might discover unexpected passions along the way.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> You've both given me a lot to think about. I think I'll start doing some research tonight and maybe look into part-time work or internships. It’s nice to know I don't have to figure this all out alone.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> No problem at all! If you need help sifting through internship postings, just let me know. I've got a folder full of resources for different industries - tech, finance, even some creative fields. And hey, if you find something that sparks your interest, we can brainstorm how to tailor your application to stand out.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> That's a great offer! I can chime in too nonprofits have unique application quirks, like emphasizing passion over past experience. I've learned a lot about writing cover letters that connect personal stories to an organization's mission. Plus, if you want to dip a toe into the nonprofit world, I can introduce you to the team at my charity - they're always looking for extra help on weekends.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> You guys are the best. Having a starting point and people to bounce ideas off of makes this feel way less overwhelming. Let me start with that research tonight and I’ll loop you both in with what I find. Thanks for the advice!</p>`,
+
+            17: `<p><strong class="text-violet-400">Narration:</strong> Three students are discussing the pros and cons of online classes, sitting around a small table in the campus cafeteria, their voices mixing with the background chatter of other students.</p>
+<p><strong class="text-sky-400">Speaker1:</strong> I really can't stand online classes. The Wi-Fi would also cut out randomly during that economics lecture last week, making the slides freeze constantly. Last week during my economics lecture, I kept getting distracted by my phone and ended up missing half the content. And when I tried to ask a question in the chat, the professor didn't see it until the next day!</p>
+<p><strong class="text-emerald-400">Speaker2:</strong> Actually, I prefer online learning. Think about it - no more rushing to catch the 8am bus, no spending money on cafeteria food, and I can attend class in my pajamas. I just open my notebook and focus on taking notes. The lack of physical distractions in my own space helps me concentrate better too. The recorded lectures are great too - I can rewatch difficult parts anytime.</p>
+<p><strong class="text-pink-400">Speaker3:</strong> But that's exactly the problem! I chose this university for the campus experience. How am I supposed to make friends or network if we're all just little boxes on a screen? And when I type a question, by the time the professor responds, we've already moved on to another topic. It's like the conversation gets lost in the digital void.</p>
+<p><strong class="text-sky-400">Speaker1:</strong> Exactly! In physical classes, I can just raise my hand and get immediate answers. Plus, group discussions are so much more engaging in person. There's no substitute for the energy of debating ideas face - to - face, with everyone's gestures and tones adding to the discussion. Online breakout rooms always feel awkward and unproductive.</p>
+<p><strong class="text-emerald-400">Speaker2:</strong> I get your point about socializing, but consider the flexibility. I can review lecture recordings while eating dinner, or study in my comfortable room instead of those hard library chairs. And I don't have to worry about looking presentable for class, which takes off a lot of social pressure. And honestly, I find I actually participate more online - I'm too shy to speak up in big lecture halls.</p>
+<p><strong class="text-pink-400">Speaker3:</strong> That might work for you, but I learn better through face - to - face interactions. Body language and classroom energy help me understand the material. Last semester I failed a course because the online format just didn't work for my learning style.</p>
+<p><strong class="text-sky-400">Speaker1:</strong> Same here! At least in physical classes, the professor can see when students look confused. Online, they just keep lecturing to blank screens. Maybe a hybrid system would be better - some online, some in - person classes? It would balance the need for interaction and flexibility, don't you think?</p>
+<p><strong class="text-emerald-400">Speaker2:</strong> That could be a good compromise. We'd get the benefits of both formats. Though I'd still prefer fully online - it saves me nearly two hours of commuting every day. Those two hours add up to extra sleep or more time for self - study, which is a huge plus for me.</p>
+<p><strong class="text-pink-400">Speaker3:</strong> Well, I'd take hybrid over fully online any day. At least that way I could still get some of the campus experience. But honestly, I think education should be primarily in-person - that's what university is all about.</p>`,
+
+            18: `<p><strong class="text-violet-400">Narration:</strong> Three students are preparing for an oral presentation and discussing structure, practice, and Q&A strategies.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Okay, so we're all set for our presentation next week, right? I'm feeling a bit overwhelmed, to be honest. I’ve started drafting my slides, but I’m not sure if I’m focusing on the right things, you know? I'm also worried about the time limit; it’s tough to get everything into just ten minutes. Has anyone got any tips for, like, how to structure it well?</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> Definitely! I think the key thing is to start with a really good opening that grabs everyone's attention. Then, break your main points down into smaller chunks, easier to handle. Don't try to put too much stuff on each slide. I think using visuals, like graphs or images, really helps keep people interested. And the most important thing is practice, practice! You don't want to be, like, stumbling over your words on the day.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> I agree with Liam about practicing for sure. I usually record myself giving the presentation, and then I watch it back to see where I can make it better. It’s awful, but it really does help! For the content, I think it's good to start by outlining your main arguments, even before you make the slides. What’s the main thing you're trying to say? It's easy to get lost in the details, but that'll help you stay on track.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> That’s a really good idea, Laura, about doing the outline first. I usually just jump right into the details and then I have trouble making it all make sense together. I'm also a bit nervous about the Q&A part afterwards. What if I don’t know an answer? Any ideas on how to get ready for that?</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> The Q&A is tricky, but you can get ready! Think about the questions people might ask and have some answers ready, even if they're just rough. It’s also okay to say you don’t know, but you’ll find out. Being honest is always best. Just try to, like, engage with them and show that you're thinking about the topic. Don't freak out if you get stuck; it happens to everyone!</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> I actually think the Q&A is the most fun! It's a chance to really talk with the audience and show how much you care about the topic. Going along with what Liam said, it's totally fine to say, 'That's a great question, but I don't really have a good answer right now.' You could even ask the audience what they think. It's a conversation, not, like, a test!</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Okay, I feel a bit better now. Thanks, you two! I think I’ll try to make a really good outline and practice how I'm going to say it. I'll also try to think of some questions they might ask, but I won't worry about it too much. I guess the main thing is to be ready, but also be able to change if I need to and, you know, enjoy it. That's easier said than done, though!</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> You've got this, Sarah! We're all in the same boat. Just remember to breathe and try to have fun. It's a great chance to share what you know and get some feedback. Plus, giving presentations is a really good skill to have for jobs later, so think of it as practice for after university!</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Exactly! And don't be afraid to ask for help if you need it. We can all practice our presentations together and, like, give each other feedback. It's much easier when you know people are there for you. Let’s try to meet up again before the presentation to go over everything one last time.</p>`,
+
+            19: `<p><strong class="text-violet-400">Narration:</strong> Three students are discussing and comparing different note-taking methods used at university lectures.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> So, I've been trying out different ways to take notes lately, and I'm not really sure which one works best. I tried the Cornell method, but it feels a little too structured for me, you know? What about you guys, what do you usually do?</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> I'm a big fan of mind mapping, actually. It really helps me see how all the ideas connect and get the bigger picture. I usually start with the main idea in the middle and then branch out from there. Plus, it's not as linear as regular note-taking, which keeps me way more interested. It’s especially helpful in subjects where things are really connected, like history or philosophy.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> I’ve tried mind mapping before, but I think it’s a bit messy, to be honest. I usually prefer outlining. It’s just simple and easy, and it helps me keep everything organized logically. I use different headings and subheadings to structure my notes, which makes it easy to look back at them later.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> Yeah, I get why you'd like outlining, but sometimes I feel like I'm just writing down exactly what the professor says without really thinking about it. With the Cornell method, I have to sum things up and think about what it all means, which helps me understand it better. Maybe I should give it another shot.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> That's a good point, Sarah. I think the main thing is to find what works for you and the subject you're studying. Like, I use mind mapping when we're brainstorming in my creative writing class, but I switch to something more straightforward for statistics. Different subjects need different things, don't you think?</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Definitely. I also think it helps to mix and match different methods. For example, I might use outlining to structure my notes, but then add colors or symbols to make them more interesting. Or, I might use the Cornell method in lectures, but then just take freehand notes when we're having group discussions.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> That's a great idea, Alice! I hadn’t even thought about doing that. Maybe that's what I'm missing – being able to change my note-taking depending on what's going on. I'll try to be more open to trying new things and see what works best for each class. It might also help if I looked at my notes more often to really remember what I've learned.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> Exactly! Don’t be afraid to play around with your method until it feels right. I’ve even seen people using note-taking apps that let you type, draw, and record audio all in one place. Whatever helps you understand and remember things, right? It's all about finding the right tools for how you learn best.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Agreed. And don't forget how important it is to really listen. No matter what you're doing with your notes, it's important to pay attention during the lecture or discussion. That way, your notes will make more sense and be easier to remember later. I think we all need to experiment a bit to find what works best for us.</p>`,
+
+            20: `<p><strong class="text-violet-400">Narration:</strong> Three students are discussing how AI in writing is changing learning and teaching methods.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> I'm still thinking about that debate on AI in academic writing. I mean, the main point about things being real really stuck with me. If students can just get essays from AI, how do we know what they actually understand? It feels like it ruins the whole idea of showing what you know and how you can think for yourself.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> That's a really good point, Sarah. I saw a lot of students agreeing with that. But I think the debate also showed how AI could be a useful tool, not just a shortcut. Like, for people who don't speak English as their first language, or those with learning difficulties, it could be a really good grammar checker or a brainstorming partner. So, it could make things fairer in some ways.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> I agree with Professor Roger on that. The point about making things easier for everyone was really strong. I also thought the idea about AI giving you more time for deeper research was interesting. If you're not spending ages on basic sentences, you could really get into more complex analysis, couldn't you?</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> But that's where I get a bit stuck, Aria. If students aren't doing the hard work of putting sentences together or finding the right words, are they really learning to communicate well? It feels like we're getting someone else to do the very process that helps us think critically. I worry it could make people lazy thinkers.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> I get that worry, Sarah. It's a real problem for teachers. Maybe the answer isn't to just ban AI, but to change our assignments. We could get students to do more original research, or come up with unique arguments that AI can't just make up. Or even have them look at AI-made content and say what's good or bad about it. That would actually help them learn to think critically about things.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> That makes a lot of sense, Professor. Like, in my history class, we're already doing oral presentations and debates. AI can't really help with talking and thinking on the spot. Maybe assignments should move towards things where you have to put ideas together and think originally right away, instead of just written essays.</p>
+<p><strong class="text-sky-400">Speaker 1:</strong> That sounds good, but I'm still wondering about the practical side. How would professors tell the difference between using AI in a good way and just outright cheating? And what about students who can't afford to pay for good AI tools? It could create a new kind of unfairness with technology.</p>
+<p><strong class="text-emerald-400">Speaker 2:</strong> Those are big problems, Sarah, and the debate definitely didn't have easy answers. It's a talk we'll need to keep having as technology changes. Universities will need clear rules, and we'll have to think about making sure everyone has fair access to these tools if we expect students to use them correctly.</p>
+<p><strong class="text-pink-400">Speaker 3:</strong> Exactly. What I think is most important is that it's not really about 'if' AI is used, but 'how' it's used. We can't stop it now, so we just need to figure out how to use it in a good way. It's definitely going to change how we learn and how we're taught.</p>`
+        };
+
+        const WARMUP_DATA = [
+            {
+                id: 'w1', 
+                title: 'Promoting Sustainable Transportation',
+                audioSrc: 'https://baongocnguyenngo2018-bot.github.io/PTE/07.summarize-group-discussion/021.mp3',
+                transcriptHtml: ALL_TRANSCRIPTS[21],
+                sampleAnswer: "The group discusses how universities can better promote sustainable transportation among students. Liam begins by questioning why the university relies heavily on car parking and does not actively encourage greener options such as cycling or public transport. Ava shares an example from her previous college, where bus pass discounts and bike-sharing stations made sustainable choices more practical and appealing. Noah highlights a major obstacle, pointing out that poor infrastructure and a lack of safe bike lanes discourage students from cycling, as safety concerns push them toward using cars. In response, Liam suggests starting with small, achievable steps, such as installing more bike racks and secure storage areas on campus to support existing cyclists. Ava then proposes launching a student carpooling app, explaining that it could reduce costs, emissions, and also help students connect with one another. Noah adds that electric shuttle buses for nearby neighborhoods could reduce congestion and demonstrate the university’s commitment to sustainability. The group also agrees that better promotion of existing public transport routes and partnerships with local providers would help. Overall, they conclude that convenience, safety, and awareness are key to changing student behavior."
+            },
+            {
+                id: 'w2', 
+                title: 'Future Plans After Graduation',
+                audioSrc: 'https://baongocnguyenngo2018-bot.github.io/PTE/07.summarize-group-discussion/022.mp3',
+                transcriptHtml: ALL_TRANSCRIPTS[22],
+                sampleAnswer: "The discussion focuses on different paths after graduation and the pressures surrounding career and study decisions. Zane initially expresses interest in pursuing a Master’s degree, believing that additional qualifications are necessary to remain competitive. In contrast, Maya prefers to enter the workforce first, arguing that real-world experience could provide clearer direction and help her decide whether further study is worthwhile. Elina feels conflicted due to family expectations to study abroad, while she worries about the high financial burden of tuition, living costs, and visas. Zane acknowledges the appeal of studying overseas but agrees that finances are a serious concern, even with scholarships being highly competitive. Maya suggests taking a gap year to work, save money, and reflect without pressure, emphasizing that personal growth outside the classroom is valuable. Zane shares that he is applying locally while keeping the option to defer, which Elina views as a smart way to reduce stress without closing doors. By the end, the group agrees there is no single correct path, and intentional, flexible decision-making is more important than following expectations."
+            },
+            {
+                id: 'w3', 
+                title: 'Strengthening Alumni Engagement',
+                audioSrc: 'https://baongocnguyenngo2018-bot.github.io/PTE/07.summarize-group-discussion/023.mp3',
+                transcriptHtml: ALL_TRANSCRIPTS[23],
+                sampleAnswer: "The discussion explores how alumni networks can contribute more effectively to university growth and student support. The student begins by emphasizing that alumni represent untapped potential, suggesting they could offer mentorship, internships, career guidance, and financial support such as scholarships. The professor agrees, noting that active alumni involvement enhances student outcomes and strengthens the university’s reputation in professional and global contexts, though maintaining long-term relationships requires deliberate effort. The alumni relations officer explains that while newsletters, social media, and reunions exist, sustaining engagement is difficult as graduates relocate or lose connection over time. The student proposes more alumni-led events, both online and in person, to inspire students and encourage graduates to remain involved. Building on this, the professor stresses that alumni should feel valued for their expertise, not just approached for donations, and suggests involvement in research, advisory boards, and internships. The alumni officer recommends creating a virtual mentoring platform to connect students and alumni worldwide. Overall, the group agrees that thoughtful, flexible engagement would benefit students, alumni, and the university as a whole."
+            }
+        ];
+
+        const INTENSIVE_ANSWERS = {
+            3: "The students discuss how to improve presentation skills and overcome nervousness. The first speaker feels anxious about an upcoming presentation and worries about freezing or forgetting content, especially because they try to memorize everything perfectly. The second speaker reassures them and emphasizes practical strategies, such as keeping the presentation concise, using notes instead of reading a script, and practicing repeatedly in front of a mirror to improve body language and tone. They also highlight that reading word-for-word makes a speaker sound unnatural and disengages the audience. The third speaker shares personal experience with nervousness and suggests indirect eye contact, like looking at foreheads, to reduce anxiety. They also recommend using visual cues and color-coded notes to stay organized. Later, the group agrees that focusing on keywords and structure is more manageable and that these skills are useful beyond university, including interviews and professional meetings. They conclude by proposing regular group practice sessions, recording presentations, and giving peer feedback to gradually build confidence.",
+            4: "The discussion focuses on different ways of commuting to university and their advantages and disadvantages. The first speaker dislikes taking the train because it is unreliable and often late, but finds buying a car too expensive due to tuition and living costs. The second speaker strongly prefers commuting by bus, especially early in the morning, because it allows time to study, read, and mentally prepare for the day, although traffic can sometimes be a problem. The third speaker argues that cars are not practical due to parking difficulties and fuel costs, and instead recommends cycling as a healthy, affordable, and time-efficient option, while still viewing buses as better than cars overall. The first speaker considers switching to the bus but worries about overcrowding. In response, the second speaker reassures them that early buses are usually empty, while the third suggests cycling as a backup option, even mentioning solutions for bad weather. The group concludes that buses, combined with cycling as an alternative, are practical, affordable, and flexible commuting solutions.",
+            5: "The students compare university dormitory living with off-campus accommodation. The first speaker prefers staying in university housing because of social opportunities, shared cooking experiences, and cultural exchange with students from different backgrounds. The second speaker also supports dorm living, mainly due to convenience, proximity to lecture halls, and strong academic support, such as study groups and shared learning spaces that helped improve grades. In contrast, the third speaker strongly favors off-campus living, citing constant noise, lack of privacy, and shared kitchens as major problems in dorms. They are willing to pay more for peace, independence, and control over personal space and food. While the first speaker values social interaction and cultural learning, the third prioritizes quiet and focus, even though the new place is farther from campus. The discussion highlights that accommodation preferences depend on personal priorities, such as social life, academic support, privacy, cost, and lifestyle, with no single option being ideal for everyone.",
+            6: "The students discuss the most suitable location for a group project meeting. The first speaker suggests using a conference room in the university library because it is quiet, resource-rich, and convenient for borrowing books. However, the second speaker disagrees, arguing that the library is often crowded and noisy during peak hours, making it difficult to concentrate. The third speaker proposes a compromise: collecting necessary books from the library first, then moving to a coffee shop to discuss tasks and project planning in a more relaxed environment. They also suggest continuing discussions online if needed. The group then considers practical issues, such as busy cafés and scheduling conflicts, especially since one member needs to leave early for a delivery. Eventually, they agree on a specific café, Honey Cup, which is quieter, spacious, and less crowded. The final plan is to meet at the library at 3 p.m. to gather materials, then relocate to the café to work collaboratively and flexibly.",
+            7: "The students share their volunteering experiences and the skills they have gained. The first speaker talks about working as an orientation leader, which involves planning events and supporting new students. Although stressful, especially during orientation week, they find it rewarding and believe it has improved their leadership, adaptability, and public speaking skills. The second speaker describes volunteering at the library, where they enjoy organizational tasks and helping others find information, although some duties are repetitive and physically tiring. This role has strengthened their analytical thinking and problem-solving abilities. The third speaker volunteers at an animal shelter, which is physically demanding and emotionally challenging, but deeply meaningful. They highlight improvements in multitasking, teamwork, and emotional resilience. All speakers agree that volunteering, despite its challenges, helps develop transferable skills, enhances personal growth, and provides a sense of fulfillment through contributing to the community, though time management remains a concern.",
+            8: "The teachers discuss how to celebrate the mathematics department’s tenth anniversary. The first speaker suggests a popular Greek restaurant with a pleasant atmosphere and a private room, believing it would create a memorable celebration. The second speaker raises concerns about high costs and inconvenient location, proposing an on-campus venue instead for better accessibility and budget control. The first speaker rejects the mathematics building restaurant due to its cramped space and outdated décor. The third speaker offers a solution by suggesting the Business Building’s dining room, which is spacious, modern, and recently renovated, with good lighting and views. The discussion then shifts to the guest list. While initially considering faculty only, they agree the event should reflect the department’s history by inviting selected alumni, particularly early graduates. Concerns about capacity and plus-ones are discussed, and they decide to limit attendance to the mathematics community. The group concludes with clear responsibilities and a timeline for invitations.",
+            9: "The students discuss difficulties in managing written assignments and strategies to improve productivity. The first speaker struggles with organization, pressure, and maintaining consistency, often losing momentum despite making plans. The second speaker recommends breaking assignments into smaller steps, creating outlines, and scheduling tasks carefully, while avoiding distractions like phones and emails. The third speaker supports this approach and emphasizes prioritizing tasks based on urgency and difficulty, as well as studying during peak productivity times. The first speaker realizes they may need external accountability rather than working alone. In response, the second speaker suggests studying together and setting regular check-ins. The third speaker agrees, highlighting that study groups improve accountability, idea-sharing, feedback quality, and reduce last-minute stress. Overall, the group concludes that structured planning, minimizing distractions, and collaborative study routines can significantly improve assignment management and consistency.",
+            10: "The students debate whether the PE proficiency test should remain a graduation requirement. The first speaker feels anxious because they consistently fail the running test and believe graduation should not depend on athletic ability. The second speaker agrees, citing a knee injury and arguing that the test unfairly disadvantages students with physical limitations and ignores alternative forms of fitness like dance. The third speaker initially defends the test, stating it encourages basic fitness and healthy habits, which are important for daily life. However, the others argue that the test causes stress, unhealthy behaviors, and only measures fitness at a single moment. The first speaker proposes replacing the test with a fitness portfolio that tracks regular physical activity over time. The second speaker supports this idea, emphasizing effort and personal responsibility. The third speaker eventually agrees that a monitored portfolio system could be a fair and reasonable compromise.",
+            11: "The discussion examines whether universities should provide free public transportation for students. The first student supports the idea, arguing it would reduce financial stress for students living off campus. The second student adds that free transport would encourage sustainable commuting, reduce traffic congestion, and lower the university’s carbon footprint. The admin staff member acknowledges the benefits but highlights financial and logistical challenges, including partnerships with transport authorities and uneven usage among students. The first student suggests integrating transportation costs into student fees, while the second emphasizes improved accessibility and equity for low-income students. The admin proposes alternatives such as opt-in systems or partial discounts. The group agrees that while full coverage may be difficult, affordable transport aligns with sustainability and inclusivity goals and could significantly enhance students’ overall university experience.",
+            12: "The students debate the value of compulsory PE courses. The first speaker strongly opposes them, describing humiliation, subjective grading, time loss, and negative impact on GPA. The second speaker defends PE requirements, explaining that mandatory exercise improved their health, reduced stress, and enhanced academic focus. The third speaker criticizes the fairness of standardized fitness tests, especially for students with medical conditions like asthma. The first and third speakers argue that grading PE is unnecessary and anxiety-inducing. The second speaker agrees reforms are needed but insists that some physical activity requirement is important for student well-being. The group reaches a compromise by suggesting pass/fail grading, more activity options such as yoga or hiking, and reducing competitiveness to accommodate diverse abilities while still promoting health.",
+            13: "The students discuss challenges with a difficult lecture. The first speaker feels overwhelmed by fast-paced explanations and struggles to take effective notes. The second speaker believes lectures become clearer if students prepare by reading the assigned materials beforehand. The first speaker finds the reading list overwhelming and unclear. The third speaker explains how the library website organizes readings by week and how librarians can help access materials efficiently. They share a positive experience using library databases and receiving personalized help. The second speaker reinforces the importance of the reading list, arguing it aligns closely with lectures and prevents confusion. Eventually, the first speaker is convinced to use library resources and consult librarians. The group agrees that preparation, guided reading, and academic support services significantly improve comprehension and confidence.",
+            14: "The students discuss whether to join an optional university field trip. The first speaker hesitates due to financial concerns and lost wages from part-time work. The second speaker strongly supports attending, highlighting academic relevance across majors, social opportunities, and the value of hands-on learning, including visits to a seaside hotel, beach cleanup, and a history museum. The third speaker initially dismisses the trip as unnecessary for business students and criticizes it as promotional. The second speaker counters by explaining how seaside hotel management differs from urban hotels. The third speaker then reveals a scheduling conflict due to an important football match. The discussion gradually persuades both hesitant speakers by emphasizing interdisciplinary learning, networking, and unique experiences. Although no final decision is made, both become more open to reconsidering participation.",
+            15: "The conversation focuses on choosing between on-campus and off-campus accommodation. Joe prefers living on campus because it offers a better study environment and convenience. Emily chooses off-campus living for greater independence, affordability, and exposure to city life. Joe feels torn between these options. Emily suggests making a pros-and-cons list, considering factors such as cost, travel time, distractions, and lifestyle. The barista reminds them of the upcoming deadline. Both Joe and Emily express confidence in their decisions, acknowledging that what matters most is personal suitability. They agree that even if they live separately, they can still study and socialize together. The discussion concludes positively, emphasizing flexibility, confidence, and excitement for the coming academic year.",
+            16: "The students discuss post-graduation plans. The first speaker plans to join a large company, valuing structured training programs, stability, and clear career progression. The second speaker prefers working in the non-profit sector, prioritizing meaningful work, supportive environments, and social impact over salary. The third speaker remains undecided and considers pursuing postgraduate study to explore interests further. Both speakers encourage early planning through internships, volunteering, and experimentation. They emphasize that career paths are flexible and self-discovery is important. The first speaker offers practical support with internship resources, while the second shares insights into nonprofit applications and networking opportunities. The discussion ends with the third speaker feeling reassured and motivated to start researching options with peer support.",
+            17: "The students debate online versus in-person learning. The first speaker dislikes online classes due to technical issues, distractions, delayed interaction, and reduced engagement. The second speaker prefers online learning for its flexibility, comfort, recorded lectures, and reduced social pressure, which improves focus and participation. The third speaker criticizes online learning for limiting social interaction, networking, and learning effectiveness, stating it conflicts with their learning style. The first speaker supports this view, emphasizing the value of immediate feedback and face-to-face discussions. A hybrid model is proposed as a compromise, combining flexibility with interaction. While the second speaker still prefers fully online classes, the group agrees that hybrid learning could balance convenience and meaningful engagement.",
+            18: "The students discuss strategies for preparing an effective oral presentation. The first speaker feels overwhelmed by slide content, structure, and time limits. The second speaker emphasizes strong openings, clear structure, minimal text, visuals, and extensive practice. The third speaker agrees and suggests outlining key arguments before creating slides, as well as recording practice sessions for self-evaluation. The first speaker expresses concern about the Q&A session. The others advise anticipating questions, preparing flexible responses, being honest when unsure, and treating Q&A as a conversation rather than a test. They conclude that preparation, adaptability, and peer feedback reduce anxiety and improve performance, while also building valuable professional skills.",
+            19: "The students compare note-taking techniques. The first speaker feels unsure about the Cornell method, finding it overly structured. The second speaker advocates mind mapping for visualizing connections and maintaining interest, especially in conceptual subjects. The third speaker prefers outlining for its clarity and logical organization. The first speaker acknowledges that Cornell notes encourage deeper thinking and summarization. The group agrees that no single method suits all situations and that note-taking should vary by subject and activity. They suggest mixing methods, using colors and symbols, and reviewing notes regularly. The discussion emphasizes experimentation, flexibility, and active listening as the keys to effective note-taking.",
+            20: "The students discuss how AI is transforming academic writing. The first speaker worries that AI undermines authenticity, critical thinking, and communication skills. The second speaker views AI as a supportive tool, especially for non-native speakers and students with learning difficulties, and argues it can promote fairness. The third speaker highlights AI’s potential to save time and allow deeper research and analysis. Concerns arise about over-reliance, fairness, access inequality, and distinguishing ethical use from cheating. The group suggests adapting assessment methods, such as oral presentations and critical evaluations of AI-generated content, rather than banning AI outright. They conclude that AI use is inevitable, and the key challenge is establishing clear guidelines to ensure responsible, equitable, and educationally meaningful use."
+        };
+
+        const INTENSIVE_START_ID = 3;
+        const INTENSIVE_END_ID = 20;
+        const INTENSIVE_DATA = [];
+        
+        for (let i = INTENSIVE_START_ID; i <= INTENSIVE_END_ID; i++) {
+            let numStr = i.toString().padStart(3, '0');
+            INTENSIVE_DATA.push({
+                id: `i${i}`,
+                title: `Question ${i - INTENSIVE_START_ID + 1}`, // Generic Title
+                audioSrc: `https://baongocnguyenngo2018-bot.github.io/PTE/07.summarize-group-discussion/${numStr}.mp3`,
+                transcriptHtml: ALL_TRANSCRIPTS[i] || "<p>Transcript unavailable.</p>",
+                sampleAnswer: INTENSIVE_ANSWERS[i] || "Sample answer unavailable."
+            });
+        }
+
+        // --- 2. STATE ---
+        let currentMode = 'warmup'; 
+        let currentIntensiveIndex = 0;
+        let audioContext, analyser, microphone;
+        let mediaRecorder;
+        let audioChunks = [];
+        let recognition;
+        let visualizerFrameId;
+        window.isNavigating = false;
+        
+        // Result Visualizer State
+        let resultAudioContexts = {}; 
+        let resultSourceNodes = {};
+
+        const userResults = {}; 
+
+        // --- 3. INITIALIZATION ---
+        window.onload = function() {
+            renderWarmupSection();
+            renderIntensiveNav();
+            setupSpeechRecognition();
+        };
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.getElementById('section-warmup').classList.toggle('hidden', mode !== 'warmup');
+            document.getElementById('section-intensive').classList.toggle('hidden', mode !== 'intensive');
+            
+            const btnW = document.getElementById('btn-mode-warmup');
+            const btnI = document.getElementById('btn-mode-intensive');
+            
+            if (mode === 'warmup') {
+                btnW.className = "px-4 py-1 rounded-full text-sm font-bold bg-violet-600 text-white transition-all";
+                btnI.className = "px-4 py-1 rounded-full text-sm font-bold bg-slate-800 text-slate-400 hover:text-white transition-all";
+            } else {
+                btnW.className = "px-4 py-1 rounded-full text-sm font-bold bg-slate-800 text-slate-400 hover:text-white transition-all";
+                btnI.className = "px-4 py-1 rounded-full text-sm font-bold bg-violet-600 text-white transition-all";
+                loadIntensiveQuestion(0);
+            }
+        }
+
+        function setupSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+            }
+        }
+
+        // --- 4. LOGIC FUNCTIONS ---
+        // Warmup Logic
+        function renderWarmupSection() {
+            const container = document.getElementById('warmup-list');
+            container.innerHTML = WARMUP_DATA.map((item, index) => `
+                <div class="bg-slate-900 border border-slate-700 rounded-lg p-6 relative">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-white"><span class="text-violet-500 mr-2">Q${index+1}</span> ${item.title}</h3>
+                        <span class="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded">Audio Warm-up</span>
+                    </div>
+
+                    <!-- Template Cheat Sheet Display -->
+                    <div class="mb-6 p-4 bg-slate-800/50 rounded border-l-4 border-violet-500">
+                        <h4 class="text-violet-400 font-bold text-xs uppercase mb-2"><i class="fas fa-file-invoice mr-2"></i>Response Template (The "Triad" Structure)</h4>
+                        <div class="text-sm text-slate-300 space-y-2 font-mono bg-slate-900 p-3 rounded leading-relaxed">
+                            <p>The audio presents a discussion regarding <span class="text-amber-400 font-bold">[TOPIC]</span>.</p>
+                            <p>The first speaker stated that <span class="text-amber-400 font-bold">[POINT 1]</span>, emphasizing <span class="text-amber-400 font-bold">[DETAIL]</span>.</p>
+                            <p>In response, the second speaker <span class="text-amber-400 font-bold">[AGREED/DISAGREED]</span>, noting that <span class="text-amber-400 font-bold">[POINT 2]</span>.</p>
+                            <p>Furthermore, the third speaker added that <span class="text-amber-400 font-bold">[POINT 3]</span>.</p>
+                            <p>Overall, the group concluded that <span class="text-amber-400 font-bold">[CONCLUSION]</span>.</p>
+                        </div>
+                    </div>
+                    
+                    <div id="w-controls-${item.id}" class="mb-4">
+                        <audio src="${item.audioSrc}" controls class="w-full mb-4"></audio>
+                        <button onclick="triggerWarmupPrep('${item.id}')" class="btn-primary text-sm w-full md:w-auto">
+                            <i class="fas fa-microphone mr-2"></i> Start Prep & Recording
+                        </button>
+                    </div>
+
+                    <div id="w-active-${item.id}" class="hidden mb-4 p-4 bg-slate-950 rounded border border-slate-800">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-xs uppercase text-slate-500 font-bold" id="w-phase-${item.id}">Prep</span>
+                            <span class="font-mono text-xl font-bold text-white" id="w-timer-${item.id}">00:00</span>
+                        </div>
+                        <canvas id="w-canvas-${item.id}" class="waveform-canvas mb-2"></canvas>
+                        <textarea id="w-dictation-${item.id}" class="w-full h-24 bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-300 resize-none focus:outline-none focus:border-violet-500" placeholder="Type notes or use dictation here..."></textarea>
+                        <button onclick="stopWarmupEarly('${item.id}')" class="mt-2 text-xs text-red-400 hover:text-red-300 underline">Stop Early</button>
+                    </div>
+
+                    <div id="w-result-${item.id}" class="hidden bg-slate-800/50 rounded p-4 border border-slate-700">
+                        <h4 class="text-emerald-400 font-bold text-sm mb-2"><i class="fas fa-check mr-2"></i>Result Review</h4>
+                        
+                        <!-- Result Waveform Area -->
+                        <div class="mb-3 bg-slate-900 p-3 rounded border border-slate-800">
+                            <canvas id="w-result-canvas-${item.id}" class="waveform-canvas mb-2"></canvas>
+                            <audio id="w-audio-playback-${item.id}" controls class="w-full h-8"></audio>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <p class="text-xs text-slate-500 uppercase mb-1">Your Dictation:</p>
+                            <p id="w-result-text-${item.id}" class="text-sm text-slate-300 bg-slate-900 p-2 rounded">...</p>
+                        </div>
+
+                        <details class="text-sm">
+                            <summary class="cursor-pointer text-violet-400 hover:text-violet-300 font-bold mb-2">Show Answer Key & Transcript</summary>
+                            <div class="pl-4 border-l-2 border-violet-900 mt-2 space-y-4">
+                                <div>
+                                    <strong class="text-slate-400 block text-xs uppercase mb-1">Sample Answer:</strong>
+                                    <p class="text-slate-300 text-xs bg-slate-900 p-2 rounded">${item.sampleAnswer}</p>
+                                </div>
+                                <div>
+                                    <strong class="text-slate-400 block text-xs uppercase mb-1">Full Transcript:</strong>
+                                    <div class="text-slate-300 text-xs bg-slate-900 p-2 rounded">${item.transcriptHtml}</div>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function triggerWarmupPrep(id) {
+            const activeArea = document.getElementById(`w-active-${id}`);
+            const timer = document.getElementById(`w-timer-${id}`);
+            const phase = document.getElementById(`w-phase-${id}`);
+            const controls = document.getElementById(`w-controls-${id}`);
+            
+            controls.classList.add('hidden');
+            activeArea.classList.remove('hidden');
+            
+            phase.innerText = "Preparation";
+            await startTimer(10, timer);
+
+            try { await document.getElementById('beep-audio').play(); } catch(e) {}
+
+            phase.innerText = "Recording";
+            const canvas = document.getElementById(`w-canvas-${id}`);
+            const dictationBox = document.getElementById(`w-dictation-${id}`);
+            
+            startRecordingCommon(canvas, dictationBox, (blob, text) => {
+                activeArea.classList.add('hidden');
+                document.getElementById(`w-result-${id}`).classList.remove('hidden');
+                
+                const audioURL = URL.createObjectURL(blob);
+                const audioEl = document.getElementById(`w-audio-playback-${id}`);
+                audioEl.src = audioURL;
+                document.getElementById(`w-result-text-${id}`).innerText = text || "(No text captured)";
+                
+                // Draw static waveform for Warmup too
+                drawStaticWaveform(`w-result-canvas-${id}`, blob);
+                
+                controls.classList.remove('hidden');
+            }, 120, timer);
+        }
+
+        // Intensive Logic
+        function renderIntensiveNav() {
+            const nav = document.getElementById('intensive-nav');
+            nav.innerHTML = INTENSIVE_DATA.map((item, index) => `
+                <button onclick="loadIntensiveQuestion(${index})" id="nav-item-${index}" class="w-full text-left p-3 text-sm font-bold border-b border-slate-800 hover:bg-slate-800 transition-colors inactive-nav">
+                    <div class="flex justify-between items-center">
+                        <span class="truncate">${item.title}</span>
+                        <i class="fas fa-circle text-[8px] ${userResults[item.id] ? 'text-emerald-500' : 'text-slate-700'} shrink-0 ml-2" id="nav-dot-${index}"></i>
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        function loadIntensiveQuestion(index) {
+            if(window.stopCurrentRecording) {
+                window.isNavigating = true; 
+                window.stopCurrentRecording();
+                window.isNavigating = false; 
+            }
+
+            if (index >= INTENSIVE_DATA.length) {
+                showIntensiveResults();
+                return;
+            }
+
+            currentIntensiveIndex = index;
+            const item = INTENSIVE_DATA[index];
+            
+            document.querySelectorAll('#intensive-nav button').forEach(b => {
+                b.className = "w-full text-left p-3 text-sm font-bold border-b border-slate-800 hover:bg-slate-800 transition-colors inactive-nav";
+            });
+            document.getElementById(`nav-item-${index}`).className = "w-full text-left p-3 text-sm font-bold border-b border-slate-800 bg-slate-800 transition-colors active-nav";
+
+            document.getElementById('intensive-player-container').classList.remove('hidden');
+            document.getElementById('intensive-results').classList.add('hidden');
+            
+            document.getElementById('intensive-title').innerText = item.title;
+            document.getElementById('intensive-timer').innerText = "00:00";
+            document.getElementById('intensive-live-text').value = ""; // Clear textarea
+            document.getElementById('audio-status-text').innerText = "Starting Sequence...";
+            
+            const audioPlayer = document.getElementById('intensive-audio-player');
+            audioPlayer.src = item.audioSrc;
+            audioPlayer.load();
+
+            document.getElementById('btn-intensive-start').classList.add('hidden');
+            document.getElementById('intensive-control-group').classList.add('hidden');
+            document.getElementById('intensive-rec-indicator').classList.add('hidden');
+            
+            setTimeout(startIntensiveSequence, 500);
+        }
+
+        async function startIntensiveSequence() {
+            const index = currentIntensiveIndex;
+            const item = INTENSIVE_DATA[index];
+            const btnStart = document.getElementById('btn-intensive-start');
+            const statusText = document.getElementById('audio-status-text');
+            const timerDisplay = document.getElementById('intensive-timer');
+            const audioPlayer = document.getElementById('intensive-audio-player');
+            
+            btnStart.classList.add('hidden');
+            
+            statusText.innerText = "Playing Audio...";
+            statusText.classList.replace('bg-slate-700', 'bg-violet-600');
+            
+            try {
+                await audioPlayer.play();
+            } catch(e) {
+                btnStart.classList.remove('hidden');
+                return;
+            }
+
+            await new Promise(resolve => {
+                audioPlayer.onended = resolve;
+            });
+
+            statusText.innerText = "Preparation Time";
+            statusText.classList.replace('bg-violet-600', 'bg-amber-600');
+            await startTimer(10, timerDisplay);
+
+            try { await document.getElementById('beep-audio').play(); } catch(e){}
+
+            statusText.innerText = "Recording Response";
+            statusText.classList.replace('bg-amber-600', 'bg-red-600');
+            
+            document.getElementById('intensive-control-group').classList.remove('hidden');
+            document.getElementById('intensive-rec-indicator').classList.remove('hidden');
+            
+            const canvas = document.getElementById('intensive-canvas');
+            const dictBox = document.getElementById('intensive-live-text');
+            
+            startRecordingCommon(canvas, dictBox, (blob, text) => {
+                userResults[item.id] = {
+                    audioBlob: blob,
+                    dictation: dictBox.value, // Capture whatever is in the textarea
+                    timestamp: new Date()
+                };
+                
+                document.getElementById(`nav-dot-${index}`).classList.replace('text-slate-700', 'text-emerald-500');
+                document.getElementById('intensive-control-group').classList.add('hidden');
+                document.getElementById('intensive-rec-indicator').classList.add('hidden');
+                statusText.innerText = "Completed";
+                statusText.classList.replace('bg-red-600', 'bg-emerald-600');
+                
+                if (!window.isNavigating) {
+                    setTimeout(() => {
+                        loadIntensiveQuestion(index + 1);
+                    }, 1000);
+                }
+
+            }, 120, timerDisplay);
+        }
+
+        function stopIntensiveRecording() {
+            if(window.stopCurrentRecording) window.stopCurrentRecording();
+        }
+
+        function showIntensiveResults() {
+            const container = document.getElementById('intensive-results-list');
+            container.innerHTML = INTENSIVE_DATA.map((item, idx) => {
+                const res = userResults[item.id];
+                if (!res) return ''; 
+                
+                const audioUrl = URL.createObjectURL(res.audioBlob);
+                
+                return `
+                    <div class="bg-slate-900 border border-slate-700 rounded-lg p-6 relative">
+                        <h3 class="font-bold text-white mb-4">${item.title}</h3>
+                        
+                        <div class="grid grid-cols-1 gap-6">
+                            <!-- Recording Playback & Waveform -->
+                            <div class="bg-slate-800 p-4 rounded border border-slate-700">
+                                <span class="text-xs uppercase text-slate-400 block mb-2 font-bold">Your Recording</span>
+                                <canvas id="int-res-canvas-${item.id}" class="waveform-canvas mb-2 w-full"></canvas>
+                                <audio src="${audioUrl}" controls class="w-full mb-3"></audio>
+                                <div class="bg-slate-900 p-3 rounded text-sm text-slate-300 italic h-24 overflow-y-auto border border-slate-700 font-mono">
+                                    ${res.dictation || "No text detected."}
+                                </div>
+                            </div>
+
+                            <!-- Full Transcript & Key (Collapsible) -->
+                            <details class="bg-slate-800 p-4 rounded border border-slate-700 group">
+                                <summary class="text-xs uppercase text-slate-400 font-bold cursor-pointer hover:text-white flex justify-between items-center list-none">
+                                    <span>Answer Key & Transcript</span>
+                                    <i class="fas fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                                </summary>
+                                <div class="mt-4 space-y-4 text-sm text-slate-300">
+                                    <div>
+                                        <strong class="text-violet-400 block mb-1">Sample Summary:</strong>
+                                        <div class="bg-slate-900 p-3 rounded leading-relaxed border border-slate-700">${item.sampleAnswer}</div>
+                                    </div>
+                                    <div>
+                                        <strong class="text-violet-400 block mb-1">Full Transcript:</strong>
+                                        <div class="bg-slate-900 p-3 rounded h-64 overflow-y-auto border border-slate-700 space-y-2">
+                                            ${item.transcriptHtml}
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Draw static waveforms after elements are in DOM
+            setTimeout(() => {
+                INTENSIVE_DATA.forEach(item => {
+                    const res = userResults[item.id];
+                    if (res) {
+                        drawStaticWaveform(`int-res-canvas-${item.id}`, res.audioBlob);
+                    }
+                });
+            }, 100);
+
+            if(container.innerHTML === '') container.innerHTML = '<p class="text-slate-400 text-center">No questions completed yet.</p>';
+
+            document.getElementById('intensive-player-container').classList.add('hidden');
+            document.getElementById('intensive-results').classList.remove('hidden');
+        }
+
+        function backToDrill() {
+            document.getElementById('intensive-results').classList.add('hidden');
+            document.getElementById('intensive-player-container').classList.remove('hidden');
+        }
+
+        // --- VISUALIZATION LOGIC ---
+
+        async function drawStaticWaveform(canvasId, audioBlob) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear
+            ctx.fillStyle = 'rgb(30, 41, 59)'; 
+            ctx.fillRect(0, 0, width, height);
+            
+            try {
+                // Decode
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const arrayBuffer = await audioBlob.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                
+                const rawData = audioBuffer.getChannelData(0); // Channel 0
+                const samples = rawData.length;
+                const step = Math.ceil(samples / width);
+                const amp = height / 2;
+                
+                ctx.fillStyle = 'rgb(16, 185, 129)'; // Emerald Green
+                
+                for (let i = 0; i < width; i++) {
+                    let min = 1.0;
+                    let max = -1.0;
+                    for (let j = 0; j < step; j++) {
+                        const datum = rawData[(i * step) + j];
+                        if (datum < min) min = datum;
+                        if (datum > max) max = datum;
+                    }
+                    
+                    // If basically silent/empty in this chunk, draw flat line
+                    if (max === -1.0 && min === 1.0) { 
+                         ctx.fillRect(i, amp, 1, 1);
+                    } else {
+                         // Draw vertical bar for this pixel slice
+                         const y_min = (1 + min) * amp;
+                         const y_max = (1 + max) * amp;
+                         ctx.fillRect(i, y_min, 1, Math.max(1, y_max - y_min));
+                    }
+                }
+            } catch (e) {
+                console.error("Error drawing static waveform", e);
+                ctx.fillStyle = 'red';
+                ctx.fillText("Error visualization", 10, 20);
+            }
+        }
+
+        function startTimer(seconds, displayElem) {
+            return new Promise(resolve => {
+                let remaining = seconds;
+                displayElem.innerText = `00:${remaining.toString().padStart(2, '0')}`;
+                displayElem.classList.add('text-amber-500');
+                
+                const interval = setInterval(() => {
+                    remaining--;
+                    displayElem.innerText = `00:${remaining.toString().padStart(2, '0')}`;
+                    if (remaining <= 0) {
+                        clearInterval(interval);
+                        displayElem.classList.remove('text-amber-500');
+                        resolve();
+                    }
+                }, 1000);
+            });
+        }
+
+        // Recorder
+        async function startRecordingCommon(canvasElem, textElem, onComplete, maxSeconds, timerElem) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                analyser.fftSize = 256;
+                drawVisualizer(canvasElem, analyser);
+                
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+                
+                // Speech Recognition (Appending to Textarea)
+                if(recognition) {
+                    recognition.onresult = (event) => {
+                        let final = '';
+                        for (let i = event.resultIndex; i < event.results.length; ++i) {
+                            if (event.results[i].isFinal) {
+                                final += event.results[i][0].transcript + ' ';
+                            }
+                        }
+                        // Append to textarea without overwriting user typing
+                        if(final) textElem.value += final; 
+                    };
+                    try { recognition.start(); } catch(e) {}
+                }
+
+                let remaining = maxSeconds;
+                timerElem.innerText = formatTime(remaining);
+                timerElem.classList.add('text-red-500');
+                
+                const recInterval = setInterval(() => {
+                    remaining--;
+                    timerElem.innerText = formatTime(remaining);
+                    if (remaining <= 0) stopFn();
+                }, 1000);
+
+                const stopFn = () => {
+                    clearInterval(recInterval);
+                    timerElem.classList.remove('text-red-500');
+                    cancelAnimationFrame(visualizerFrameId);
+                    
+                    if (mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+                    try { if(recognition) recognition.stop(); } catch(e){}
+                    
+                    stream.getTracks().forEach(track => track.stop());
+                    if (audioContext.state !== 'closed') audioContext.close();
+                };
+
+                window.stopCurrentRecording = stopFn;
+                window.stopWarmupEarly = stopFn;
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    onComplete(blob, textElem.value);
+                };
+
+                mediaRecorder.start();
+            } catch (err) {
+                alert("Microphone access denied or error.");
+            }
+        }
+
+        function drawVisualizer(canvas, analyser) {
+            const ctx = canvas.getContext('2d');
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            const WIDTH = canvas.width;
+            const HEIGHT = canvas.height;
+
+            function draw() {
+                visualizerFrameId = requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+                ctx.fillStyle = 'rgb(30, 41, 59)'; 
+                ctx.fillRect(0, 0, WIDTH, HEIGHT);
+                const barWidth = (WIDTH / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = dataArray[i] / 2;
+                    ctx.fillStyle = `rgb(${barHeight + 100}, 92, 246)`;
+                    ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
+            }
+            draw();
+        }
+
+        function formatTime(s) {
+            const mins = Math.floor(s / 60);
+            const secs = s % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>

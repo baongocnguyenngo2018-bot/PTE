@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 4: Respond to a Situation Drill</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .waveform-canvas { width: 100%; height: 60px; background-color: #1e293b; border-radius: 0.5rem; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .btn-primary { @apply bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 px-4 rounded transition-colors; }
+        
+        .active-nav { border-left: 4px solid #e11d48; background: #1e293b; color: #fff; }
+        .inactive-nav { border-left: 4px solid transparent; color: #94a3b8; }
+        
+        .timer-display { font-variant-numeric: tabular-nums; }
+        
+        textarea:focus { outline: 2px solid #e11d48; }
+        
+        /* Custom Audio Player Styling */
+        audio {
+            width: 100%;
+            height: 40px;
+            border-radius: 8px;
+        }
+        audio::-webkit-media-controls-panel {
+            background-color: #334155; /* Slate 700 */
+        }
+        audio::-webkit-media-controls-current-time-display,
+        audio::-webkit-media-controls-time-remaining-display {
+            color: #e2e8f0;
+        }
+        
+        details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        .formal-tag {
+            background: #475569; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; text-transform: uppercase; font-weight: bold; border: 1px solid #94a3b8;
+        }
+        .informal-tag {
+            background: #e11d48; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; text-transform: uppercase; font-weight: bold;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-900 border-b border-slate-700 p-4 flex justify-between items-center z-10 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-rose-600 w-8 h-8 rounded flex items-center justify-center font-bold">D4</div>
+            <h1 class="font-bold text-lg hidden md:block">Respond to a Situation <span class="text-slate-500 font-normal">| Day 4 Drill</span></h1>
+        </div>
+        <div class="flex gap-4">
+            <button onclick="switchMode('warmup')" id="btn-mode-warmup" class="px-4 py-1 rounded-full text-sm font-bold bg-rose-600 text-white transition-all">Warm-up</button>
+            <button onclick="switchMode('intensive')" id="btn-mode-intensive" class="px-4 py-1 rounded-full text-sm font-bold bg-slate-800 text-slate-400 hover:text-white transition-all">Intensive Drills</button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-hidden relative">
+        
+        <!-- SECTION 1: WARM UP -->
+        <div id="section-warmup" class="h-full overflow-y-auto p-4 md:p-8 max-w-5xl mx-auto space-y-8">
+            <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700 mb-8">
+                <h2 class="text-2xl font-bold text-rose-400 mb-2">Part I: Guided Warm-up</h2>
+                <p class="text-slate-400">Practice the "Dual Template" system using AI-generated scenarios. 2 Questions.</p>
+            </div>
+
+            <!-- Template Cheat Sheet Display -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div class="p-4 bg-slate-900 rounded border-l-4 border-slate-500">
+                    <h4 class="text-slate-400 font-bold text-xs uppercase mb-2"><span class="formal-tag mr-2">Formal Path</span>(Professor/Manager)</h4>
+                    <div class="text-xs text-slate-300 space-y-2 font-mono leading-relaxed">
+                        <p>"Hello <span class="text-amber-400">[TITLE/NAME]</span>, I am speaking to you regarding <span class="text-amber-400">[ISSUE]</span>."</p>
+                        <p>"Unfortunately, <span class="text-amber-400">[EXPLAIN SITUATION]</span>."</p>
+                        <p>"Therefore, I would like to suggest that <span class="text-amber-400">[SOLUTION]</span>."</p>
+                        <p>"Thank you for your understanding."</p>
+                    </div>
+                </div>
+                <div class="p-4 bg-slate-900 rounded border-l-4 border-rose-500">
+                    <h4 class="text-rose-400 font-bold text-xs uppercase mb-2"><span class="informal-tag mr-2">Informal Path</span>(Friend/Family)</h4>
+                    <div class="text-xs text-slate-300 space-y-2 font-mono leading-relaxed">
+                        <p>"Hi <span class="text-amber-400">[NAME]</span>, Look, I need to talk to you about <span class="text-amber-400">[ISSUE]</span>."</p>
+                        <p>"The thing is, <span class="text-amber-400">[EXPLAIN SITUATION]</span>."</p>
+                        <p>"So, why don't we <span class="text-amber-400">[SOLUTION]</span>?"</p>
+                        <p>"Let me know if that works for you."</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warmup List Container (Populated via JS) -->
+            <div id="warmup-list" class="space-y-6 pb-20"></div>
+        </div>
+
+        <!-- SECTION 2: INTENSIVE DRILLS -->
+        <div id="section-intensive" class="h-full flex hidden">
+            <!-- Sidebar Navigation -->
+            <aside class="w-64 bg-slate-900 border-r border-slate-700 overflow-y-auto shrink-0 flex flex-col">
+                <div class="p-4 border-b border-slate-800">
+                    <h3 class="font-bold text-slate-400 uppercase text-xs tracking-wider">Question List</h3>
+                </div>
+                <div id="intensive-nav" class="flex-1">
+                    <!-- Nav Items generated via JS -->
+                </div>
+                <div class="p-4 border-t border-slate-800">
+                    <button onclick="showIntensiveResults()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded text-sm">
+                        <i class="fas fa-flag-checkered mr-2"></i> Finish & Review
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Player Area -->
+            <div class="flex-1 bg-slate-950 p-4 md:p-8 overflow-y-auto flex flex-col items-center justify-center relative" id="intensive-player-container">
+                
+                <!-- Question Card -->
+                <div id="intensive-card" class="bg-slate-900 border border-slate-700 rounded-2xl p-8 w-full max-w-3xl shadow-2xl relative">
+                    <div class="flex justify-between items-start mb-6">
+                        <span class="bg-rose-900 text-rose-200 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Exam Simulation</span>
+                        <div id="intensive-timer" class="text-4xl font-mono font-bold text-slate-200 timer-display">00:00</div>
+                    </div>
+
+                    <h2 id="intensive-title" class="text-2xl font-bold text-white mb-4">Question 1</h2>
+
+                    <!-- Situation Text & Audio -->
+                    <div class="mb-6 bg-slate-800 p-4 rounded-lg border border-slate-700">
+                        <p id="intensive-situation-text" class="text-lg text-slate-200 mb-4 font-medium leading-relaxed"></p>
+                        
+                        <div class="flex items-center justify-between mb-2">
+                             <div class="text-xs text-slate-400 uppercase font-bold">Audio Prompt</div>
+                             <div id="audio-status-text" class="text-xs text-white font-bold bg-slate-700 px-2 py-1 rounded">Ready</div>
+                        </div>
+                        <audio id="intensive-audio-player" controls class="w-full"></audio>
+                    </div>
+
+                    <!-- Recording Visualizer -->
+                    <div class="mb-6 relative">
+                        <canvas id="intensive-canvas" class="waveform-canvas border border-slate-700"></canvas>
+                        <div id="intensive-rec-indicator" class="absolute top-2 right-2 flex items-center gap-2 hidden">
+                            <span class="animate-pulse w-3 h-3 bg-red-500 rounded-full"></span>
+                            <span class="text-xs text-red-400 font-bold uppercase">Recording</span>
+                        </div>
+                    </div>
+
+                    <!-- Live Dictation (Editable) -->
+                    <div class="mb-8">
+                        <div class="flex justify-between items-end mb-2">
+                            <p class="text-xs text-slate-500 uppercase">Live Dictation (Editable)</p>
+                            <span class="text-[10px] text-slate-500"><i class="fas fa-keyboard mr-1"></i>Win+H for Windows Dictation</span>
+                        </div>
+                        <textarea id="intensive-live-text" class="w-full h-24 bg-slate-800 rounded p-3 text-sm text-slate-300 border border-slate-700 resize-none font-mono focus:bg-slate-800" placeholder="Click here to type or use Windows Dictation..."></textarea>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="flex justify-center gap-4">
+                        <button id="btn-intensive-start" onclick="startIntensiveSequence()" class="btn-primary w-48 text-lg hidden">
+                            <i class="fas fa-play mr-2"></i> Start Sequence
+                        </button>
+                        <div id="intensive-control-group" class="hidden flex gap-4 w-full justify-center">
+                            <button onclick="stopIntensiveRecording()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg flex items-center transition-all transform hover:scale-105">
+                                <i class="fas fa-forward mr-3"></i> Stop Recording & Next Question
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Results View (Hidden initially) -->
+            <div id="intensive-results" class="flex-1 bg-slate-950 p-4 md:p-8 overflow-y-auto hidden">
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl font-bold text-white">Drill Results</h2>
+                        <button onclick="backToDrill()" class="text-slate-400 hover:text-white"><i class="fas fa-arrow-left mr-2"></i> Back to Questions</button>
+                    </div>
+                    <div id="intensive-results-list" class="space-y-6"></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Beep Audio Element -->
+    <audio id="beep-audio" src="https://baongocnguyenngo2018-bot.github.io/PTE/03.repeat-sentence/beep.mp3" preload="auto"></audio>
+
+    <script>
+        // --- 1. DATA DEFINITIONS ---
+
+        const WARMUP_DATA = [
+            {
+                id: 'w1',
+                title: 'Warm-up 1 (Formal)',
+                situation: "You are unable to attend a scheduled meeting with your professor due to a sudden medical emergency. Call his office to apologize and request to reschedule.",
+                type: 'formal',
+                sampleAnswer: "Hello Professor, I am calling regarding our meeting scheduled for today. Unfortunately, I have had a sudden medical emergency and I am unable to attend. Therefore, I would like to suggest that we reschedule for later this week. Thank you for your understanding."
+            },
+            {
+                id: 'w2',
+                title: 'Warm-up 2 (Informal)',
+                situation: "Your friend invited you to go to the cinema tonight, but you have a very important exam tomorrow morning. Decline the invitation politely.",
+                type: 'informal',
+                sampleAnswer: "Hi [Name], look, I need to talk to you about the cinema tonight. The thing is, I have a really important exam tomorrow morning and I need to study. So, why don't we go this weekend instead? Let me know if that works for you."
+            }
+        ];
+
+        // Raw Data from Prompt
+        const INTENSIVE_RAW_DATA = [
+            {
+                id: 3,
+                text: "You have taken a course for one semester. Now your friend tells you they also want to take this course and asks for your advice. Since the course is too difficult, you do not recommend it. What should you say?",
+                sample: "I took that course last semester, and honestly it was much tougher than I expected. The workload is heavy, the readings are long, and the grading is quite strict. If you are already busy, I would not recommend it right now. Maybe take a lighter subject first or check the prerequisite skills. If you still want it, you should be ready to study every week and attend tutorials."
+            },
+            {
+                id: 4,
+                text: "You're sharing a flat with a few other students, but you've noticed they often use your desk and your stationery. You are very concerned about losing your things. What would you say?",
+                sample: "Hi everyone, can we talk about the study area? I have noticed my desk and stationery are being used when I'm not around. I am worried about losing my things. Could we please keep to our own desks and ask before using someone else's items? I will also label my stationery to avoid confusion. I hope that's okay. I just want to keep everything organized and fair for all of us."
+            },
+            {
+                id: 5,
+                text: "You lent an English book to a friend three weeks ago, and he hasn't returned it yet. Now, you need the book very much. What would you say to him?",
+                sample: "Hi, do you remember the English book I lent you three weeks ago? I need it now for my assignment and I have to use it this week. Could you please return it today or tomorrow? If you are still using it, let me know, and maybe I can borrow it back for a few hours to copy the pages I need. I would really appreciate it."
+            },
+            {
+                id: 6,
+                text: "You wrote an assignment, consulted your tutor, and asked them for some feedback on your work. What would you say to him?",
+                sample: "Hello [Tutor Name], thanks for taking time to look at my assignment. I would really appreciate your feedback on my structure and argument, especially the introduction and conclusion. Are there any areas where my evidence is weak or where I should clarify my points? If possible, could you suggest two or three specific improvements I should focus on before I submit? I'm happy to meet during your office hours if that is easier."
+            },
+            {
+                id: 7,
+                text: "After choosing Subject A, you're thinking about changing it and consult your tutor about Subject B. What would you say?",
+                sample: "Hi [Tutor Name], I chose Subject A, but I'm thinking about switching to Subject B. Could I ask your advice? I'm not sure which one fits my interests and future plans better. Also, I want to know about the workload, assessment style, and whether any credits can transfer. Is there a deadline for changing subjects, and do I need any approvals? I would appreciate your guidance before I decide."
+            },
+            {
+                id: 8,
+                text: "You want to copy some documents, but you notice the printer is broken and the red light is flashing. What would you say to the administrator?",
+                sample: "Hello, I tried to print some documents, but the printer in the study room seems broken and the red light is flashing. I have checked the paper tray and it still won't work. Could you please help fix it or let me know if there is another printer I can use? I need to copy these documents today for class. If you need me to report a fault, I can do that now."
+            },
+            {
+                id: 9,
+                text: "You have to return a book to your friend, but when you get to school you realize you have forgotten to bring it. Your friend really needs it today. What will you say to your friend?",
+                sample: "I'm really sorry, I just realized I forgot your book at home. I know you need it today, and I feel bad about the inconvenience. I can go back and bring it to you this afternoon, or I can drop it off at your dorm tonight. If you need a specific chapter right away, I can take photos and send them now. Please tell me which option works best for you."
+            },
+            {
+                id: 10,
+                text: "Your loan has been delayed, so you can't pay the full amount of the accommodation fee at once. You have a part-time job, but it's not enough. You are going to ask the university accommodation officer for advice. What will you say?",
+                sample: "Hello, I wanted to discuss my accommodation fee. My student loan has been delayed, so I can't pay the full amount right now. I do have a part-time job, but it doesn't cover the whole fee. Could you advise me on a payment plan or a short-term extension? I can provide proof of the loan delay and my income. I want to pay as soon as possible and avoid any penalties."
+            },
+            {
+                id: 11,
+                text: "You borrowed a book from the university library. But while reading it, you notice that two pages have been torn out, but you didn't do it. What do you say to the librarian when you return the book?",
+                sample: "Hello, I’d like to return this book, but I need to report an issue. While I was reading it, I noticed that two pages were already torn out. I didn’t cause the damage, so I wanted to inform you in advance. Could you please note this on my record or advise me on the next steps?"
+            },
+            {
+                id: 12,
+                text: "You have a tutorial scheduled for 3 P.M. on Monday, but you've been selected to participate in an important competition at the same time. You need to inform your teacher and request a solution. What would you say?",
+                sample: "Good afternoon, Professor. I have a tutorial scheduled at 3 p.m. on Monday, but I’ve been selected to participate in an important competition at the same time. I didn’t want to miss the tutorial, so I was wondering if I could attend another session or complete alternative work. I’d really appreciate your advice."
+            },
+            {
+                id: 13,
+                text: "A colleague has invited you to dinner, but you are unable to attend due to prior commitments. How would you politely turn down the invitation while expressing your appreciation? What key points would you mention to maintain a positive relationship?",
+                sample: "Thank you very much for the invitation. I really appreciate you thinking of me. Unfortunately, I already have a prior commitment that evening and won’t be able to attend. I hope we can plan another dinner soon, and I truly value our relationship."
+            },
+            {
+                id: 14,
+                text: "Yesterday, you went to a cafe and forgot your bag, which contained your college materials. You were sitting by the window at lunchtime. Now, you need to call the cafe and discuss your forgotten bag. How would you respond to that?",
+                sample: "Hello, I’m calling to check if a bag was found at your café yesterday. I was sitting by the window around lunchtime, and the bag contains my college materials. Could you please let me know if it has been handed in? I’d be happy to come by and describe it to confirm."
+            },
+            {
+                id: 15,
+                text: "You had a doctor's appointment at 10 am and you were late. Explain at the reception the reason for your delay and request the reception to know if you can see the doctor later today.",
+                sample: "Good morning. I’m really sorry for being late today; there was unexpected traffic due to an accident. I understand the schedule is tight, but I wanted to ask if it’s still possible to see the doctor later today. I’d really appreciate your help."
+            },
+            {
+                id: 16,
+                text: "Your flatmate's visitors don't follow the rules, and your food in the fridge keeps disappearing. You need to talk to your flatmate about it. What will you say?",
+                sample: "Hey, I wanted to talk about something important. I’ve noticed that when your visitors come over, some of my food from the fridge goes missing. I’m not comfortable with that, and I’d appreciate it if you could remind them about the house rules. I hope we can sort this out respectfully."
+            },
+            {
+                id: 17,
+                text: "Your computer is broken and you can't attend the online class. How should you tell your professor?",
+                sample: "Dear Professor, I wanted to inform you that my computer unexpectedly broke down today, which prevented me from attending the online class. I’m currently getting it fixed and will review the recording if available. Thank you for your understanding."
+            },
+            {
+                id: 18,
+                text: "You see a job advertisement for a café, but you're not sure if it's still valid, so you go and ask the manager and inquire about the tasks of the position being advertised. What would you say?",
+                sample: "Hello, I saw your job advertisement for a café position and wanted to check if it’s still available. I’m very interested and would like to know more about the responsibilities involved. Could you also tell me about the working hours? Thank you for your time."
+            },
+            {
+                id: 19,
+                text: "Your flatmate doesn't follow the schedule to complete housework. What would you say to him or her?",
+                sample: "Hey, I wanted to talk about the housework schedule. I’ve noticed it hasn’t been followed consistently, which makes things a bit unfair. Could we try to stick to the plan or adjust it together? I think that would help keep the place organized."
+            },
+            {
+                id: 20,
+                text: "Your flatmates are holding a party in their room at night, which is too noisy for you to sleep, but you have an important exam early tomorrow morning. What should you say to them?",
+                sample: "Hey guys, sorry to interrupt, but the noise is quite loud and I have an important exam early tomorrow morning. Would you mind turning the music down or wrapping up soon? I’d really appreciate your understanding."
+            },
+            {
+                id: 21,
+                text: "You are in your second year of university and have been working on a big assignment for your psychology class. Unfortunately, you've had the flu for the past week and couldn't concentrate or get much work done. You have a doctor's note and feel a little better now. You go to your lecturer's office to talk. What would you say?",
+                sample: "Good afternoon, Professor. I wanted to explain my situation regarding the assignment. I’ve been sick with the flu for the past week and struggled to concentrate, but I do have a doctor’s note. I’m feeling better now and wanted to ask if an extension might be possible."
+            },
+            {
+                id: 22,
+                text: "You are walking out of a lecture and realize that you didn't fully understand some of the main points your professor discussed. You notice a classmate who seemed to take good notes and was paying close attention during class. You want to ask them for help in understanding what was covered. What would you say?",
+                sample: "Hi, I noticed you took really good notes during the lecture. I didn’t fully understand some of the main points and was hoping you could help clarify them. Would you mind sharing your notes or explaining the key ideas? I’d really appreciate it."
+            }
+        ];
+
+        const INTENSIVE_DATA = INTENSIVE_RAW_DATA.map((item, idx) => {
+            const numStr = item.id.toString().padStart(3, '0');
+            return {
+                id: `i${item.id}`,
+                title: `Question ${idx + 1}`,
+                audioSrc: `https://baongocnguyenngo2018-bot.github.io/PTE/08.respond-to-situation/${numStr}.mp3`,
+                situationText: item.text,
+                sampleAnswer: item.sample
+            };
+        });
+
+        // --- 2. STATE ---
+        let currentMode = 'warmup'; 
+        let currentIntensiveIndex = 0;
+        let audioContext, analyser, microphone;
+        let mediaRecorder;
+        let audioChunks = [];
+        let recognition;
+        let visualizerFrameId;
+        window.isNavigating = false;
+        const userResults = {}; 
+
+        // --- 3. INITIALIZATION ---
+        window.onload = function() {
+            renderWarmupSection();
+            renderIntensiveNav();
+            setupSpeechRecognition();
+        };
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.getElementById('section-warmup').classList.toggle('hidden', mode !== 'warmup');
+            document.getElementById('section-intensive').classList.toggle('hidden', mode !== 'intensive');
+            
+            const btnW = document.getElementById('btn-mode-warmup');
+            const btnI = document.getElementById('btn-mode-intensive');
+            
+            if (mode === 'warmup') {
+                btnW.className = "px-4 py-1 rounded-full text-sm font-bold bg-rose-600 text-white transition-all";
+                btnI.className = "px-4 py-1 rounded-full text-sm font-bold bg-slate-800 text-slate-400 hover:text-white transition-all";
+            } else {
+                btnW.className = "px-4 py-1 rounded-full text-sm font-bold bg-slate-800 text-slate-400 hover:text-white transition-all";
+                btnI.className = "px-4 py-1 rounded-full text-sm font-bold bg-rose-600 text-white transition-all";
+                loadIntensiveQuestion(0);
+            }
+        }
+
+        function setupSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+            }
+        }
+
+        // --- 4. LOGIC FUNCTIONS ---
+        // Warmup Logic
+        function renderWarmupSection() {
+            const container = document.getElementById('warmup-list');
+            container.innerHTML = WARMUP_DATA.map((item, index) => `
+                <div class="bg-slate-900 border border-slate-700 rounded-lg p-6 relative">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-white"><span class="text-rose-500 mr-2">Q${index+1}</span> ${item.title}</h3>
+                        <span class="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded">AI Simulation</span>
+                    </div>
+                    
+                    <div class="mb-4 bg-slate-800 p-3 rounded text-slate-300 text-sm">
+                        <strong class="text-rose-400 block mb-1">Situation:</strong>
+                        ${item.situation}
+                    </div>
+
+                    <div id="w-controls-${item.id}" class="mb-4 flex gap-4">
+                        <button onclick="playAISpeech('${item.situation.replace(/'/g, "\\'")}')" class="bg-slate-700 hover:bg-slate-600 text-white text-sm font-bold py-2 px-4 rounded">
+                            <i class="fas fa-volume-up mr-2"></i> Hear Situation
+                        </button>
+                        <button onclick="triggerWarmupPrep('${item.id}')" class="btn-primary text-sm">
+                            <i class="fas fa-microphone mr-2"></i> Start Prep & Recording
+                        </button>
+                    </div>
+
+                    <div id="w-active-${item.id}" class="hidden mb-4 p-4 bg-slate-950 rounded border border-slate-800">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-xs uppercase text-slate-500 font-bold" id="w-phase-${item.id}">Prep</span>
+                            <span class="font-mono text-xl font-bold text-white" id="w-timer-${item.id}">00:00</span>
+                        </div>
+                        <canvas id="w-canvas-${item.id}" class="waveform-canvas mb-2"></canvas>
+                        <textarea id="w-dictation-${item.id}" class="w-full h-24 bg-slate-900 border border-slate-700 rounded p-2 text-sm text-slate-300 resize-none focus:outline-none focus:border-rose-500" placeholder="Type notes or use dictation here..."></textarea>
+                        <button onclick="stopWarmupEarly('${item.id}')" class="mt-2 text-xs text-red-400 hover:text-red-300 underline">Stop Early</button>
+                    </div>
+
+                    <div id="w-result-${item.id}" class="hidden bg-slate-800/50 rounded p-4 border border-slate-700">
+                        <h4 class="text-emerald-400 font-bold text-sm mb-2"><i class="fas fa-check mr-2"></i>Result Review</h4>
+                        
+                        <div class="mb-3 bg-slate-900 p-3 rounded border border-slate-800">
+                            <canvas id="w-result-canvas-${item.id}" class="waveform-canvas mb-2"></canvas>
+                            <audio id="w-audio-playback-${item.id}" controls class="w-full h-8"></audio>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <p class="text-xs text-slate-500 uppercase mb-1">Your Dictation:</p>
+                            <p id="w-result-text-${item.id}" class="text-sm text-slate-300 bg-slate-900 p-2 rounded">...</p>
+                        </div>
+
+                        <details class="text-sm">
+                            <summary class="cursor-pointer text-rose-400 hover:text-rose-300 font-bold mb-2">Show Sample Answer</summary>
+                            <div class="pl-4 border-l-2 border-rose-900 mt-2">
+                                <strong class="text-slate-400 block text-xs uppercase mb-1">Sample Response:</strong>
+                                <p class="text-slate-300 text-xs bg-slate-900 p-2 rounded">${item.sampleAnswer}</p>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function playAISpeech(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("Text-to-speech not supported.");
+            }
+        }
+
+        async function triggerWarmupPrep(id) {
+            const activeArea = document.getElementById(`w-active-${id}`);
+            const timer = document.getElementById(`w-timer-${id}`);
+            const phase = document.getElementById(`w-phase-${id}`);
+            const controls = document.getElementById(`w-controls-${id}`);
+            
+            controls.classList.add('hidden');
+            activeArea.classList.remove('hidden');
+            
+            // 10s Prep time (Adjusted from 20s)
+            phase.innerText = "Preparation";
+            await startTimer(10, timer);
+
+            try { await document.getElementById('beep-audio').play(); } catch(e) {}
+
+            phase.innerText = "Recording";
+            const canvas = document.getElementById(`w-canvas-${id}`);
+            const dictationBox = document.getElementById(`w-dictation-${id}`);
+            
+            // 40s Response time
+            startRecordingCommon(canvas, dictationBox, (blob, text) => {
+                activeArea.classList.add('hidden');
+                document.getElementById(`w-result-${id}`).classList.remove('hidden');
+                
+                const audioURL = URL.createObjectURL(blob);
+                const audioEl = document.getElementById(`w-audio-playback-${id}`);
+                audioEl.src = audioURL;
+                document.getElementById(`w-result-text-${id}`).innerText = text || "(No text captured)";
+                
+                drawStaticWaveform(`w-result-canvas-${id}`, blob);
+                controls.classList.remove('hidden');
+            }, 40, timer);
+        }
+
+        // Intensive Logic
+        function renderIntensiveNav() {
+            const nav = document.getElementById('intensive-nav');
+            nav.innerHTML = INTENSIVE_DATA.map((item, index) => `
+                <button onclick="loadIntensiveQuestion(${index})" id="nav-item-${index}" class="w-full text-left p-3 text-sm font-bold border-b border-slate-800 hover:bg-slate-800 transition-colors inactive-nav">
+                    <div class="flex justify-between items-center">
+                        <span class="truncate">${item.title}</span>
+                        <i class="fas fa-circle text-[8px] ${userResults[item.id] ? 'text-emerald-500' : 'text-slate-700'} shrink-0 ml-2" id="nav-dot-${index}"></i>
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        function loadIntensiveQuestion(index) {
+            if(window.stopCurrentRecording) {
+                window.isNavigating = true; 
+                window.stopCurrentRecording();
+                window.isNavigating = false; 
+            }
+
+            if (index >= INTENSIVE_DATA.length) {
+                showIntensiveResults();
+                return;
+            }
+
+            currentIntensiveIndex = index;
+            const item = INTENSIVE_DATA[index];
+            
+            document.querySelectorAll('#intensive-nav button').forEach(b => {
+                b.className = "w-full text-left p-3 text-sm font-bold border-b border-slate-800 hover:bg-slate-800 transition-colors inactive-nav";
+            });
+            document.getElementById(`nav-item-${index}`).className = "w-full text-left p-3 text-sm font-bold border-b border-slate-800 bg-slate-800 transition-colors active-nav";
+
+            document.getElementById('intensive-player-container').classList.remove('hidden');
+            document.getElementById('intensive-results').classList.add('hidden');
+            
+            document.getElementById('intensive-title').innerText = item.title;
+            document.getElementById('intensive-situation-text').innerText = item.situationText;
+            document.getElementById('intensive-timer').innerText = "00:00";
+            document.getElementById('intensive-live-text').value = ""; 
+            document.getElementById('audio-status-text').innerText = "Starting Sequence...";
+            
+            const audioPlayer = document.getElementById('intensive-audio-player');
+            audioPlayer.src = item.audioSrc;
+            audioPlayer.load();
+
+            document.getElementById('btn-intensive-start').classList.add('hidden');
+            document.getElementById('intensive-control-group').classList.add('hidden');
+            document.getElementById('intensive-rec-indicator').classList.add('hidden');
+            
+            setTimeout(startIntensiveSequence, 500);
+        }
+
+        async function startIntensiveSequence() {
+            const index = currentIntensiveIndex;
+            const item = INTENSIVE_DATA[index];
+            const btnStart = document.getElementById('btn-intensive-start');
+            const statusText = document.getElementById('audio-status-text');
+            const timerDisplay = document.getElementById('intensive-timer');
+            const audioPlayer = document.getElementById('intensive-audio-player');
+            
+            btnStart.classList.add('hidden');
+            
+            statusText.innerText = "Playing Audio...";
+            statusText.classList.replace('bg-slate-700', 'bg-rose-600');
+            
+            try {
+                await audioPlayer.play();
+            } catch(e) {
+                btnStart.classList.remove('hidden');
+                return;
+            }
+
+            await new Promise(resolve => {
+                audioPlayer.onended = resolve;
+            });
+
+            // 10s Prep for Respond to Situation (Adjusted from 20s)
+            statusText.innerText = "Preparation Time";
+            statusText.classList.replace('bg-rose-600', 'bg-amber-600');
+            await startTimer(10, timerDisplay);
+
+            try { await document.getElementById('beep-audio').play(); } catch(e){}
+
+            // 40s Recording
+            statusText.innerText = "Recording Response";
+            statusText.classList.replace('bg-amber-600', 'bg-red-600');
+            
+            document.getElementById('intensive-control-group').classList.remove('hidden');
+            document.getElementById('intensive-rec-indicator').classList.remove('hidden');
+            
+            const canvas = document.getElementById('intensive-canvas');
+            const dictBox = document.getElementById('intensive-live-text');
+            
+            startRecordingCommon(canvas, dictBox, (blob, text) => {
+                userResults[item.id] = {
+                    audioBlob: blob,
+                    dictation: dictBox.value, 
+                    timestamp: new Date()
+                };
+                
+                document.getElementById(`nav-dot-${index}`).classList.replace('text-slate-700', 'text-emerald-500');
+                document.getElementById('intensive-control-group').classList.add('hidden');
+                document.getElementById('intensive-rec-indicator').classList.add('hidden');
+                statusText.innerText = "Completed";
+                statusText.classList.replace('bg-red-600', 'bg-emerald-600');
+                
+                if (!window.isNavigating) {
+                    setTimeout(() => {
+                        loadIntensiveQuestion(index + 1);
+                    }, 1000);
+                }
+
+            }, 40, timerDisplay);
+        }
+
+        function stopIntensiveRecording() {
+            if(window.stopCurrentRecording) window.stopCurrentRecording();
+        }
+
+        function showIntensiveResults() {
+            const container = document.getElementById('intensive-results-list');
+            container.innerHTML = INTENSIVE_DATA.map((item, idx) => {
+                const res = userResults[item.id];
+                if (!res) return ''; 
+                
+                const audioUrl = URL.createObjectURL(res.audioBlob);
+                
+                return `
+                    <div class="bg-slate-900 border border-slate-700 rounded-lg p-6 relative">
+                        <h3 class="font-bold text-white mb-4">${item.title}</h3>
+                        
+                        <div class="grid grid-cols-1 gap-6">
+                            <!-- Recording Playback & Waveform -->
+                            <div class="bg-slate-800 p-4 rounded border border-slate-700">
+                                <span class="text-xs uppercase text-slate-400 block mb-2 font-bold">Your Recording</span>
+                                <canvas id="int-res-canvas-${item.id}" class="waveform-canvas mb-2 w-full"></canvas>
+                                <audio src="${audioUrl}" controls class="w-full mb-3"></audio>
+                                <div class="bg-slate-900 p-3 rounded text-sm text-slate-300 italic h-24 overflow-y-auto border border-slate-700 font-mono">
+                                    ${res.dictation || "No text detected."}
+                                </div>
+                            </div>
+
+                            <!-- Answer Key (Collapsible) -->
+                            <details class="bg-slate-800 p-4 rounded border border-slate-700 group">
+                                <summary class="text-xs uppercase text-slate-400 font-bold cursor-pointer hover:text-white flex justify-between items-center list-none">
+                                    <span>Answer Key & Situation</span>
+                                    <i class="fas fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                                </summary>
+                                <div class="mt-4 space-y-4 text-sm text-slate-300">
+                                    <div>
+                                        <strong class="text-rose-400 block mb-1">Situation:</strong>
+                                        <div class="bg-slate-900 p-3 rounded border border-slate-700">${item.situationText}</div>
+                                    </div>
+                                    <div>
+                                        <strong class="text-rose-400 block mb-1">Sample Response:</strong>
+                                        <div class="bg-slate-900 p-3 rounded border border-slate-700">${item.sampleAnswer}</div>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            setTimeout(() => {
+                INTENSIVE_DATA.forEach(item => {
+                    const res = userResults[item.id];
+                    if (res) {
+                        drawStaticWaveform(`int-res-canvas-${item.id}`, res.audioBlob);
+                    }
+                });
+            }, 100);
+
+            if(container.innerHTML === '') container.innerHTML = '<p class="text-slate-400 text-center">No questions completed yet.</p>';
+
+            document.getElementById('intensive-player-container').classList.add('hidden');
+            document.getElementById('intensive-results').classList.remove('hidden');
+        }
+
+        function backToDrill() {
+            document.getElementById('intensive-results').classList.add('hidden');
+            document.getElementById('intensive-player-container').classList.remove('hidden');
+        }
+
+        // --- SHARED UTILS (Waveform, Timer, Recorder) ---
+
+        async function drawStaticWaveform(canvasId, audioBlob) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            ctx.fillStyle = 'rgb(30, 41, 59)'; ctx.fillRect(0, 0, width, height);
+            
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const arrayBuffer = await audioBlob.arrayBuffer();
+                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                const rawData = audioBuffer.getChannelData(0);
+                const step = Math.ceil(rawData.length / width);
+                const amp = height / 2;
+                
+                ctx.fillStyle = 'rgb(16, 185, 129)'; 
+                for (let i = 0; i < width; i++) {
+                    let min = 1.0; let max = -1.0;
+                    for (let j = 0; j < step; j++) {
+                        const datum = rawData[(i * step) + j];
+                        if (datum < min) min = datum;
+                        if (datum > max) max = datum;
+                    }
+                    if (max === -1.0 && min === 1.0) { ctx.fillRect(i, amp, 1, 1); }
+                    else {
+                         const y_min = (1 + min) * amp;
+                         const y_max = (1 + max) * amp;
+                         ctx.fillRect(i, y_min, 1, Math.max(1, y_max - y_min));
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function startTimer(seconds, displayElem) {
+            return new Promise(resolve => {
+                let remaining = seconds;
+                displayElem.innerText = `00:${remaining.toString().padStart(2, '0')}`;
+                displayElem.classList.add('text-amber-500');
+                const interval = setInterval(() => {
+                    remaining--;
+                    displayElem.innerText = `00:${remaining.toString().padStart(2, '0')}`;
+                    if (remaining <= 0) {
+                        clearInterval(interval);
+                        displayElem.classList.remove('text-amber-500');
+                        resolve();
+                    }
+                }, 1000);
+            });
+        }
+
+        async function startRecordingCommon(canvasElem, textElem, onComplete, maxSeconds, timerElem) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                analyser.fftSize = 256;
+                drawVisualizer(canvasElem, analyser);
+                
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+                
+                if(recognition) {
+                    recognition.onresult = (event) => {
+                        let final = '';
+                        for (let i = event.resultIndex; i < event.results.length; ++i) {
+                            if (event.results[i].isFinal) final += event.results[i][0].transcript + ' ';
+                        }
+                        if(final) textElem.value += final; 
+                    };
+                    try { recognition.start(); } catch(e) {}
+                }
+
+                let remaining = maxSeconds;
+                timerElem.innerText = formatTime(remaining);
+                timerElem.classList.add('text-red-500');
+                
+                const recInterval = setInterval(() => {
+                    remaining--;
+                    timerElem.innerText = formatTime(remaining);
+                    if (remaining <= 0) stopFn();
+                }, 1000);
+
+                const stopFn = () => {
+                    clearInterval(recInterval);
+                    timerElem.classList.remove('text-red-500');
+                    cancelAnimationFrame(visualizerFrameId);
+                    if (mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+                    try { if(recognition) recognition.stop(); } catch(e){}
+                    stream.getTracks().forEach(track => track.stop());
+                    if (audioContext.state !== 'closed') audioContext.close();
+                };
+
+                window.stopCurrentRecording = stopFn;
+                window.stopWarmupEarly = stopFn;
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    onComplete(blob, textElem.value);
+                };
+
+                mediaRecorder.start();
+            } catch (err) { alert("Microphone access denied."); }
+        }
+
+        function drawVisualizer(canvas, analyser) {
+            const ctx = canvas.getContext('2d');
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            const WIDTH = canvas.width;
+            const HEIGHT = canvas.height;
+            function draw() {
+                visualizerFrameId = requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+                ctx.fillStyle = 'rgb(30, 41, 59)'; 
+                ctx.fillRect(0, 0, WIDTH, HEIGHT);
+                const barWidth = (WIDTH / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = dataArray[i] / 2;
+                    ctx.fillStyle = `rgb(${barHeight + 100}, 29, 72)`; // Rose
+                    ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
+            }
+            draw();
+        }
+
+        function formatTime(s) {
+            const mins = Math.floor(s / 60);
+            const secs = s % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>

@@ -226,3 +226,44 @@ Speaker 3: That makes a lot of sense, Professor. Like, in my history class, we'r
 Speaker 1: That sounds good, but I'm still wondering about the practical side. How would professors tell the difference between using AI in a good way and just outright cheating? And what about students who can't afford to pay for good AI tools? It could create a new kind of unfairness with technology. 
 Speaker 2: Those are big problems, Sarah, and the debate definitely didn't have easy answers. It's a talk we'll need to keep having as technology changes. Universities will need clear rules, and we'll have to think about making sure everyone has fair access to these tools if we expect students to use them correctly. 
 Speaker 3: Exactly. What I think is most important is that it's not really about 'if' AI is used, but 'how' it's used. We can't stop it now, so we just need to figure out how to use it in a good way. It's definitely going to change how we learn and how we're taught. 
+
+021. Narrator: Three students are discussing how universities can promote sustainable transportation. 
+Liam: I have been wondering why our university doesn't do more to promote sustainable transport. The parking lots are full every day, and barely anyone seems to use bikes or public transport. Shouldn't they be encouraging greener options? 
+Ava: That's a good point. At my old college, they gave students discounts on bus passes and set up bike-sharing stations. It made leaving the car at home a lot more practical. I'm surprised our university hasn't implemented something similar yet. 
+Noah: I think part of the problem is infrastructure. Even if the university promotes cycling, the surrounding roads don't have enough safe bike lanes. People worry about safety, and I can't really blame them for preferring cars. 
+Liam: True. But maybe the university could start small, like adding more bike racks and secure storage areas on campus. That might encourage students who already own bikes to start riding more. 
+Ava: And they could also launch a carpooling app for students. I've seen this work well at other universities. Students save money, reduce emissions, and meet others going the same way. 
+Noah: Electric shuttle buses could be another option, especially for students living in nearby neighborhoods. They would cut down on traffic congestion and be a visible commitment to sustainability. 
+Liam: That's a great idea. Also, raising awareness about existing public transport could help. Some students probably don't realize there are already bus routes passing close to campus. 
+Ava: Agreed. And the university could partner with local transport providers for further discounts or promotional campaigns. It's about making sustainable choices the most convenient option. 
+Noah: Right. At the end of the day, small initiatives add up. If the university leads with these efforts, students are much more likely to change their habits. 
+
+022. Narrator: Three friends discuss future plans after graduation, balancing study, work, family pressure, and financial. 
+Zane: I’ve been thinking about doing a Master’s degree after graduation. It feels like I need more qualifications to stand out. 
+Maya: I used to think that too, but now I’m leaning toward working first. Real-world experience might give me better directionand maybe even help me figure out what I really want to study later. 
+Elina: I’m kind of stuck. My family wants me to apply abroad, but I’m worried about the cost. It’s not just tuition it’s the living expenses, visas, everything. 
+Zane: Yeah, studying abroad sounds great on paper, but it’s not easy financially. Did you check out scholarships? 
+Elina: I did, but they’re super competitive. Plus, I don’t even know which country or program I’d choose. It feels like such a big commitment when I’m still unsure. 
+Maya: That’s completely normal. Maybe take a gap year work, save, and explore your options with a clear head. I think we all feel some pressure to keep moving, but reflection is just as important. 
+Zane: I agree. I’m applying to a couple of local universities just to keep my options open. Even if I get in, I might defer for a year to gain some experience or do an internship. 
+Elina: That’s smart. And it takes the pressure off a bit you’re not closing doors, just buying time. 
+Maya: And you’d be surprised how much you learn outside the classroom. Things like confidence, communication, and just figuring out what you’re passionate about. 
+Zane: I guess we’ve all realized that there’s no “one right path,” right? 
+Elina: Exactly. I think I’ll talk to my academic advisor and look into programs that allow flexibility maybe even online options for later. 
+Maya: That sounds like a great plan. Do what feels right for you, not what others expect. 
+Zane: Totally. Better to move with intention than just follow the crowd. 
+Elina: Thanks, guys. I feel way less stressed after talking this out. 
+Maya: Anytime! We’re all in this together. 
+
+023. Narrator: A student, a professor, and an alumni relations officer discussed how alumni networks could contribute more actively to university growth and student support. 
+Student: I think the university could do a lot more to engage alumni in supporting current students. There's so much untapped potential. Alumni could provide mentorship, internships, career advice, and even contribute financially through scholarships or program funding. It feels like we aren't fully leveraging those connections. 
+Professor: I completely agree. Strong alumni networks can have a significant impact, not just on student success, but also on the university's global reputation. Graduates who are actively involved often help universities gain visibility in industries and professional circles. But maintaining those relationships after graduation requires consistent outreach and thoughtful engagement strategies. 
+Alumni Relations Officer: Exactly. From an administrative perspective, we do maintain some alumni engagement through newsletters, social media updates, and occasional reunions. But sustaining long-term interest is challenging. Many graduates move to different cities or countries, change careers, or simply lose their connection to the campus over time. 
+Student: Maybe we need more regular alumni-led events, both online and in person. Hearing from graduates about their career journeys, challenges, and achievements could be incredibly inspiring for students like me. It might also encourage alumni to stay connected by reminding them how they can make a difference. 
+Professor: That's a great suggestion. Alumni could also contribute in other ways, such as supporting faculty research projects, participating in advisory boards, or offering internship placements for students within their organizations. But it's vital we create a culture where alumni feel valued for their time and expertise, not just approached for financial donations. 
+Alumni Relations Officer: I think a virtual platform for alumni-student mentoring would be a good starting point. It would allow graduates, even those living abroad, to engage with students. Plus, it could include features like industry-specific networking groups or guest speaker opportunities. 
+Student: That sounds promising. A pilot mentorship program could help test the concept. Pairing alumni with students from similar academic backgrounds or career interests would make those connections meaningful and relevant. 
+Professor: Agreed. Strengthening alumni ties benefits everyone involved—the students gain valuable insights, the university strengthens its community, and alumni get the satisfaction of giving back. It's a win-win situation if implemented thoughtfully. 
+Alumni Relations Officer: With careful planning, we could transform alumni engagement into a key pillar of university development. 
+Student: I really hope this happens. It would make such a difference for students like me, knowing we have a network of supportive graduates to learn from. 
+Professor: And from a faculty perspective, it would enrich our teaching and research too. Alumni bring fresh perspectives from the industry, and their involvement keeps us aligned with real-world trends. Their contribution could help bridge the gap between academia and professional practice more effectively. 

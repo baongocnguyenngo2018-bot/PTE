@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastery: Respond to a Situation 88+</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Card Styles */
+        .card-template {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            border-left: 6px solid #e11d48; /* Rose */
+        }
+        .card-notes {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            border-left: 6px solid #10b981; /* Emerald */
+        }
+        .card-emergency {
+            background: linear-gradient(145deg, #3f1818 0%, #1f0f0f 100%);
+            border-left: 6px solid #f59e0b; /* Amber */
+        }
+        
+        .highlight-var {
+            color: #fbbf24;
+            font-weight: bold;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(251, 191, 36, 0.1);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+        
+        .connector {
+            color: #fda4af; /* Light Rose */
+            font-weight: bold;
+        }
+        
+        .formal-tag {
+            background: #475569;
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            text-transform: uppercase;
+            font-weight: bold;
+            border: 1px solid #94a3b8;
+        }
+        .informal-tag {
+            background: #e11d48;
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+
+    <!-- Header -->
+    <header class="max-w-6xl mx-auto mb-10 text-center border-b border-slate-700 pb-6">
+        <div class="inline-block bg-rose-600 text-white font-bold px-3 py-1 rounded text-xs tracking-widest mb-2 uppercase">Core Skill Drill</div>
+        <h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight mb-2">RESPOND TO A SITUATION</h1>
+        <p class="text-slate-400 text-lg">Target 88+: <span class="text-amber-400 font-bold">Appropriate Tone</span> + <span class="text-amber-400 font-bold">Clear Solution</span></p>
+    </header>
+
+    <!-- The 3 Pillars -->
+    <div class="max-w-6xl mx-auto mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+            <h3 class="text-rose-400 font-bold uppercase text-xs mb-2"><i class="fas fa-masks-theater mr-2"></i>1. The Tone Switch</h3>
+            <p class="text-sm text-slate-300">Identify the audience immediately. <strong>Neighbor/Friend = Casual</strong>. <strong>Boss/Official = Formal</strong>. Using "Sir" with a friend lowers your score.</p>
+        </div>
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+            <h3 class="text-emerald-400 font-bold uppercase text-xs mb-2"><i class="fas fa-bullseye mr-2"></i>2. The Goal Arc</h3>
+            <p class="text-sm text-slate-300">Every prompt has a goal (e.g., apologize, complain, suggest). You must explicitly <strong>state the solution</strong>. Don't just describe the problem.</p>
+        </div>
+        <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+            <h3 class="text-blue-400 font-bold uppercase text-xs mb-2"><i class="fas fa-stopwatch mr-2"></i>3. Conciseness (40s)</h3>
+            <p class="text-sm text-slate-300">You have 40 seconds. Aim for <strong>25-30 seconds</strong>. It's better to be short, polite, and clear than to ramble and lose the "purpose".</p>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <!-- 1. THE DUAL TEMPLATE SYSTEM -->
+        <section class="card-template rounded-2xl p-6 shadow-xl relative">
+            <div class="absolute top-4 right-4 text-slate-600"><i class="fas fa-theater-masks text-4xl"></i></div>
+            <h2 class="text-2xl font-bold text-white mb-4">The Dual Template</h2>
+            <p class="text-xs text-slate-400 mb-4">Choose your path instantly based on the prompt.</p>
+            
+            <!-- Formal Template -->
+            <div class="mb-6">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="formal-tag">Formal Path</span>
+                    <span class="text-xs text-slate-500">(Professor, Manager, Police, Elderly)</span>
+                </div>
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 text-slate-300 text-sm leading-relaxed">
+                    <p class="mb-2">"Hello <span class="highlight-var">[TITLE/NAME]</span>,"</p>
+                    <p class="mb-2">"<span class="connector">I am calling/speaking to you today regarding</span> <span class="highlight-var">[THE ISSUE]</span>."</p>
+                    <p class="mb-2">"<span class="connector">Unfortunately, there has been a situation where</span> <span class="highlight-var">[DETAILS]</span>."</p>
+                    <p class="mb-2">"<span class="connector">Therefore, I would like to suggest that we</span> <span class="highlight-var">[SOLUTION]</span>."</p>
+                    <p class="text-rose-400 font-bold">"Thank you for your understanding."</p>
+                </div>
+            </div>
+
+            <!-- Informal Template -->
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="informal-tag">Informal Path</span>
+                    <span class="text-xs text-slate-500">(Friend, Neighbor, Classmate, Sibling)</span>
+                </div>
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 text-slate-300 text-sm leading-relaxed">
+                    <p class="mb-2">"Hi <span class="highlight-var">[NAME]</span>,"</p>
+                    <p class="mb-2">"<span class="connector">Look, I need to talk to you about</span> <span class="highlight-var">[THE ISSUE]</span>."</p>
+                    <p class="mb-2">"<span class="connector">The thing is,</span> <span class="highlight-var">[EXPLAIN PROBLEM SIMPLY]</span>."</p>
+                    <p class="mb-2">"<span class="connector">So, why don't we</span> <span class="highlight-var">[SOLUTION]</span>?"</p>
+                    <p class="text-rose-400 font-bold">"Let me know if that works for you."</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. SITUATION DECODER -->
+        <section class="card-notes rounded-2xl p-6 shadow-xl relative">
+            <div class="absolute top-4 right-4 text-slate-600"><i class="fas fa-brain text-4xl"></i></div>
+            <h2 class="text-2xl font-bold text-white mb-4">The Situation Decoder</h2>
+            <p class="text-xs text-slate-400 mb-4">Don't write sentences. Write the "Triangle".</p>
+            
+            <div class="bg-white text-slate-900 p-4 rounded-lg font-handwriting shadow-inner" style="min-height: 250px;">
+                <!-- Simulated Diagram -->
+                <div class="flex flex-col items-center justify-center h-full space-y-6">
+                    
+                    <!-- Top of Triangle: AUDIENCE -->
+                    <div class="text-center">
+                        <div class="text-xs text-slate-500 uppercase tracking-wide">Who?</div>
+                        <div class="font-bold text-xl text-rose-600 border-2 border-rose-600 rounded-full w-24 h-24 flex items-center justify-center bg-rose-50 transform -rotate-3">
+                            Manager<br>(Formal)
+                        </div>
+                    </div>
+
+                    <div class="flex w-full justify-between px-4">
+                        <!-- Left: PROBLEM -->
+                        <div class="text-center">
+                            <div class="text-xs text-slate-500 uppercase tracking-wide">Problem</div>
+                            <div class="font-bold text-lg text-blue-800 bg-blue-50 p-2 rounded transform rotate-2">
+                                Lost Key
+                            </div>
+                        </div>
+                        <!-- Right: SOLUTION -->
+                        <div class="text-center">
+                            <div class="text-xs text-slate-500 uppercase tracking-wide">Solution</div>
+                            <div class="font-bold text-lg text-green-800 bg-green-50 p-2 rounded transform -rotate-2">
+                                Send spare?
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="mt-4 bg-slate-800 p-3 rounded text-sm text-slate-400">
+                <p><strong>The Mental Check:</strong> As soon as the prompt starts, ask yourself: <em>"Do I know this person?"</em></p>
+                <ul class="list-disc ml-5 mt-2 text-xs">
+                    <li>Yes = "Hi/Hey" + Simple words</li>
+                    <li>No/Superior = "Hello" + Polite words</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 3. EMERGENCY & SOFT SKILLS -->
+        <section class="card-emergency col-span-1 lg:col-span-2 rounded-2xl p-6 shadow-xl relative">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="bg-amber-600 text-white font-bold px-3 py-1 rounded text-sm"><i class="fas fa-bolt"></i> POWER PHRASES</span>
+                <h2 class="text-xl font-bold text-white">Soft Skills & Emergencies</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Polite Refusal -->
+                <div>
+                    <h4 class="font-bold text-amber-400 mb-2">How to say "NO" (Politely)</h4>
+                    <p class="text-sm text-slate-300 mb-2">Never just say "No". Use the "Sandwich Method".</p>
+                    <div class="bg-slate-900 p-3 rounded border border-amber-900 text-slate-300 text-sm">
+                        1. Positive: "I'd really love to help..."<br>
+                        2. Negative: "...but unfortunately I am fully booked that day."<br>
+                        3. Positive: "However, I can help you next week."
+                    </div>
+                </div>
+
+                <!-- The "Brain Freeze" -->
+                <div>
+                    <h4 class="font-bold text-amber-400 mb-2">Emergency: Brain Freeze</h4>
+                    <p class="text-sm text-slate-300 mb-2">If you can't think of a specific solution, use the <span class="text-rose-400 font-bold">Generic Compromise</span>.</p>
+                    <div class="bg-slate-900 p-3 rounded border border-amber-900 text-slate-300 text-sm">
+                        <strong>Formal:</strong> "Could we schedule a meeting to discuss this in more detail?"<br>
+                        <strong>Informal:</strong> "Why don't we grab a coffee later and figure this out together?"
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Drill Instructions -->
+    <div class="max-w-6xl mx-auto mt-10 p-6 bg-slate-800 border border-slate-600 rounded-2xl">
+        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <i class="fas fa-dumbbell text-rose-500"></i> Drill Protocol: The "Chameleon" Drill
+        </h3>
+        <p class="text-sm text-slate-400 mb-6 border-l-2 border-rose-500 pl-3">
+            This task tests adaptability.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+            <div class="bg-slate-900 p-4 rounded border border-slate-700">
+                <span class="text-rose-500 font-bold block mb-1">Drill 1: The Switch</span>
+                <p class="text-slate-400">Take 1 scenario (e.g., "Late for a meeting"). Record it twice: Once for your Best Friend, once for your CEO. Listen to the difference.</p>
+            </div>
+            <div class="bg-slate-900 p-4 rounded border border-slate-700">
+                <span class="text-rose-500 font-bold block mb-1">Drill 2: Apology Master</span>
+                <p class="text-slate-400">Apologizing is 50% of questions. Practice variations: "I apologize sincerely" (Formal) vs "I'm so sorry, my bad" (Informal).</p>
+            </div>
+            <div class="bg-slate-900 p-4 rounded border border-slate-700">
+                <span class="text-rose-500 font-bold block mb-1">Drill 3: The 30s Cap</span>
+                <p class="text-slate-400">Don't ramble. Force yourself to finish the entire arc (Greeting -> Issue -> Sol -> Bye) in exactly 30 seconds.</p>
+            </div>
+            <div class="bg-slate-900 p-4 rounded border border-slate-700">
+                <span class="text-rose-500 font-bold block mb-1">Drill 4: Tone Check</span>
+                <p class="text-slate-400">Record yourself. If you sound "monotone" or "robotic", you lose points. Exaggerate your emotion slightly (Concern/Regret/Happiness).</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

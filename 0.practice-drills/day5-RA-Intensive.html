@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 5: Read Aloud Intensive Drill</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .read-font { font-family: 'Merriweather', serif; line-height: 1.8; }
+        .waveform-canvas { width: 100%; height: 80px; background-color: #1e293b; border-radius: 0.5rem; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .btn-primary { @apply bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-lg; }
+        
+        .active-nav { border-left: 4px solid #3b82f6; background: #1e293b; color: #fff; }
+        .inactive-nav { border-left: 4px solid transparent; color: #94a3b8; }
+        
+        .timer-display { font-variant-numeric: tabular-nums; }
+        
+        textarea:focus { outline: 2px solid #3b82f6; }
+        
+        /* Progress Bar Animation */
+        @keyframes progress { from { width: 100%; } to { width: 0%; } }
+        .progress-bar-animate { animation: progress linear forwards; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-900 border-b border-slate-700 p-4 flex justify-between items-center z-10 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 w-8 h-8 rounded flex items-center justify-center font-bold text-white">D5</div>
+            <h1 class="font-bold text-lg hidden md:block text-white">Read Aloud <span class="text-blue-400 font-normal">| Intensive High-Speed Drill</span></h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="text-xs text-slate-400 font-mono hidden sm:block">
+                <i class="fas fa-bolt text-yellow-400 mr-1"></i> Mode: Continuous Flow
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex overflow-hidden relative">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-slate-900 border-r border-slate-700 overflow-y-auto shrink-0 flex flex-col">
+            <div class="p-4 border-b border-slate-800 bg-slate-900 sticky top-0 z-10">
+                <h3 class="font-bold text-slate-400 uppercase text-xs tracking-wider flex justify-between items-center">
+                    Question List
+                    <span class="bg-slate-800 text-slate-500 px-2 py-0.5 rounded text-[10px]">30 Qs</span>
+                </h3>
+            </div>
+            <div id="intensive-nav" class="flex-1">
+                <!-- Nav Items generated via JS -->
+            </div>
+            <div class="p-4 border-t border-slate-800 bg-slate-900 sticky bottom-0">
+                <button onclick="showIntensiveResults()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded text-sm transition-all">
+                    <i class="fas fa-flag-checkered mr-2"></i> Finish Session
+                </button>
+            </div>
+        </aside>
+
+        <!-- Player Area -->
+        <div class="flex-1 bg-slate-950 p-4 md:p-8 overflow-y-auto flex flex-col items-center justify-center relative" id="intensive-player-container">
+            
+            <!-- Question Card -->
+            <div id="intensive-card" class="bg-slate-900 border border-slate-700 rounded-2xl p-6 md:p-10 w-full max-w-4xl shadow-2xl relative flex flex-col h-full md:h-auto">
+                
+                <!-- Header: Title & Timer -->
+                <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-blue-900 text-blue-200 text-xs font-bold px-3 py-1 rounded uppercase tracking-wider">Read Aloud</span>
+                        <h2 id="intensive-title" class="text-xl font-bold text-white">Question 1</h2>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-slate-500 uppercase font-bold mb-1" id="timer-label">Status</div>
+                        <div id="intensive-timer" class="text-4xl font-mono font-bold text-slate-200 timer-display">00:00</div>
+                    </div>
+                </div>
+
+                <!-- READ ALOUD TEXT DISPLAY -->
+                <div class="mb-8 relative group">
+                    <div class="absolute -top-3 left-4 bg-slate-900 px-2 text-xs text-blue-400 font-bold uppercase tracking-wider">
+                        <i class="fas fa-book-open mr-1"></i> Read This Text
+                    </div>
+                    <div class="bg-slate-800/50 p-6 md:p-8 rounded-xl border-2 border-slate-700 group-hover:border-blue-500/30 transition-colors">
+                        <p id="intensive-text-display" class="read-font text-xl md:text-2xl text-slate-100 leading-relaxed tracking-wide text-justify">
+                            Loading text...
+                        </p>
+                    </div>
+                    <!-- Progress Bar for Timer -->
+                    <div class="h-1 w-full bg-slate-800 mt-1 rounded-full overflow-hidden">
+                        <div id="timer-progress" class="h-full bg-blue-500 w-0"></div>
+                    </div>
+                </div>
+
+                <!-- Recording & Dictation Area -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Visualizer -->
+                    <div class="bg-slate-800 rounded-lg p-3 border border-slate-700 flex flex-col justify-end relative">
+                        <div class="absolute top-2 left-2 flex items-center gap-2" id="rec-status-badge">
+                            <div class="w-2 h-2 rounded-full bg-slate-600"></div>
+                            <span class="text-[10px] uppercase font-bold text-slate-500">Mic Idle</span>
+                        </div>
+                        <canvas id="intensive-canvas" class="waveform-canvas"></canvas>
+                    </div>
+
+                    <!-- Dictation Box -->
+                    <div class="relative">
+                        <div class="flex justify-between items-end mb-1 px-1">
+                            <span class="text-[10px] text-slate-500 uppercase font-bold">Speech-to-Text Monitor</span>
+                            <span class="text-[10px] text-slate-500"><i class="fas fa-keyboard"></i> Editable</span>
+                        </div>
+                        <textarea id="intensive-live-text" class="w-full h-[80px] bg-slate-800 rounded p-3 text-sm text-slate-300 border border-slate-700 resize-none font-mono focus:bg-slate-800 focus:border-blue-500 transition-colors" placeholder="Transcription will appear here..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="mt-auto md:mt-0 flex justify-center gap-4">
+                    <button id="btn-intensive-start" onclick="startIntensiveSequence()" class="btn-primary w-64 text-lg hidden">
+                        <i class="fas fa-play mr-2"></i> Start Question
+                    </button>
+                    
+                    <!-- Prep Control -->
+                    <div id="prep-control-group" class="hidden flex gap-4 w-full justify-center">
+                        <button onclick="skipPrep()" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold py-4 px-10 rounded-xl text-lg shadow-xl w-full md:w-auto flex items-center justify-center transition-transform transform hover:scale-105 animate-pulse">
+                            <i class="fas fa-step-forward mr-3"></i> Skip Prep & Record
+                        </button>
+                    </div>
+
+                    <!-- Recording Control -->
+                    <div id="intensive-control-group" class="hidden flex gap-4 w-full justify-center">
+                        <button onclick="stopIntensiveRecording()" class="bg-red-600 hover:bg-red-500 text-white font-extrabold py-4 px-10 rounded-xl text-lg shadow-xl w-full md:w-auto flex items-center justify-center transition-transform transform hover:scale-105">
+                            <i class="fas fa-forward mr-3"></i> Stop & Next Question
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Status Message -->
+                <div id="status-message" class="text-center mt-4 text-sm text-slate-500 h-5"></div>
+            </div>
+
+        </div>
+
+        <!-- Results View (Hidden initially) -->
+        <div id="intensive-results" class="flex-1 bg-slate-950 p-4 md:p-8 overflow-y-auto hidden">
+            <div class="max-w-5xl mx-auto">
+                <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white mb-1">Session Results</h2>
+                        <p class="text-slate-400 text-sm">Review your recordings and check for pauses.</p>
+                    </div>
+                    <button onclick="backToDrill()" class="text-blue-400 hover:text-white font-bold transition-colors flex items-center gap-2">
+                        <i class="fas fa-arrow-left"></i> Back to Drill
+                    </button>
+                </div>
+                <div id="intensive-results-list" class="space-y-8 pb-20"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Beep Audio Element -->
+    <audio id="beep-audio" src="https://baongocnguyenngo2018-bot.github.io/PTE/03.repeat-sentence/beep.mp3" preload="auto"></audio>
+
+    <script>
+        // --- 1. DATA DEFINITIONS ---
+        
+        // Questions 27 - 56 (Renumbered to 1-30 in UI)
+        const RAW_QUESTIONS = [
+            { id: 1, text: "Have you ever pictured a world without light? Just think how much we rely on man made light sources in our life. Without engineers, we wouldn't be able to live the way we do. No street lights, no TV, no computer displays, no house lights engineers design and build all these things." },
+            { id: 2, text: "Australians speak English of course. But for many tourists and even some locals, Australian English has only tenuous links with the mother tongue. Our speech is peppered with words and phrases whose arcane meanings are understood only by the native speaker. It is these colorful colloquialisms that Australian slang is yet to truly explain." },
+            { id: 3, text: "Lincoln's apparently radical change of mind about his war power to emancipate slaves was caused by the escalating scope of the war, which convinced him that any measure to weaken the Confederacy and strengthen the Union war effort was justifiable as a military necessity." },
+            { id: 4, text: "Teenage girls are continuing to outperform boys in English while the gender gap in achievements in math and science has almost disappeared. The figures show that last year 80% of 14 year old girls reached at least the expected level 5 in English, compared with 65% of boys. But in math, the girls are just 1% ahead of boys, while in science the difference is 2%." },
+            { id: 5, text: "A total of five ozone ascents were taken at Bharati station (Indian mission) Antarctica during April to June, 2016. As the stratospheric temperatures reduced to minus 82.24 Celsius on 20th June, 2016 indicating the formation of stratospheric clouds which may lead to depletion of the ozone concentration in the stratosphere, leading scientists at Bharati station feared that Montreal Accord has not succeeded to control emission of ozone depleting gases In the atmosphere." },
+            { id: 6, text: "Foam filled furniture is very dangerous if it catches fire, and foam quickly produces a high temperature, thick smoke and poisonous gases including carbon monoxide. Therefore, set levels of fire resistance have been established for new and second hand upholstered furniture and other similar products." },
+            { id: 7, text: "All the works of art shown in this exhibition were purchased on a shoestring budget. The criteria that the curators had to follow were that works must be acquired cheaply, appeal to a broad range of tastes, and fit with unusual environments. Thus, many of our better known modern artists are not represented." },
+            { id: 8, text: "Most succulent plants are found in regions where there is little rainfall, dry air, plenty of sunshine, porous soils and high temperatures during part of the year. These conditions have caused changes in plant structures, which have resulted in greatly increased thickness of stems, leaves and sometimes roots, enabling them to store moisture from the infrequent rains." },
+            { id: 9, text: "Another method governments use to try and influence the private sector is economic planning. For a long time now, socialist and communist states have used planning as an alternative to the price mechanism, organizing production and distributing their resources according to social and strategic needs, rather than based on purely economic considerations." },
+            { id: 10, text: "The ritual of the state opening of parliament still illustrates the basis of the British constitution. The sovereignty of the Royal Family has passed to the sovereignty of parliament, leaving the monarchy with the trappings of power, while prime ministers are still denied the kind of status that is given to American and French presidents." },
+            { id: 11, text: "While far fewer people these days write letters and therefore have less use for stamps, there are still a few categories of stamps which attract collectors. Stamps in common use for an indefinite period until the price goes up are called \"definitive\" issues, while a more collectible type of stamp is the \"commemorative\" issue, honoring people, events, and anniversaries." },
+            { id: 12, text: "Before the time of Alexander the Great, the only eastern people who could be compared with the Greeks in the fields of science and philosophy were from the Indian sub continent. However, because so little is known about Indian chronology, it is difficult to tell how much of their science was original and how much was the result of Greek influence." },
+            { id: 13, text: "The preparation of abstract is an intellectual effort requiring general familiarity with the subject to bring out of the points of an author's argument course for skills and experience. Consequently, a considerable amount of qualified manpower that could be used to advantage in other ways must be diverted to the task of facilitating or to information." },
+            { id: 14, text: "Shrimp farmers used to hold animals in nursery ponds for 30 to 60 days; now they try to move them into grown out ponds in less than 30 days. This reduces stress on the animals and dramatically increases survival in the grow out ponds. Many farms that abandoned nursery ponds have gone back to them, and the results have been surprisingly positive. They are using the old, uncovered, earthen, nursery ponds." },
+            { id: 15, text: "Business school admissions officers said the new drive to attract younger students was in part the result of a realization that they had inadvertently limited their applicant pool by requiring several years' work experience. Talented students who might otherwise have gone to business school instead opted for a law or policy degree because they were intimidated by the expectation of work experience." },
+            { id: 16, text: "The elephant is the largest living land mammal. During evolution, its skeleton has greatly altered from the usual mammal, design for two main reasons. One is to cope with the great weight of huge grinding cheek teeth and elongated tusk teeth, making the skull particularly massive. The other is to support the enormous bulk of such a huge body." },
+            { id: 17, text: "Imagine living all your life as the only family on your street. Then, one morning, you open the front door and discover houses all around you. You see neighbors tending their gardens and children walking to school. Where did all the people come from? What if the answer turned out to be that they had always been there, you just hadn't seen them?" },
+            { id: 18, text: "The physical location of a restaurant in the competitive landscape of the city has long been known as a major factor in its likely success or failure. Once restaurants are established in such environments, they can do little about their location. All they can do is work to improve customer access to their premises. Restaurateurs often do this by engaging in battles with local authorities about car parking." },
+            { id: 19, text: "A unique characteristic of online shopping environments is that they allow vendors to create retail interfaces with highly interactive features. One desirable form of interactivity from a consumer perspective the implementation of sophisticated tools to assist shoppers in their purchase decisions by customizing the electronic shopping environment to their individual preferences. Traditional divisions of domestic work are understood to persist because of the strong association of the home with humanity and paid work with masculinity to challenge who does what in the home is arguably tantamount to challenge what it is to be a woman or a man." },
+            { id: 20, text: "It seems that language appeared from nowhere since no other species has anything resembling human language. However, other animals do possess basic systems for perceiving and producing sounds that enable them to communicate. These systems may have been in place before the appearance of language." },
+            { id: 21, text: "The free market is extremely competitive, and companies are constantly trying to gain an edge over their rivals. Merchandising and brand image plays a major role in attracting customers, but they often lead to over packaging. This is a serious problem since most packaging these days are made of plastics which are not biodegradable. Some people blame the manufacturers for their blatant disregard, while others point the finger at consumers." },
+            { id: 22, text: "While the Republican field is packed with male candidates, so far, some of the sharpest Clinton critics have come from women. Democrats successfully campaigned on an alleged GOP perpetrated \"war on women\" in 2012 but faltered in 2014 when they tried the same tactic. With Hillary Clinton as the likely Democratic nominee, the fight for women voters will be central part of the 2016 campaign." },
+            { id: 23, text: "The climate for doing business improved in Egypt more than in any other country last year, according to a global study that revealed a wave of company oriented reforms across the Middle East. The World Bank rankings, which look at business regulations, also showed that the pace of business reforms in Eastern Europe was overtaking East Asia." },
+            { id: 24, text: "The training of an actor is an intensive process that requires curiosity, courage, and commitment. You will learn how to prepare for rehearsal, how to rehearse, and how to use independent and proactive processes that inform you to do the best work possible for both stage and screen." },
+            { id: 25, text: "Hundreds of millions of Americans eat fast food every day without giving it too much thought, unaware of the subtle and not so subtle ramifications of their purchases. They just grab their tray off the counter, find a table, take a seat, unwrap the paper, and dig in. The whole experience is transitory and soon forgotten." },
+            { id: 26, text: "Long isolated from Western Europe, Russia grew up without participating in shared developments like the Reformation. Russians took pride in their unique culture and found dubious value in foreign ideals. As a result, Russia is the most unusual member of the European family, if indeed it can be considered one at all. This question is still hotly debated, particularly amongst Russians." },
+            { id: 27, text: "The semiconductor industry has been able to improve the performance of electric systems for more than four decades by making ever smaller devices. However, this approach will soon encounter both scientific and technical limits, which is why the industry is exploring a number of alternative device technologies." },
+            { id: 28, text: "But they did find something that had a much bigger impact on wildlife: habitat quality. The best predictor of wildlife abundance was not human activity, but factors like forest connectivity, nearby housing density, and the amount of adjacent agriculture. The results were published in the Journal of Applied Ecology." },
+            { id: 29, text: "A university is a lot more than just classes and exams; the university is a concept that offers you a host of possibilities to develop both academically and personally. Find out about the different projects, clubs and societies that are in your university. You will definitely find something you are interested in." },
+            { id: 30, text: "In 2005, donor countries agreed on an accord to harmonize their practices. Since then, aid officials have complained that too little has changed on the ground. Conferences of donors in developing countries still tend to be dominated by a small group of north European governments, with the US often absent." }
+        ];
+
+        // --- 2. STATE ---
+        let currentIntensiveIndex = 0;
+        // Global Audio Resources (Persistent)
+        let globalMicStream = null;
+        let globalAudioContext = null;
+        
+        let audioContext, analyser, microphone; // Local references for current session
+        let mediaRecorder;
+        let audioChunks = [];
+        let recognition;
+        let visualizerFrameId;
+        window.isNavigating = false;
+        const userResults = {}; 
+
+        // --- 3. INITIALIZATION ---
+        window.onload = function() {
+            renderIntensiveNav();
+            setupSpeechRecognition();
+            loadIntensiveQuestion(0); // Start immediately
+            
+            // Attempt to resume AudioContext on first interaction to ensure visualizer works
+            document.body.addEventListener('click', () => {
+                if (globalAudioContext && globalAudioContext.state === 'suspended') {
+                    globalAudioContext.resume();
+                }
+            }, { once: true });
+        };
+
+        function setupSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+            }
+        }
+
+        // --- 4. LOGIC ---
+
+        function renderIntensiveNav() {
+            const nav = document.getElementById('intensive-nav');
+            nav.innerHTML = RAW_QUESTIONS.map((item, index) => `
+                <button onclick="loadIntensiveQuestion(${index})" id="nav-item-${index}" class="w-full text-left p-4 text-sm font-bold border-b border-slate-800 hover:bg-slate-800 transition-colors inactive-nav group">
+                    <div class="flex justify-between items-center">
+                        <span class="truncate group-hover:text-blue-400 transition-colors">Question ${index + 1}</span>
+                        <i class="fas fa-circle text-[8px] ${userResults[item.id] ? 'text-emerald-500' : 'text-slate-700'} shrink-0 ml-2" id="nav-dot-${index}"></i>
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        function loadIntensiveQuestion(index) {
+            // Stop any ongoing recording if user manually navigates
+            if(window.stopCurrentRecording) {
+                window.isNavigating = true; 
+                window.stopCurrentRecording();
+                window.isNavigating = false; 
+            }
+
+            if (index >= RAW_QUESTIONS.length) {
+                showIntensiveResults();
+                return;
+            }
+
+            currentIntensiveIndex = index;
+            const item = RAW_QUESTIONS[index];
+            
+            // UI Updates
+            document.querySelectorAll('#intensive-nav button').forEach(b => {
+                b.className = "w-full text-left p-4 text-sm font-bold border-b border-slate-800 hover:bg-slate-800 transition-colors inactive-nav group";
+            });
+            document.getElementById(`nav-item-${index}`).className = "w-full text-left p-4 text-sm font-bold border-b border-slate-800 bg-slate-800 transition-colors active-nav group";
+
+            document.getElementById('intensive-player-container').classList.remove('hidden');
+            document.getElementById('intensive-results').classList.add('hidden');
+            
+            // Populate Data
+            document.getElementById('intensive-title').innerText = `Question ${index + 1}`; // Display index + 1
+            document.getElementById('intensive-text-display').innerText = item.text;
+            document.getElementById('intensive-timer').innerText = "00:00";
+            document.getElementById('intensive-live-text').value = "";
+            document.getElementById('status-message').innerText = "";
+            
+            // Reset Progress Bar
+            document.getElementById('timer-progress').style.width = '0%';
+            
+            // Reset Badge
+            const badge = document.getElementById('rec-status-badge');
+            badge.innerHTML = `<div class="w-2 h-2 rounded-full bg-slate-600"></div><span class="text-[10px] uppercase font-bold text-slate-500">Mic Idle</span>`;
+
+            // Hide/Show Controls
+            document.getElementById('btn-intensive-start').classList.add('hidden'); // Auto-start
+            document.getElementById('intensive-control-group').classList.add('hidden');
+            document.getElementById('prep-control-group').classList.add('hidden');
+            
+            // Auto Start Sequence
+            setTimeout(startIntensiveSequence, 600);
+        }
+
+        function skipPrep() {
+            if (window.skipPrepFunc) {
+                window.skipPrepFunc();
+            }
+        }
+
+        async function startIntensiveSequence() {
+            const index = currentIntensiveIndex;
+            const item = RAW_QUESTIONS[index];
+            const statusLabel = document.getElementById('timer-label');
+            const timerDisplay = document.getElementById('intensive-timer');
+            const message = document.getElementById('status-message');
+            
+            // 1. Preparation Phase (35s)
+            statusLabel.innerText = "Preparation";
+            message.innerText = "Read the text silently. Get ready.";
+            timerDisplay.classList.remove('text-red-500');
+            timerDisplay.classList.add('text-blue-400');
+            document.getElementById('prep-control-group').classList.remove('hidden');
+            
+            await startTimer(35, timerDisplay, 'bg-blue-500');
+
+            // End Prep
+            document.getElementById('prep-control-group').classList.add('hidden');
+
+            // 2. Beep
+            try { await document.getElementById('beep-audio').play(); } catch(e){}
+
+            // 3. Recording Phase (40s)
+            statusLabel.innerText = "Recording";
+            message.innerText = "Speak clearly and naturally.";
+            timerDisplay.classList.remove('text-blue-400');
+            timerDisplay.classList.add('text-red-500');
+            
+            // Update Badge
+            const badge = document.getElementById('rec-status-badge');
+            badge.innerHTML = `<div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div><span class="text-[10px] uppercase font-bold text-red-400">Recording</span>`;
+
+            document.getElementById('intensive-control-group').classList.remove('hidden');
+            
+            const canvas = document.getElementById('intensive-canvas');
+            const dictBox = document.getElementById('intensive-live-text');
+            
+            startRecordingCommon(canvas, dictBox, (blob, text) => {
+                // Save Data
+                userResults[item.id] = {
+                    audioBlob: blob,
+                    dictation: dictBox.value, 
+                    questionText: item.text,
+                    id: item.id
+                };
+                
+                // UI Cleanup
+                document.getElementById(`nav-dot-${index}`).classList.replace('text-slate-700', 'text-emerald-500');
+                document.getElementById('intensive-control-group').classList.add('hidden');
+                message.innerText = "Processing...";
+                
+                // Auto Advance
+                if (!window.isNavigating) {
+                    setTimeout(() => {
+                        loadIntensiveQuestion(index + 1);
+                    }, 1000);
+                }
+
+            }, 40, timerDisplay); // 40s Recording Limit
+        }
+
+        function stopIntensiveRecording() {
+            if(window.stopCurrentRecording) window.stopCurrentRecording();
+        }
+
+        function showIntensiveResults() {
+            const container = document.getElementById('intensive-results-list');
+            
+            // Build Results HTML
+            const htmlContent = RAW_QUESTIONS.map((item, index) => {
+                const res = userResults[item.id];
+                if (!res) return ''; 
+                
+                const audioUrl = URL.createObjectURL(res.audioBlob);
+                
+                return `
+                    <div class="bg-slate-900 border border-slate-700 rounded-lg p-6 relative shadow-lg">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="font-bold text-white text-lg">Question ${index + 1}</h3>
+                            <span class="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded">Read Aloud</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Left: Source Text -->
+                            <div class="bg-slate-800/50 p-4 rounded border border-slate-700">
+                                <span class="text-xs uppercase text-slate-500 block mb-2 font-bold">Original Text</span>
+                                <p class="read-font text-slate-300 text-sm leading-relaxed text-justify">
+                                    ${item.text}
+                                </p>
+                            </div>
+
+                            <!-- Right: Recording & Check -->
+                            <div>
+                                <span class="text-xs uppercase text-slate-500 block mb-2 font-bold">Your Performance</span>
+                                
+                                <!-- Static Waveform -->
+                                <canvas id="res-canvas-${item.id}" class="waveform-canvas mb-3 w-full"></canvas>
+                                
+                                <audio src="${audioUrl}" controls class="w-full mb-4 h-8"></audio>
+                                
+                                <div class="bg-slate-800 p-3 rounded text-sm text-slate-300 italic h-32 overflow-y-auto border border-slate-700 font-mono">
+                                    <span class="text-slate-500 text-xs block mb-1 not-italic font-sans font-bold">SPEECH-TO-TEXT CAPTURE:</span>
+                                    ${res.dictation || "(No text captured)"}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = htmlContent;
+            
+            // Draw Waveforms (Delayed to ensure DOM is ready)
+            setTimeout(() => {
+                RAW_QUESTIONS.forEach(item => {
+                    const res = userResults[item.id];
+                    if (res) {
+                        drawStaticWaveform(`res-canvas-${item.id}`, res.audioBlob);
+                    }
+                });
+            }, 200);
+
+            if(container.innerHTML === '') container.innerHTML = '<p class="text-slate-400 text-center py-10">No questions completed yet.</p>';
+
+            document.getElementById('intensive-player-container').classList.add('hidden');
+            document.getElementById('intensive-results').classList.remove('hidden');
+        }
+
+        function backToDrill() {
+            document.getElementById('intensive-results').classList.add('hidden');
+            document.getElementById('intensive-player-container').classList.remove('hidden');
+        }
+
+        // --- UTILITIES ---
+
+        function startTimer(seconds, displayElem, colorClass) {
+            return new Promise(resolve => {
+                let remaining = seconds;
+                let total = seconds;
+                const progressBar = document.getElementById('timer-progress');
+                
+                // Reset styling
+                progressBar.className = `h-full ${colorClass} w-full transition-all duration-1000 ease-linear`;
+                progressBar.style.width = '100%';
+                
+                displayElem.innerText = `00:${remaining.toString().padStart(2, '0')}`;
+                
+                const interval = setInterval(() => {
+                    remaining--;
+                    const pct = (remaining / total) * 100;
+                    progressBar.style.width = `${pct}%`;
+                    displayElem.innerText = `00:${remaining.toString().padStart(2, '0')}`;
+                    
+                    if (remaining < 0) { // < 0 to show 00:00 for a second
+                        clearInterval(interval);
+                        window.skipPrepFunc = null; // Clear skip function
+                        resolve();
+                    }
+                }, 1000);
+                
+                // Expose skip function
+                window.skipPrepFunc = () => {
+                    clearInterval(interval);
+                    window.skipPrepFunc = null;
+                    resolve();
+                };
+            });
+        }
+
+        // Recorder
+        async function startRecordingCommon(canvasElem, textElem, onComplete, maxSeconds, timerElem) {
+            try {
+                // 1. Get or Reuse Stream
+                if (!globalMicStream || !globalMicStream.active) {
+                    globalMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                }
+                
+                // 2. Get or Reuse Context
+                if (!globalAudioContext) {
+                    globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (globalAudioContext.state === 'suspended') {
+                    // Try to resume (might need user gesture if not already active)
+                    try { await globalAudioContext.resume(); } catch(e) {}
+                }
+
+                const stream = globalMicStream;
+                const context = globalAudioContext;
+
+                // 3. Audio Graph Setup for Visualizer
+                // Create new nodes for this specific recording session
+                analyser = context.createAnalyser();
+                microphone = context.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                analyser.fftSize = 256;
+                drawVisualizer(canvasElem, analyser);
+                
+                // 4. MediaRecorder Setup
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+                
+                if(recognition) {
+                    recognition.onresult = (event) => {
+                        let final = '';
+                        for (let i = event.resultIndex; i < event.results.length; ++i) {
+                            if (event.results[i].isFinal) final += event.results[i][0].transcript + ' ';
+                        }
+                        if(final) textElem.value += final; 
+                    };
+                    try { recognition.start(); } catch(e) {}
+                }
+
+                let remaining = maxSeconds;
+                let total = maxSeconds;
+                const progressBar = document.getElementById('timer-progress');
+                
+                timerElem.innerText = `00:${remaining.toString().padStart(2, '0')}`;
+                progressBar.className = `h-full bg-red-500 w-full transition-all duration-1000 ease-linear`;
+                
+                const recInterval = setInterval(() => {
+                    remaining--;
+                    const pct = (remaining / total) * 100;
+                    progressBar.style.width = `${pct}%`;
+                    timerElem.innerText = `00:${remaining.toString().padStart(2, '0')}`;
+                    if (remaining < 0) stopFn();
+                }, 1000);
+
+                const stopFn = () => {
+                    clearInterval(recInterval);
+                    cancelAnimationFrame(visualizerFrameId);
+                    
+                    if (mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+                    try { if(recognition) recognition.stop(); } catch(e){}
+                    
+                    // CLEANUP: Disconnect nodes to prevent leaks, but KEEP STREAM OPEN
+                    if (microphone) {
+                        microphone.disconnect();
+                        microphone = null;
+                    }
+                    if (analyser) {
+                        analyser.disconnect();
+                        analyser = null;
+                    }
+                    // IMPORTANT: Do NOT call stream.getTracks().forEach(track => track.stop()) here.
+                    // keeping globalMicStream active for the next question.
+                };
+
+                window.stopCurrentRecording = stopFn;
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    onComplete(blob, textElem.value);
+                };
+
+                mediaRecorder.start();
+            } catch (err) { 
+                alert("Microphone access is required for this drill. Please check browser permissions."); 
+                console.error(err);
+            }
+        }
+
+        function drawVisualizer(canvas, analyser) {
+            const ctx = canvas.getContext('2d');
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            const WIDTH = canvas.width;
+            const HEIGHT = canvas.height;
+            function draw() {
+                visualizerFrameId = requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+                ctx.fillStyle = 'rgb(30, 41, 59)'; 
+                ctx.fillRect(0, 0, WIDTH, HEIGHT);
+                const barWidth = (WIDTH / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = (dataArray[i] / 255) * HEIGHT; // Scale to height
+                    // Gradient based on height
+                    if(barHeight > HEIGHT * 0.7) ctx.fillStyle = '#ef4444'; // Red for loud
+                    else if(barHeight > HEIGHT * 0.4) ctx.fillStyle = '#fbbf24'; // Yellow
+                    else ctx.fillStyle = '#3b82f6'; // Blue
+                    
+                    ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
+            }
+            draw();
+        }
+
+        async function drawStaticWaveform(canvasId, audioBlob) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            ctx.fillStyle = 'rgb(30, 41, 59)'; ctx.fillRect(0, 0, width, height);
+            
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const arrayBuffer = await audioBlob.arrayBuffer();
+                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                const rawData = audioBuffer.getChannelData(0);
+                const step = Math.ceil(rawData.length / width);
+                const amp = height / 2;
+                
+                ctx.fillStyle = '#3b82f6'; 
+                for (let i = 0; i < width; i++) {
+                    let min = 1.0; let max = -1.0;
+                    for (let j = 0; j < step; j++) {
+                        const datum = rawData[(i * step) + j];
+                        if (datum < min) min = datum;
+                        if (datum > max) max = datum;
+                    }
+                    if (max === -1.0 && min === 1.0) { ctx.fillRect(i, amp, 1, 1); }
+                    else {
+                         const y_min = (1 + min) * amp;
+                         const y_max = (1 + max) * amp;
+                         ctx.fillRect(i, y_min, 1, Math.max(1, y_max - y_min));
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+    </script>
+</body>
+</html>

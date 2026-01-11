@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 6: Describe Image Intensive Drill</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .waveform-canvas { width: 100%; height: 60px; background-color: #1e293b; border-radius: 0.5rem; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .btn-primary { @apply bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-lg; }
+        .btn-secondary { @apply bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-lg; }
+        .btn-danger { @apply bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-lg; }
+        .btn-warning { @apply bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2 px-6 rounded-lg transition-colors shadow-lg; }
+
+        .timer-display { font-variant-numeric: tabular-nums; }
+        
+        .set-card { @apply bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-indigo-500 cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1; }
+        
+        /* Cursor for clickable images */
+        .cursor-zoom-in { cursor: zoom-in; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-900 border-b border-slate-700 p-4 flex justify-between items-center z-10 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-indigo-600 w-8 h-8 rounded flex items-center justify-center font-bold text-white">D6</div>
+            <h1 class="font-bold text-lg hidden md:block text-white">Describe Image <span class="text-indigo-400 font-normal">| Intensive Drill</span></h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="goHome()" class="text-slate-400 hover:text-white text-sm font-bold"><i class="fas fa-home mr-1"></i> Dashboard</button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex overflow-hidden relative">
+        
+        <!-- DASHBOARD / LANDING PAGE -->
+        <div id="dashboard-view" class="w-full h-full p-8 overflow-y-auto">
+            <div class="max-w-6xl mx-auto">
+                <div class="mb-10 text-center">
+                    <h2 class="text-3xl font-extrabold text-white mb-2">Select Your Drill</h2>
+                    <p class="text-slate-400">Choose a pre-balanced set or generate a random mix. All sets ensure diversity of chart types.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Pre-defined Sets Column -->
+                    <div class="md:col-span-2">
+                        <h3 class="text-indigo-400 font-bold uppercase text-xs tracking-wider mb-4 border-b border-slate-700 pb-2">Structured Sets (Balanced Mix)</h3>
+                        <div id="sets-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Sets injected via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Random Shuffle Column -->
+                    <div>
+                        <h3 class="text-emerald-400 font-bold uppercase text-xs tracking-wider mb-4 border-b border-slate-700 pb-2">Random Shuffle</h3>
+                        <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 h-full flex flex-col justify-center items-center text-center">
+                            <i class="fas fa-random text-4xl text-emerald-500 mb-4"></i>
+                            <h4 class="font-bold text-white mb-2">Custom Mix</h4>
+                            <p class="text-sm text-slate-400 mb-6">Generate a random set ensuring at least one of each image type (Bar, Line, Map, Process, etc).</p>
+                            
+                            <div class="w-full space-y-3">
+                                <button onclick="startRandomDrill(5)" class="w-full btn-secondary text-sm">5 Questions (Quick)</button>
+                                <button onclick="startRandomDrill(10)" class="w-full btn-secondary text-sm">10 Questions (Standard)</button>
+                                <button onclick="startRandomDrill(20)" class="w-full btn-secondary text-sm">20 Questions (Intensive)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DRILL PLAYER VIEW (Hidden by default) -->
+        <div id="player-view" class="w-full h-full flex hidden">
+            <!-- Sidebar Playlist -->
+            <aside class="w-64 bg-slate-900 border-r border-slate-700 overflow-y-auto shrink-0 flex flex-col">
+                <div class="p-4 border-b border-slate-800 bg-slate-900 sticky top-0 z-10">
+                    <h3 class="font-bold text-slate-400 uppercase text-xs tracking-wider flex justify-between items-center">
+                        Current Queue
+                        <span id="queue-count" class="bg-slate-800 text-slate-500 px-2 py-0.5 rounded text-[10px]">0 Qs</span>
+                    </h3>
+                </div>
+                <div id="drill-nav" class="flex-1"></div>
+                <div class="p-4 border-t border-slate-800 bg-slate-900 sticky bottom-0">
+                    <button onclick="showResults()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded text-sm transition-all">
+                        <i class="fas fa-flag-checkered mr-2"></i> Finish Session
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Active Question Area -->
+            <div class="flex-1 bg-slate-950 p-4 md:p-8 overflow-y-auto flex flex-col items-center justify-center relative" id="active-question-container">
+                <div id="question-card" class="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-5xl shadow-2xl flex flex-col h-full">
+                    
+                    <!-- Header -->
+                    <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-2 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <span id="q-type-badge" class="bg-indigo-900 text-indigo-200 text-xs font-bold px-3 py-1 rounded uppercase tracking-wider">Type</span>
+                            <h2 id="q-title" class="text-xl font-bold text-white truncate max-w-md">Question Title</h2>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-slate-500 uppercase font-bold mb-1" id="timer-label">Status</div>
+                            <div id="timer-display" class="text-4xl font-mono font-bold text-slate-200 timer-display">00:00</div>
+                        </div>
+                    </div>
+
+                    <!-- Content Grid -->
+                    <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
+                        <!-- Left: Image Display -->
+                        <div class="bg-black/50 rounded-lg flex items-center justify-center border border-slate-700 p-2 overflow-hidden relative group">
+                            <img id="q-image" src="" alt="Describe Image" class="max-w-full max-h-full object-contain cursor-zoom-in" onclick="openZoom(this.src)">
+                            <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                <i class="fas fa-search-plus mr-1"></i> Click to Expand
+                            </div>
+                        </div>
+
+                        <!-- Right: Controls & Visualizer -->
+                        <div class="flex flex-col gap-4">
+                            <!-- Progress Bar -->
+                            <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden shrink-0">
+                                <div id="timer-progress" class="h-full bg-indigo-500 w-0"></div>
+                            </div>
+
+                            <!-- Dictation / Notes -->
+                            <div class="flex-1 bg-slate-800 rounded-lg p-3 border border-slate-700 flex flex-col">
+                                <span class="text-[10px] text-slate-500 uppercase font-bold mb-1">Dictation / Keywords</span>
+                                <textarea id="live-dictation" class="flex-1 bg-transparent text-sm text-slate-300 resize-none focus:outline-none font-mono" placeholder="Keywords..."></textarea>
+                            </div>
+
+                            <!-- Waveform -->
+                            <div class="h-20 bg-slate-800 rounded-lg p-2 border border-slate-700 shrink-0 relative flex items-center justify-center">
+                                <canvas id="live-canvas" class="waveform-canvas w-full h-full"></canvas>
+                                <div id="rec-badge" class="absolute top-2 left-2 flex items-center gap-2 hidden">
+                                    <span class="animate-pulse w-2 h-2 bg-red-500 rounded-full"></span>
+                                    <span class="text-[10px] uppercase font-bold text-red-400">REC</span>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="shrink-0 flex gap-3">
+                                <button id="btn-start" onclick="startSequence()" class="btn-primary w-full flex-1">
+                                    <i class="fas fa-play mr-2"></i> Start
+                                </button>
+                                <button id="btn-skip-prep" onclick="skipPrep()" class="btn-warning hidden flex-1">
+                                    <i class="fas fa-step-forward mr-2"></i> Skip Prep
+                                </button>
+                                <button id="btn-stop" onclick="stopAndNext()" class="btn-danger hidden flex-1">
+                                    <i class="fas fa-forward mr-2"></i> Done
+                                </button>
+                            </div>
+                            <div id="status-msg" class="text-center text-xs text-slate-500 h-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESULTS VIEW (Hidden by default) -->
+            <div id="results-view" class="flex-1 bg-slate-950 p-4 md:p-8 overflow-y-auto hidden">
+                <div class="max-w-5xl mx-auto">
+                    <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
+                        <div>
+                            <h2 class="text-3xl font-bold text-white mb-1">Drill Results</h2>
+                            <p class="text-slate-400 text-sm">Review your descriptions against sample answers.</p>
+                        </div>
+                        <button onclick="backToDrill()" class="text-indigo-400 hover:text-white font-bold transition-colors flex items-center gap-2">
+                            <i class="fas fa-arrow-left"></i> Back to Drill
+                        </button>
+                    </div>
+                    <div id="results-list" class="space-y-12 pb-20"></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Lightbox Modal -->
+    <div id="zoom-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/95 hidden backdrop-blur-sm" onclick="closeZoom()">
+        <img id="zoom-modal-img" src="" class="max-h-[90vh] max-w-[90vw] object-contain shadow-2xl rounded-lg">
+        <button class="absolute top-4 right-4 text-slate-400 hover:text-white text-4xl transition-colors">&times;</button>
+        <div class="absolute bottom-4 text-slate-400 text-sm bg-black/50 px-3 py-1 rounded">Click anywhere to close</div>
+    </div>
+
+    <!-- Beep Audio Element -->
+    <audio id="beep-audio" src="https://baongocnguyenngo2018-bot.github.io/PTE/03.repeat-sentence/beep.mp3" preload="auto"></audio>
+
+    <script>
+        // --- 1. DATA SOURCE ---
+        const BASE_URL = "https://baongocnguyenngo2018-bot.github.io/PTE/04.describe-image/";
+        
+        // Full Data Object
+        const RAW_DATA = {
+            "Bar Chart - Estate Sales.png": "The bar chart illustrates estate sales across five regions. Overall, New York records the highest sales at just over 300 units, followed by Tokyo at around 290. Sydney ranks next with approximately 280 sales, while London and Paris show lower figures of about 270 and 260 respectively. In general, estate sales are strongest in major global cities, with New York leading the market.",
+            "Bar Chart - Gender Based Workforce.png": "This stacked bar chart compares men and women across four workforce categories. Men account for a higher proportion of employees, non-employees, and retired individuals, each at roughly three quarters. In contrast, women dominate the group that never entered the workforce, making up nearly half. Overall, men participate more actively in employment, while women are more represented outside the labor market.",
+            "Bar Chart - Gift Purchase Trends.png": "The bar chart presents gift purchase trends by holiday. Christmas shows the highest number of purchases at around 120 units, followed by Mother’s Day at approximately 90. Valentine’s Day records about 80 purchases, while Father’s Day has the lowest at roughly 70. Overall, gift spending peaks during Christmas and is lowest for Father’s Day.",
+            "Bar Chart - Mean Salary.png": "The bar chart compares the mean salaries of male and female graduates from 2008 to 2013. In every year, men consistently earn more than women. Male salaries rise steadily from about 20,500 to over 21,500, while female salaries increase more modestly from around 18,500 to just under 19,500. Overall, a persistent gender pay gap is clearly evident.",
+            "Bar Chart - Percentage of Volunteering Job.png": "This chart shows participation in formal and informal volunteering by gender. Females volunteer more than males in both categories. In formal volunteering, around 32% of females participate compared to 20% of males. Informal volunteering is higher overall, with 40% of females and 25% of males involved. In summary, women are more active volunteers than men.",
+            "Bar Chart - Programming language usage.png": "The bar chart illustrates the usage frequency of programming languages. Ruby and Swift are the most popular, each exceeding 80%. JavaScript and Python also show high usage at about 73% and 60%. In contrast, Java and C++ have much lower usage below 20%. Overall, modern and scripting languages dominate developer preferences.",
+            "Bar Chart - Salary by Major.png": "This chart compares average salaries across academic majors. Computer Science graduates earn the highest salary at around 110,000 dollars, followed by Engineering and Business. History has the lowest income at roughly 69,000, while Psychology and English also rank relatively low. Overall, technical majors lead to significantly higher salaries than arts and humanities.",
+            "Bar Chart - Time Spent Watching TV.png": "The histogram displays the distribution of daily TV watching hours. Most people watch between 2 and 4 hours per day, with the highest frequency around 3 hours. Very few individuals watch less than 1 hour or more than 6 hours. Overall, moderate TV consumption is the most common viewing pattern.",
+            "Line Chart - Agewise Volunteer Trends.png": "The line graph illustrates volunteer rates across different age groups for males and females. Overall, females tend to volunteer more than males in most age categories. Volunteer participation increases from young adulthood and peaks around the 35 to 44 age group, especially for females. After that, rates gradually decline with age. In the oldest age group, participation drops significantly for both genders. In summary, middle-aged adults volunteer the most, and females consistently show higher rates.",
+            "Line Chart - Annual Height Increase.png": "This line graph compares the annual height increase in centimeters for boys and girls from birth to age 18. In early childhood, both genders experience rapid growth, with boys growing slightly faster than girls. Growth rates stabilize during middle childhood at around 6 centimeters per year. During adolescence, boys show a higher growth spurt, peaking later than girls. After age 15, growth sharply declines for both groups. Overall, boys experience a stronger and longer adolescent growth phase.",
+            "Line Chart - Atlantic Cod Stocks.png": "The area chart shows fish landings of Atlantic cod on the east coast of Newfoundland from 1850 to 2000. Initially, cod stocks increased gradually and remained relatively stable for many decades. However, there was a dramatic peak in the late 1960s, followed by a sharp decline. By 1992, fish landings collapsed to almost zero. In conclusion, the chart clearly highlights a severe overfishing crisis leading to the collapse of cod stocks.",
+            "Line Chart - Car Fuel Consumption.png": "The line graph illustrates car fuel consumption measured in liters per 100 kilometers from 2000 to 2020. Overall, fuel consumption fluctuates significantly over the period. It starts at around 12 liters in 2000, drops sharply in the early 2000s, and then rises to a peak of over 14 liters around 2007 and 2013. Towards 2020, consumption declines again to below 7 liters. In summary, the trend shows irregular changes with a noticeable reduction in recent years.",
+            "Line Chart - Consumption of Meat.png": "The line graph compares the consumption of pig, lamb, and cattle meat from 1993 to 2020 in kilograms. Overall, lamb consumption is the highest throughout the period and increases steadily until it peaks around 2018, before slightly declining. Cattle meat shows moderate growth with some fluctuations, while pig meat remains the lowest but gradually rises over time. In conclusion, lamb is the most consumed meat, while pig consumption remains comparatively low.",
+            "Line Chart - Newspaper Circulation.png": "The line graph shows newspaper circulation in the USA as a percentage of households from 1960 to 2017, comparing weekday and Sunday editions. Overall, both categories show a clear downward trend. Weekday circulation starts at over 110 percent and declines steadily to below 30 percent by 2017. Sunday circulation also falls from about 90 percent to around 30 percent. In summary, newspaper readership has decreased significantly over time for both weekday and Sunday editions.",
+            "Line Chart - Heart Disease and Diabetes.png": "The line chart shows annual incidence rates of heart disease and diabetes between 2008 and 2016. Diabetes consistently remains higher, increasing gradually from about 0.40 to 0.45 percent. Heart disease also rises, but more slowly, from approximately 0.30 to 0.33 percent. Overall, both conditions show upward trends, with diabetes being more prevalent.",
+            "Line Chart - Rise of Smartphones.png": "The chart illustrates the growth of smartphone ownership in the United States over time. While overall cellphone ownership stays close to 100 percent, smartphone usage rises sharply from around 35 percent to nearly 85 percent. The most rapid growth occurs after 2012. Overall, the data highlights the rapid adoption of smartphones among U.S. adults.",
+            "Line Chart - Unemployment Rate in UK.png": "The chart compares home ownership and unemployment rates in the UK from 1986 to 2012. Home ownership increases until the early 1990s, then declines before recovering after 2005. In contrast, unemployment generally falls over time, reaching its lowest point around 2005 before rising slightly. Overall, the chart shows an inverse relationship between the two indicators.",
+            "Pie Chart - Daily Activity of a Student.png": "The pie chart illustrates the daily activities of a student. Overall, sleep occupies the largest proportion at 30 percent. College hours account for 25 percent, followed by study time at 20 percent. Recreation represents 12 percent, while other activities make up 8 percent. Play has the smallest share at only 5 percent. In conclusion, most of the student’s day is spent on essential activities such as sleep, college, and study.",
+            "Pie Chart - Pet Spending.png": "The pie chart illustrates market shares of pet services and products. Pet food accounts for the largest portion at 30%, followed by pet healthcare at 25%. Pet toys and grooming represent 20% and 15% respectively, while other services make up the smallest share at 10%. Overall, essential items dominate pet-related spending.",
+            "Pie Chart - Share of Companies.png": "This pie chart shows the distribution of companies by size. Medium-sized companies account for the largest share at 28%, while large companies represent only 6%. The remaining portion consists of small businesses. Overall, medium and small enterprises dominate the market structure.",
+            "Pie Chart - Social Media Usage.png": "The pie chart displays social media usage across different age groups. The highest usage is seen among people aged 18 to 34, each accounting for just over 22%. Usage declines gradually with age, reaching the lowest level among those aged 45 to 54. Overall, younger users are the most active on social media.",
+            "Pie Chart - Travel Time to Work.png": "The pie chart shows commuting times in Ontario in 2016. The largest group, at 32.2%, travels between 15 and 29 minutes. Short commutes under 15 minutes account for 24%. Longer commutes over one hour make up only 12.4%. Overall, most people spend less than half an hour traveling to work.",
+            "Pie Chart - US Pet Ownership.png": "This pie chart illustrates pet ownership in U.S. households. Dogs are the most common pet at 44.6%, followed by cats at 31.9%. Fish, birds, and small animals represent much smaller proportions. Overall, dogs and cats dominate pet ownership in the United States.",
+            "Pie Chart - Website Traffic Sources.png": "The pie chart presents website traffic sources. Referral traffic contributes the largest share at 22.4%, followed by email and organic search. Social media accounts for 17.6%, while direct traffic is the smallest source at 8.9%. Overall, external links and marketing channels drive most website visits.",
+            "Table - Spending Share.png": "The table compares consumer spending shares from 2009 to 2012. Food and non-alcoholic beverages remain stable at around 24 to 25 percent. Alcoholic beverages and tobacco stay low at approximately 3 percent. Overall spending on food, beverages, and tobacco fluctuates slightly but remains close to 28 percent throughout the period.",
+            "Table - Middle School Timetable.png": "The table presents a middle school timetable from Monday to Friday. Students attend subjects such as Math, English, Science, and Language Arts throughout the week. Lunch breaks occur daily from 12:35 to 2:00 pm. Physical education, art, and computer science are also included. In summary, the timetable shows a balanced mix of academic and practical subjects.",
+            "Table - Sport Participation.png": "The table compares the percentage of boys aged 6–11 and 12–16 participating in five sports in the UK in 2010. Football is the most popular sport for both age groups, at 87 percent and 78 percent respectively. Cricket and basketball show moderate participation, while rugby and swimming have lower figures. Overall, younger boys tend to participate more actively than older boys.",
+            "Table - Students Migrating to UK.png": "The table shows the number of students migrating to the UK in 2023 by country. China ranks first with over 150,000 students, followed by India with approximately 125,000. Nigeria is third at 50,000, while the United States and Pakistan contribute smaller numbers. In conclusion, Asian countries dominate international student migration to the UK.",
+            "Table - Transportation Preferences.png": "The table illustrates transportation mode usage by different age groups. Cars are the most commonly used mode across all ages, peaking at over 78 percent among people aged 36 to 50. Public transport is more popular among younger and older groups. Walking, cycling, and ride-sharing account for smaller percentages. Overall, private car usage dominates transportation preferences.",
+            "Table - University Enrollment.png": "The table presents university enrollment by department. Engineering has the highest total enrollment with over 3,300 students, followed by Business and Medicine. Medicine also has the largest number of faculty members at 167. Social Sciences show the lowest enrollment figures. In summary, technical and professional fields attract more students than arts-related disciplines.",
+            "Table - Nitrogen and Phosphorus.png": "The table compares nitrogen and phosphorus emissions from different animal protein sources, measured in kilograms per tonne of protein produced. Beef has the highest emissions, with around 1200 kilograms of nitrogen and 180 kilograms of phosphorus. Pork and chicken show lower values, while fish averages are moderate. Interestingly, bivalves have negative emissions, indicating environmental benefits. Overall, the table highlights that red meat production causes significantly higher nutrient pollution compared to poultry and seafood.",
+            "Process - Apple Life cycle.png": "The diagram illustrates the life cycle of an apple tree. It begins with seeds, which grow into a tree. The tree then produces buds that develop into flowers. After pollination, the flowers turn into fruits, which contain seeds inside. Finally, these seeds can be planted again, continuing the cycle. Overall, it shows a continuous and natural growth process.",
+            "Process - Food Preparation.png": "The image shows the process of food preparation. It starts with washing hands to maintain hygiene. Next, raw meat is cut on a chopping board. Then the food is cooked in an oven. Finally, the prepared food is stored in a refrigerator to keep it fresh. Overall, the process emphasizes cleanliness, cooking, and safe storage.",
+            "Process - Handwashing.png": "The diagram explains the correct steps of handwashing. First, hands are wet with water and soap is applied. Then the hands are rubbed palm to palm, between fingers, and over the backs of hands and thumbs. These steps ensure proper cleaning. Overall, the image highlights the importance of hand hygiene to prevent disease.",
+            "Process - Human Evolution.png": "The image illustrates the stages of human evolution. It begins with apes, followed by Australopithecus and Homo erectus. This progresses to Homo sapiens, and finally modern humans using technology. The figures become more upright over time. Overall, it shows the gradual physical and behavioral development of humans.",
+            "Process - Hydrological cycle.png": "The diagram represents the hydrological cycle. Water evaporates from oceans and rivers, forming clouds through condensation. It then falls as precipitation in the form of rain or snow. Water flows as runoff or infiltrates the ground before returning to rivers and seas. Overall, it demonstrates the continuous movement of water in nature.",
+            "Process - Laundry.png": "The image shows the steps involved in doing laundry. First, clothes are sorted and checked. Then they are placed into a washing machine with detergent. After washing, the clothes are dried and folded. Overall, it presents a simple and organized household process.",
+            "Process - Brine Processing.png": "This diagram illustrates the brine production process. Water is pumped underground into a salt bed, where salt dissolves and forms brine. The brine is then extracted through pipes, stored in a tank, and transported to a chemical plant for further processing. Overall, it is a continuous extraction and transfer system.",
+            "Process - Online Ordering.png": "The diagram shows an online ordering process. Orders from multiple tables are sent via a mobile device to a central computer system. The information is then transmitted to payment machines at the bar. Overall, the system improves efficiency by centralizing order processing.",
+            "Process - Plastic Recycling.png": "This diagram outlines the plastic recycling process. Waste plastic is collected and sorted, then shredded and washed. The material is melted, extruded, and pelletized into plastic granules. Overall, the process converts used plastic into reusable raw materials.",
+            "Image - Rankings of Australia.png": "The chart presents Australia’s rankings among 194 countries across several indicators. Australia ranks nineteenth in GNP per capita, sixth in life expectancy at around 80 years, and first in literacy with a rate of 99 percent. Infant mortality is low at about 20 deaths per thousand, while the human development index ranks third. Overall, the data shows Australia performs very strongly in global development.",
+            "Image - Solar System.png": "The image shows the solar system with the Sun at the center and eight planets arranged in order. Starting from Mercury, the inner planets include Venus, Earth, and Mars. These are followed by the gas giants Jupiter and Saturn, and then the outer planets Uranus and Neptune. Overall, the diagram highlights differences in size, distance, and planetary order.",
+            "Image - Transportation Evolution.png": "The image illustrates the evolution of transportation over time. In earlier periods, horse-drawn vehicles were dominant. Later, bicycles and steam trains became popular during industrial development. In modern times, cars have become the main mode of transport, offering higher speed and efficiency. Overall, the image shows a clear progression toward faster and more advanced transport.",
+            "Image - Travel Planning.png": "The image represents the travel planning process. It includes choosing a destination, arranging accommodation, managing a budget, organizing transportation, and preparing travel essentials. Each step is visually connected, highlighting a structured and systematic approach. Overall, the image emphasizes careful planning for a successful trip.",
+            "Image - Vegetable & Fruit Market.png": "The photo shows a fresh produce market with a wide variety of fruits and vegetables displayed in organized sections. Items such as apples, oranges, and leafy greens are clearly visible, along with price labels. Customers are shopping in a clean and well-lit environment. Overall, the image reflects freshness, variety, and consumer choice.",
+            "Image - Water Collection.png": "The image illustrates a traditional water collection system using a lever mechanism. A rope and bucket are attached to a pivoted beam, allowing water to be lifted from a well with less effort. The design uses basic mechanical principles to improve efficiency. Overall, it demonstrates an early and practical engineering solution.",
+            "Image - Geocentric Theory.png": "The image illustrates the geocentric theory of the universe. In the center of the diagram, the Earth is shown as stationary, while the Moon, Sun, and planets such as Mercury, Venus, Mars, Jupiter, and Saturn revolve around it in circular orbits. The outermost layer represents fixed stars. Overall, the diagram explains the ancient belief that Earth was the center of the universe, which was later replaced by the heliocentric model.",
+            "Image - Internet Interaction.png": "The diagram shows how users access a website through the internet. First, users connect to the internet via an ISP. Then, a request is sent to a DNS server to obtain the website’s IP address. After receiving the IP, the user connects to the web server and requests the webpage. Finally, the web server returns the webpage content. Overall, the image clearly explains the step-by-step process of internet communication.",
+            "Image - Parts of Tree.png": "The image displays the structure of a tree and its main parts. Above the ground, it shows leaves, branches, twigs, and the trunk, while below the ground, the roots are illustrated spreading widely. Each part has a specific function, such as leaves for photosynthesis and roots for absorption. Overall, the diagram clearly explains the anatomy of a tree in a natural environment.",
+            "Mixed Charts - College Courses.png": "The pie charts compare the distribution of college courses in 2010 and 2012. In 2010, social studies and nursing accounted for the largest proportions, while carpentry had the smallest share. In 2012, sports science increased significantly, becoming the largest category, whereas nursing declined sharply. Overall, the charts show a noticeable shift in students’ course preferences over time.",
+            "Mixed Charts - BBC and CNN.png": "The chart compares monthly news reports by CNN and BBC. CNN is represented by bar charts, while BBC is shown using a line graph. CNN reports remain relatively high throughout the year, peaking in May and December. In contrast, BBC reports fluctuate, with noticeable peaks in June and October. Overall, the image highlights different reporting patterns between the two news organizations.",
+            "Mixed Charts - Crime and Poverty.png": "The chart presents crime rates and poverty rates in Australia from 2010 to 2019. Crime rates, shown by bars, generally decline after peaking around 2014. Meanwhile, the poverty rate, illustrated by a line graph, shows a steady downward trend throughout the period. Overall, both indicators decrease over time, suggesting an improvement in social conditions.",
+            "Mixed Charts - Fossil Fuel.png": "The image compares fossil fuel reserves and renewable energy usage over time. Fossil fuel reserves, shown by bars, decrease steadily from 2010 to 2020. In contrast, renewable energy usage, represented by a line graph, rises consistently during the same period. Overall, the chart clearly indicates a transition from fossil fuels to renewable energy sources.",
+            "Mixed Charts - News Platforms.png": "The chart shows how Americans consume news across different platforms. Television remains the most popular source, followed by online platforms, radio, and print newspapers. The data also highlights age differences, with younger adults preferring online news, while older age groups rely more on television and print media. Overall, the image illustrates changing news consumption habits across generations.",
+            "Mixed Charts - Eating Habits.png": "The charts illustrate eating habits across different age groups. Overall, teenagers consume a higher proportion of high fat and sugar foods, accounting for about forty percent, while only ten percent follow a balanced diet. Occasional indulgence makes up thirty-five percent. In contrast, middle-aged adults show healthier behavior, with balanced diets and healthy eating each representing thirty percent. High fat and sugar intake drops to twenty percent. In summary, eating habits clearly improve with age, shifting toward healthier choices.",
+            "Mixed Charts - Energy Consumption.png": "The chart shows U.S. energy consumption by source in 2009.Petroleum dominates at thirty-seven percent, followed by natural gas at twenty-five percent and coal at twenty-one percent. Nuclear power accounts for nine percent, while renewable energy contributes only eight percent. Within renewables, hydropower is the largest source at thirty-five percent, followed by wood and biofuels. Solar energy is minimal at just one percent. Overall, fossil fuels remain the primary energy source.",
+            "Mixed Charts - Food Pyramid.png": "The diagram compares food pyramids from the 1970s and the 2010s. In the 1970s, carbohydrates such as bread and pasta formed the base of the pyramid. Fruits and vegetables were secondary, while fats and sweets were limited at the top. In contrast, the 2010s pyramid emphasizes fruits and vegetables as the foundation, with proteins and healthy fats playing a larger role. Overall, dietary guidelines have shifted toward balanced and nutrient-dense foods.",
+            "Mixed Charts - Largest Banks.png": "The chart compares pre-tax profits of the world’s largest banks in 2007 and 2011. Total profits slightly declined from seven hundred eighty-six billion dollars to seven hundred sixty-two billion dollars. Western Europe and North America accounted for the largest shares in both years, although their proportions decreased. Meanwhile, Asia-Pacific banks significantly increased their contribution. Overall, banking profits shifted toward emerging markets over time.",
+            "Mixed Charts - New Enrollment.png": "The chart illustrates new international student enrollment in the U.S. over time, along with year-over-year changes. Enrollment increased steadily from 2012 to 2016, reaching nearly three hundred thousand students. It then declined sharply in 2020 due to external factors. However, a strong rebound occurred in 2021 and 2022, with a significant positive growth rate. Overall, international enrollment shows recovery after a temporary decline.",
+            "Mixed Charts - Sales & Customer Satisfaction.png": "The chart displays annual sales and customer satisfaction between 2010 and 2020. Sales fluctuated over the period, peaking in 2017 at around four hundred fifty units, before declining slightly. Customer satisfaction remained generally high but dropped noticeably in 2016, followed by a strong recovery. In summary, sales and satisfaction do not always move together, though both show long-term stability.",
+            "Mixed Charts - Working Hours.png": "The chart compares average weekly working hours across industries and their changes. Healthcare employees worked the longest hours, followed by technology and education. From week one to week two, working hours decreased in healthcare and education, while technology saw a slight increase. Overall, healthcare experienced the largest reduction in working hours.",
+            "Maps - European Countries.png": "The image is a political map of Europe showing different countries in distinct colors. Major countries such as France, Germany, Spain, Italy, and Poland are clearly labeled along with their capitals. Northern Europe includes Norway, Sweden, and Finland, while Southern Europe features Greece and Italy. Overall, the map highlights national boundaries and geographical locations across the European continent.",
+            "Maps - European Nuclear Plant Distribution.png": "This map illustrates nuclear power generation across Europe. Different shades represent the percentage of electricity produced from nuclear energy. France has the highest share, exceeding fifty-five percent, followed by Slovakia and Ukraine. Symbols indicate nuclear plants that are operational, under construction, or permanently shut down. Overall, the map shows that nuclear energy plays a significant role in several European countries.",
+            "Maps - Main Hall.png": "The image shows a floor plan of a building’s main hall. It includes an office and a kitchen on the left side, while the right side contains male, female, and handicapped toilets. The layout is simple and well-organized, with clearly labeled sections. Overall, the diagram provides a clear overview of room locations and facility arrangement.",
+            "Maps - Africa.png": "The map displays the African continent with country boundaries and names. Major countries such as Algeria, Libya, Egypt, Sudan, and South Africa are clearly marked. Central Africa includes the Democratic Republic of the Congo, while Madagascar appears off the southeastern coast. Overall, the image provides a simplified geographical overview of Africa and its political divisions.",
+            "Maps - Agriculture.jpeg": "This image shows agricultural land-use patterns across Asia. Different colors represent various farming activities such as rice cultivation, livestock farming, aquaculture, tea plantations, and spice farming. China and India are dominated by livestock farming, while Southeast Asia shows extensive rice cultivation. Overall, the map highlights regional agricultural diversity across the continent.",
+            "Maps - Ladybird.png": "The map illustrates the distribution of the harlequin ladybird in England. Red dots represent sightings in 2004, while black dots indicate sightings in 2005. Most observations are concentrated in the eastern and southern regions of England. Overall, the image shows a rapid spread of the species over a short period of time.",
+            "Maps - Cannabis.jpeg": "The map shows cannabis legality across the United States. Overall, laws vary significantly by state. Several western and northeastern states allow full legal use, while many states in the central and southern regions permit only medical cannabis or limit THC content. A few states still prohibit cannabis, although some have decriminalised it. Overall, the image highlights strong regional differences in cannabis policy.",
+            "Maps - GDP Distribution.jpeg": "The image illustrates global GDP distribution by country. Overall, economic output is concentrated in a few major economies. The United States and China show the highest GDP, followed by countries such as Germany, Japan, and Brazil. In contrast, most African countries have much lower GDP levels. Overall, the map clearly demonstrates global economic inequality.",
+            "Maps - Health Facilities.jpeg": "This map presents the number of public health facilities across countries. Overall, developed regions such as Europe, North America, and parts of Asia have a higher number of hospitals. In comparison, many African countries show limited healthcare infrastructure. The color scale highlights a wide gap between regions. Overall, the image reflects unequal access to health services worldwide.",
+            "Maps - Population Density in Japan.png": "The image shows population density in selected Japanese cities. Overall, density is highest in major urban areas. Tokyo has the highest figure at around six thousand people per square kilometer, followed by Osaka, Kyoto, and Nagoya. Northern cities such as Sapporo have much lower density. Overall, the map indicates strong urban concentration.",
+            "Maps - Rainfall.png": "The map displays changes in rainfall across South America. Overall, rainfall variation differs by region. Northern areas experience higher increases, while countries such as Brazil and Argentina show more moderate changes. The color gradient indicates a wide range of rainfall levels. Overall, the image suggests uneven climate impacts across the continent."
+        };
+
+        // --- 2. LOGIC ---
+        let currentQueue = [];
+        let currentIndex = 0;
+        let audioContext, microphone, recorder, analyser, visualizerId;
+        let audioChunks = [];
+        const userResults = {};
+        let skipPrepFlag = false;
+
+        // Categorize Data
+        const categorizedData = {
+            "Bar": [], "Line": [], "Pie": [], "Table": [],
+            "Process": [], "Image": [], "Maps": [], "Mixed": []
+        };
+
+        Object.keys(RAW_DATA).forEach(filename => {
+            if(filename.startsWith("Bar")) categorizedData["Bar"].push(filename);
+            else if(filename.startsWith("Line")) categorizedData["Line"].push(filename);
+            else if(filename.startsWith("Pie")) categorizedData["Pie"].push(filename);
+            else if(filename.startsWith("Table")) categorizedData["Table"].push(filename);
+            else if(filename.startsWith("Process")) categorizedData["Process"].push(filename);
+            else if(filename.startsWith("Image")) categorizedData["Image"].push(filename);
+            else if(filename.startsWith("Maps")) categorizedData["Maps"].push(filename);
+            else if(filename.startsWith("Mixed")) categorizedData["Mixed"].push(filename);
+        });
+
+        const TYPES = Object.keys(categorizedData);
+
+        // Pre-defined Sets Logic
+        const PRE_SETS = [];
+        function generatePreSets() {
+            const tempPool = JSON.parse(JSON.stringify(categorizedData));
+            let hasItems = true;
+            while(hasItems) {
+                let set = [];
+                let setMax = 10;
+                let typesShuffled = [...TYPES].sort(() => Math.random() - 0.5);
+                typesShuffled.forEach(type => {
+                    if(set.length < setMax && tempPool[type].length > 0) set.push(tempPool[type].shift());
+                });
+                while(set.length < setMax) {
+                    let availableTypes = TYPES.filter(t => tempPool[t].length > 0);
+                    if(availableTypes.length === 0) break;
+                    let randomType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+                    set.push(tempPool[randomType].shift());
+                }
+                if(set.length > 0) PRE_SETS.push(set);
+                else hasItems = false;
+            }
+        }
+
+        function renderSets() {
+            const container = document.getElementById('sets-container');
+            container.innerHTML = PRE_SETS.map((set, idx) => `
+                <div onclick="startPreSet(${idx})" class="set-card">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-indigo-400 font-bold text-sm">SET ${idx + 1}</span>
+                        <span class="text-slate-500 text-xs font-mono">${set.length} Questions</span>
+                    </div>
+                    <div class="flex gap-1 flex-wrap">
+                        ${getSetBadges(set)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getSetBadges(set) {
+            let counts = {};
+            set.forEach(item => {
+                let type = item.split(" -")[0].replace("Charts", "").trim();
+                counts[type] = (counts[type] || 0) + 1;
+            });
+            return Object.keys(counts).map(t => 
+                `<span class="text-[10px] bg-slate-700 text-slate-300 px-1 rounded">${t}</span>`
+            ).slice(0, 4).join('') + (Object.keys(counts).length > 4 ? '...' : '');
+        }
+
+        // --- 3. DRILL CONTROLLERS ---
+
+        function goHome() {
+            document.getElementById('player-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            stopAudio();
+        }
+
+        function startPreSet(idx) {
+            currentQueue = PRE_SETS[idx];
+            startDrill();
+        }
+
+        function startRandomDrill(count) {
+            let set = [];
+            let pool = JSON.parse(JSON.stringify(categorizedData));
+            let availableTypes = [...TYPES];
+            for(let i=0; i<count; i++) {
+                if(availableTypes.length === 0) availableTypes = [...TYPES];
+                let typeIdx = Math.floor(Math.random() * availableTypes.length);
+                let type = availableTypes[typeIdx];
+                if(pool[type].length > 0) {
+                    let itemIdx = Math.floor(Math.random() * pool[type].length);
+                    set.push(pool[type].splice(itemIdx, 1)[0]);
+                }
+                availableTypes.splice(typeIdx, 1);
+            }
+            currentQueue = set;
+            startDrill();
+        }
+
+        function startDrill() {
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('player-view').classList.remove('hidden');
+            document.getElementById('active-question-container').classList.remove('hidden');
+            document.getElementById('results-view').classList.add('hidden');
+            renderSidebar();
+            currentIndex = 0;
+            loadQuestion(0);
+        }
+
+        function renderSidebar() {
+            const nav = document.getElementById('drill-nav');
+            document.getElementById('queue-count').innerText = `${currentQueue.length} Qs`;
+            nav.innerHTML = currentQueue.map((item, idx) => {
+                let type = item.split(" -")[0];
+                return `
+                <button onclick="loadQuestion(${idx})" id="nav-item-${idx}" class="w-full text-left p-3 text-xs font-bold border-b border-slate-800 hover:bg-slate-800 transition-colors text-slate-500 truncate flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full border border-slate-600 flex items-center justify-center text-[8px]" id="status-dot-${idx}"></span>
+                    ${idx + 1}. ${type}
+                </button>
+            `}).join('');
+        }
+
+        function loadQuestion(index) {
+            stopAudio();
+            clearTimeout(window.timerId);
+            currentIndex = index;
+            const filename = currentQueue[index];
+            const type = filename.split(" -")[0];
+            
+            document.getElementById('q-title').innerText = filename.replace('.png', '').replace('.jpeg', '');
+            document.getElementById('q-type-badge').innerText = type;
+            document.getElementById('q-image').src = BASE_URL + encodeURIComponent(filename);
+            
+            document.getElementById('timer-display').innerText = "00:00";
+            document.getElementById('timer-display').className = "text-4xl font-mono font-bold text-slate-200 timer-display";
+            document.getElementById('timer-progress').style.width = "0%";
+            document.getElementById('live-dictation').value = "";
+            document.getElementById('status-msg').innerText = "Ready";
+            
+            document.getElementById('btn-start').classList.remove('hidden');
+            document.getElementById('btn-skip-prep').classList.add('hidden');
+            document.getElementById('btn-stop').classList.add('hidden');
+            
+            document.querySelectorAll('#drill-nav button').forEach(b => b.classList.remove('bg-slate-800', 'text-white'));
+            document.getElementById(`nav-item-${index}`).classList.add('bg-slate-800', 'text-white');
+        }
+
+        // --- 4. PLAYER LOGIC ---
+
+        function startSequence() {
+            document.getElementById('btn-start').classList.add('hidden');
+            document.getElementById('btn-skip-prep').classList.remove('hidden');
+            
+            runTimer(25, "Prep", "bg-indigo-500", () => {
+                document.getElementById('btn-skip-prep').classList.add('hidden');
+                document.getElementById('beep-audio').play();
+                runTimer(40, "Recording", "bg-red-500", () => {
+                    stopAndNext();
+                }, true);
+            });
+        }
+
+        function skipPrep() {
+            skipPrepFlag = true;
+        }
+
+        let timerId;
+        function runTimer(seconds, label, colorClass, onComplete, isRecording = false) {
+            const display = document.getElementById('timer-display');
+            const progress = document.getElementById('timer-progress');
+            const status = document.getElementById('timer-label');
+            const bar = document.getElementById('timer-progress');
+            
+            let remaining = seconds;
+            status.innerText = label;
+            bar.className = `h-full ${colorClass}`;
+            
+            if(isRecording) {
+                display.classList.add('text-red-500');
+                startRecording();
+            } else {
+                display.classList.remove('text-red-500');
+                display.classList.add('text-indigo-400');
+            }
+
+            skipPrepFlag = false;
+
+            timerId = setInterval(() => {
+                if(skipPrepFlag && !isRecording) {
+                    clearInterval(timerId);
+                    onComplete();
+                    return;
+                }
+
+                remaining--;
+                display.innerText = `00:${remaining.toString().padStart(2, '0')}`;
+                progress.style.width = `${((seconds - remaining) / seconds) * 100}%`;
+
+                if (remaining <= 0) {
+                    clearInterval(timerId);
+                    onComplete();
+                }
+            }, 1000);
+        }
+
+        // --- 5. RECORDING ---
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                
+                recorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                recorder.ondataavailable = e => audioChunks.push(e.data);
+                
+                recorder.start();
+                drawWaveform();
+                
+                document.getElementById('rec-badge').classList.remove('hidden');
+                document.getElementById('btn-stop').classList.remove('hidden');
+
+            } catch (err) {
+                alert("Microphone access denied.");
+            }
+        }
+
+        function stopAndNext() {
+            clearInterval(timerId);
+            if (recorder && recorder.state !== "inactive") {
+                recorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    saveResult(blob);
+                    
+                    if(microphone) microphone.disconnect();
+                    if(audioContext && audioContext.state !== 'closed') audioContext.close();
+                    cancelAnimationFrame(visualizerId);
+                    document.getElementById('rec-badge').classList.add('hidden');
+                    
+                    if(currentIndex < currentQueue.length - 1) {
+                        loadQuestion(currentIndex + 1);
+                    } else {
+                        showResults();
+                    }
+                };
+                recorder.stop();
+            } else {
+                if(currentIndex < currentQueue.length - 1) loadQuestion(currentIndex + 1);
+                else showResults();
+            }
+        }
+
+        function stopAudio() {
+            if (recorder && recorder.state !== "inactive") recorder.stop();
+            if (audioContext && audioContext.state !== 'closed') audioContext.close();
+            cancelAnimationFrame(visualizerId);
+        }
+
+        function drawWaveform() {
+            const canvas = document.getElementById('live-canvas');
+            const ctx = canvas.getContext('2d');
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+
+            const draw = () => {
+                visualizerId = requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+                ctx.fillStyle = 'rgb(30, 41, 59)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                const barWidth = (canvas.width / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
+
+                for(let i = 0; i < bufferLength; i++) {
+                    barHeight = dataArray[i] / 2;
+                    ctx.fillStyle = `rgb(${barHeight + 100}, 99, 102)`;
+                    ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
+            };
+            draw();
+        }
+
+        function saveResult(blob) {
+            const filename = currentQueue[currentIndex];
+            userResults[filename] = {
+                blob: blob,
+                notes: document.getElementById('live-dictation').value
+            };
+            document.getElementById(`status-dot-${currentIndex}`).classList.add('bg-emerald-500');
+        }
+
+        // --- 6. RESULTS & VISUALIZATION ---
+
+        async function drawStaticWaveform(canvasId, audioBlob) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            ctx.fillStyle = 'rgb(30, 41, 59)'; 
+            ctx.fillRect(0, 0, width, height);
+            
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const arrayBuffer = await audioBlob.arrayBuffer();
+                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                const rawData = audioBuffer.getChannelData(0);
+                const step = Math.ceil(rawData.length / width);
+                const amp = height / 2;
+                
+                ctx.fillStyle = '#6366f1'; // Indigo for static waveform
+                for (let i = 0; i < width; i++) {
+                    let min = 1.0; let max = -1.0;
+                    for (let j = 0; j < step; j++) {
+                        const datum = rawData[(i * step) + j];
+                        if (datum < min) min = datum;
+                        if (datum > max) max = datum;
+                    }
+                    if (max === -1.0 && min === 1.0) { ctx.fillRect(i, amp, 1, 1); }
+                    else {
+                         const y_min = (1 + min) * amp;
+                         const y_max = (1 + max) * amp;
+                         ctx.fillRect(i, y_min, 1, Math.max(1, y_max - y_min));
+                    }
+                }
+            } catch (e) { console.error("Error visualizing result:", e); }
+        }
+
+        function showResults() {
+            stopAudio();
+            document.getElementById('active-question-container').classList.add('hidden');
+            document.getElementById('results-view').classList.remove('hidden');
+            
+            const container = document.getElementById('results-list');
+            container.innerHTML = currentQueue.map((filename, idx) => {
+                const res = userResults[filename];
+                const sample = RAW_DATA[filename];
+                const audioUrl = res ? URL.createObjectURL(res.blob) : null;
+                const canvasId = `res-canvas-${idx}`;
+                
+                return `
+                <div class="bg-slate-900 border border-slate-700 rounded-xl p-6 shadow-lg">
+                    <h3 class="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                        <span class="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded">Q${idx + 1}</span>
+                        ${filename.replace('.png', '').replace('.jpeg', '')}
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Image -->
+                        <div class="bg-black/50 p-2 rounded border border-slate-700 flex items-center justify-center relative group h-48 cursor-zoom-in" onclick="openZoom('${BASE_URL + encodeURIComponent(filename)}')">
+                            <img src="${BASE_URL + encodeURIComponent(filename)}" class="max-h-full max-w-full object-contain">
+                            <div class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">Zoom</div>
+                        </div>
+
+                        <!-- User Recording -->
+                        <div class="bg-slate-800 p-4 rounded border border-slate-700 flex flex-col">
+                            <span class="text-xs font-bold text-slate-500 uppercase block mb-2">Your Answer</span>
+                            <canvas id="${canvasId}" class="waveform-canvas mb-2 w-full h-12 bg-slate-900 rounded"></canvas>
+                            ${audioUrl ? `<audio src="${audioUrl}" controls class="w-full mb-2 h-8"></audio>` : '<p class="text-slate-500 text-sm italic">No recording found.</p>'}
+                            <div class="bg-slate-900 p-2 rounded text-xs text-slate-300 flex-1 overflow-y-auto border border-slate-800 font-mono">
+                                <span class="text-slate-600 block mb-1">NOTES:</span>
+                                ${res ? res.notes : '--'}
+                            </div>
+                        </div>
+
+                        <!-- Sample Answer -->
+                        <div class="bg-slate-800 p-4 rounded border border-slate-700">
+                            <span class="text-xs font-bold text-emerald-500 uppercase block mb-2">Reference Answer</span>
+                            <div class="text-sm text-slate-300 leading-relaxed h-full overflow-y-auto pr-2">
+                                ${sample}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            // Draw waveforms after elements are added to DOM
+            setTimeout(() => {
+                currentQueue.forEach((filename, idx) => {
+                    const res = userResults[filename];
+                    if (res && res.blob) {
+                        drawStaticWaveform(`res-canvas-${idx}`, res.blob);
+                    }
+                });
+            }, 200);
+        }
+
+        function backToDrill() {
+            document.getElementById('results-view').classList.add('hidden');
+            document.getElementById('active-question-container').classList.remove('hidden');
+        }
+
+        // --- 7. LIGHTBOX LOGIC ---
+        function openZoom(src) {
+            document.getElementById('zoom-modal-img').src = src;
+            document.getElementById('zoom-modal').classList.remove('hidden');
+        }
+        function closeZoom() {
+            document.getElementById('zoom-modal').classList.add('hidden');
+        }
+
+        // Initialize
+        generatePreSets();
+        renderSets();
+
+    </script>
+</body>
+</html>

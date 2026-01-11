@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 7: Repeat Sentence Intensive Drill</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .waveform-canvas { width: 100%; height: 60px; background-color: #1e293b; border-radius: 0.5rem; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .btn-primary { @apply bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-lg; }
+        .btn-secondary { @apply bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-lg; }
+        .btn-danger { @apply bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors shadow-lg; }
+        
+        .active-nav { border-left: 4px solid #06b6d4; background: #1e293b; color: #fff; }
+        .inactive-nav { border-left: 4px solid transparent; color: #94a3b8; }
+        
+        .timer-display { font-variant-numeric: tabular-nums; }
+        
+        textarea:focus { outline: 2px solid #06b6d4; }
+        
+        /* Progress Bar Animation */
+        .progress-bar-animate { transition: width 1s linear; }
+        
+        .set-card { @apply bg-slate-800 p-4 rounded-xl border border-slate-700 hover:border-cyan-500 cursor-pointer transition-all hover:shadow-xl hover:-translate-y-1; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Navbar -->
+    <nav class="bg-slate-900 border-b border-slate-700 p-4 flex justify-between items-center z-10 shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="bg-cyan-600 w-8 h-8 rounded flex items-center justify-center font-bold text-white">D7</div>
+            <h1 class="font-bold text-lg hidden md:block text-white">Repeat Sentence <span class="text-cyan-400 font-normal">| Intensive Drill</span></h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="goHome()" class="text-slate-400 hover:text-white text-sm font-bold"><i class="fas fa-home mr-1"></i> Dashboard</button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex overflow-hidden relative">
+        
+        <!-- DASHBOARD / LANDING PAGE -->
+        <div id="dashboard-view" class="w-full h-full p-8 overflow-y-auto">
+            <div class="max-w-6xl mx-auto">
+                <div class="mb-10 text-center">
+                    <h2 class="text-3xl font-extrabold text-white mb-2">Select Your Drill</h2>
+                    <p class="text-slate-400">Choose a structured set or a random mix. Focus on immediate recall and fluency.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Pre-defined Sets Column -->
+                    <div class="md:col-span-2">
+                        <h3 class="text-cyan-400 font-bold uppercase text-xs tracking-wider mb-4 border-b border-slate-700 pb-2">Structured Sets (10 Qs Each)</h3>
+                        <div id="sets-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Sets injected via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Random Shuffle Column -->
+                    <div>
+                        <h3 class="text-emerald-400 font-bold uppercase text-xs tracking-wider mb-4 border-b border-slate-700 pb-2">Random Shuffle</h3>
+                        <div class="bg-slate-900 p-6 rounded-xl border border-slate-700 h-full flex flex-col justify-center items-center text-center">
+                            <i class="fas fa-random text-4xl text-emerald-500 mb-4"></i>
+                            <h4 class="font-bold text-white mb-2">Custom Mix</h4>
+                            <p class="text-sm text-slate-400 mb-6">Test yourself with a random selection from the 100-question bank.</p>
+                            
+                            <div class="w-full space-y-3">
+                                <button onclick="startRandomDrill(10)" class="w-full btn-secondary text-sm">10 Questions (Quick)</button>
+                                <button onclick="startRandomDrill(20)" class="w-full btn-secondary text-sm">20 Questions (Standard)</button>
+                                <button onclick="startRandomDrill(50)" class="w-full btn-secondary text-sm">50 Questions (Marathon)</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DRILL PLAYER VIEW (Hidden by default) -->
+        <div id="player-view" class="w-full h-full flex hidden">
+            <!-- Sidebar Playlist -->
+            <aside class="w-64 bg-slate-900 border-r border-slate-700 overflow-y-auto shrink-0 flex flex-col">
+                <div class="p-4 border-b border-slate-800 bg-slate-900 sticky top-0 z-10">
+                    <h3 class="font-bold text-slate-400 uppercase text-xs tracking-wider flex justify-between items-center">
+                        Current Queue
+                        <span id="queue-count" class="bg-slate-800 text-slate-500 px-2 py-0.5 rounded text-[10px]">0 Qs</span>
+                    </h3>
+                </div>
+                <div id="drill-nav" class="flex-1"></div>
+                <div class="p-4 border-t border-slate-800 bg-slate-900 sticky bottom-0">
+                    <button onclick="showResults()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded text-sm transition-all">
+                        <i class="fas fa-flag-checkered mr-2"></i> Finish Session
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Active Question Area -->
+            <div class="flex-1 bg-slate-950 p-4 md:p-8 overflow-y-auto flex flex-col items-center justify-center relative" id="active-question-container">
+                <div id="question-card" class="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-4xl shadow-2xl flex flex-col h-full md:h-auto">
+                    
+                    <!-- Header -->
+                    <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-cyan-900 text-cyan-200 text-xs font-bold px-3 py-1 rounded uppercase tracking-wider">RS</span>
+                            <h2 id="intensive-title" class="text-xl font-bold text-white">Question 1</h2>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-slate-500 uppercase font-bold mb-1" id="timer-label">Status</div>
+                            <div id="intensive-timer" class="text-4xl font-mono font-bold text-slate-200 timer-display">00:00</div>
+                        </div>
+                    </div>
+
+                    <!-- LISTENING VISUALIZATION -->
+                    <div class="mb-8 relative group text-center py-12 bg-slate-800/50 rounded-xl border-2 border-slate-700">
+                        <div class="absolute -top-3 left-4 bg-slate-900 px-2 text-xs text-cyan-400 font-bold uppercase tracking-wider">
+                            <i class="fas fa-headphones mr-1"></i> Audio Only
+                        </div>
+                        
+                        <div id="visual-icon-container" class="flex justify-center items-center h-24">
+                            <i id="visual-icon" class="fas fa-volume-up text-6xl text-slate-600 transition-all duration-300"></i>
+                        </div>
+                        <p class="text-slate-400 mt-4 text-sm font-mono" id="audio-status-text">Ready to Start</p>
+                        
+                        <!-- Hidden Audio Player -->
+                        <audio id="intensive-audio-player" class="hidden"></audio>
+
+                        <!-- Progress Bar for Timer -->
+                        <div class="absolute bottom-0 left-0 h-1 w-full bg-slate-800 rounded-b-xl overflow-hidden">
+                            <div id="timer-progress" class="h-full bg-cyan-500 w-0"></div>
+                        </div>
+                    </div>
+
+                    <!-- Recording & Dictation Area -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Visualizer -->
+                        <div class="bg-slate-800 rounded-lg p-3 border border-slate-700 flex flex-col justify-end relative">
+                            <div class="absolute top-2 left-2 flex items-center gap-2" id="rec-status-badge">
+                                <div class="w-2 h-2 rounded-full bg-slate-600"></div>
+                                <span class="text-[10px] uppercase font-bold text-slate-500">Mic Idle</span>
+                            </div>
+                            <canvas id="intensive-canvas" class="waveform-canvas"></canvas>
+                        </div>
+
+                        <!-- Dictation Box -->
+                        <div class="relative">
+                            <div class="flex justify-between items-end mb-1 px-1">
+                                <span class="text-[10px] text-slate-500 uppercase font-bold">Transcription (Optional)</span>
+                                <span class="text-[10px] text-slate-500"><i class="fas fa-keyboard"></i> Editable</span>
+                            </div>
+                            <textarea id="intensive-live-text" class="w-full h-[80px] bg-slate-800 rounded p-3 text-sm text-slate-300 border border-slate-700 resize-none font-mono focus:bg-slate-800 focus:border-cyan-500 transition-colors" placeholder="Transcription appears here..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="mt-auto md:mt-0 flex justify-center gap-4">
+                        <button id="btn-intensive-start" onclick="startIntensiveSequence()" class="btn-primary w-64 text-lg">
+                            <i class="fas fa-play mr-2"></i> Start Question
+                        </button>
+                        
+                        <!-- Recording Control -->
+                        <div id="intensive-control-group" class="hidden flex gap-4 w-full justify-center">
+                            <button onclick="stopIntensiveRecording()" class="btn-danger w-full md:w-auto flex items-center justify-center transform transition-transform hover:scale-105">
+                                <i class="fas fa-forward mr-3"></i> Stop & Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results View (Hidden initially) -->
+            <div id="intensive-results" class="flex-1 bg-slate-950 p-4 md:p-8 overflow-y-auto hidden">
+                <div class="max-w-5xl mx-auto">
+                    <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
+                        <div>
+                            <h2 class="text-3xl font-bold text-white mb-1">Drill Results</h2>
+                            <p class="text-slate-400 text-sm">Review your accuracy and fluency.</p>
+                        </div>
+                        <button onclick="backToDrill()" class="text-cyan-400 hover:text-white font-bold transition-colors flex items-center gap-2">
+                            <i class="fas fa-arrow-left"></i> Back to Drill
+                        </button>
+                    </div>
+                    <div id="intensive-results-list" class="space-y-8 pb-20"></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- 1. DATA SOURCE ---
+        const BASE_URL = "https://baongocnguyenngo2018-bot.github.io/PTE/03.repeat-sentence/";
+        
+        // Full Answer Keys (100 Questions)
+        const ANSWER_KEYS = {
+            1: "The bus waiting just outside the gate will take you to London",
+            2: "We will enter the building from the righ side of the library",
+            3: "Students have the opportunity to share their lunch during the common lunch break around noon",
+            4: "There are office welcome events for both undergraduate and postgraduate students",
+            5: "You can keep your bag in the back room",
+            6: "Please close the door behind you when you leave the room",
+            7: "You can get coffee and tea in the lunch room",
+            8: "You must call your doctor to make an appointment",
+            9: "The woman said she could help me get a replacement travel pass",
+            10: "One solution is a system of electric cars available for hire on demand",
+            11: "Psychology relies on scientific methods to investigate questions and arrive at conclusions",
+            12: "The professor predicts that biotechnology is the future of traditional biology.",
+            13: "There has been a delay in processing the enrollment due to computer problems",
+            14: "Globalization has been an overwhelming urbanization phenomenon",
+            15: "No crop responds more readily than careful husbandry and skillful cultivation",
+            16: "There are various approaches to plagiarism across different university departments",
+            17: "There are several reasons for this lack of interest in corporate crime, compared with other type of crime",
+            18: "Every car maker in Europe has sort of been on the blocks because of their dependence on diesel",
+            19: "Mitosis is the division of cells for growth and repair",
+            20: "You can register your card at the university student center or the library",
+            21: "The art museum is located across the street and near the theater.",
+            22: "A public telephone is available in the shop.",
+            23: "Your wages will be put into your bank account on Thursday.",
+            24: "The library will be closed during summer vacation.",
+            25: "I need somebody to fix the problem with the computer screen.",
+            26: "Your son has a bad cold and is in the nurse's room.",
+            27: "You can speak to the current students at the information sessions.",
+            28: "Several people have applied for this position.",
+            29: "Passengers on the train should not put their feet on the seat.",
+            30: "If you take a part-time job, ensure it doesn’t interfere with your studies.",
+            31: "The building will be closed and reopened next week.",
+            32: "The library is downstairs on the east side of the building.",
+            33: "You must wear a hard hat on the construction site.",
+            34: "Your car can park in the building behind the medical center.",
+            35: "If finance is a cause for concern, scholarships may be available.",
+            36: "One theory says that dreams help the long term memory.",
+            37: "Not everyone wants to keep in touch with their old school friends when they leave school.",
+            38: "Before electric lighting, adults generally slept about 9 or 10 hours per night.",
+            39: "Even now, scientists still don't know whether animals dream while they sleep",
+            40: "Find a bookstore situated on the main campus northern side.",
+            41: "The lecture theatre one is located on the ground floor of the Pack Building.",
+            42: "Your boss requires you to finish the report before Friday.",
+            43: "The best time to visit Canada is in the fall.",
+            44: "If you like cooking, we can make supper together.",
+            45: "This semester will be from October to January.",
+            46: "You need to pass a written exam to get your driver’s license.",
+            47: "Evaporation is the process of turning liquid into gas",
+            48: "Please keep the keys with you because the front door often locks automatically.",
+            49: "Students are allowed to bring dictionaries to the exam.",
+            50: "Higher education means higher pay you will get.",
+            51: "Students from different backgrounds can achieve a variety of qualifications.",
+            52: "We will change the classroom because this one is too small.",
+            53: "Car park permit can be obtained at the student service center.",
+            54: "Your abstract should contain empirical evidence of your research.",
+            55: "Applicants for the course ideally possess backgrounds in English or journalism.",
+            56: "If you show your student card, you will get a discount.",
+            57: "The bus for London will leave 10 minutes later than planned.",
+            58: "After considering all the options she decided to take the risk.",
+            59: "Compiling a bibliography can present a major challenge for some students.",
+            60: "Tomorrow's lecture has been cancelled due to the power outage.",
+            61: "This will be the first art exhibition to be held by the university.",
+            62: "Each group should submit a rough outline of their project to their tutor.",
+            63: "Tomorrow evening, there will be a panel discussion on sustainable development.",
+            64: "The key findings seem to contradict our initial hypothesis.",
+            65: "Eating a healthy breakfast can provide energy throughout the day.",
+            66: "The cafeteria is open on Mondays and Thursdays.",
+            67: "The deadline for assignments is the 4th of February.",
+            68: "Marks will be awarded for bibliography in the correct format.",
+            69: "Before you hear the rest of the talk, you'll have some time to look at questions 14 to 20",
+            70: "Today's lecture is cancelled because the lecturer is ill.",
+            71: "Our brain is the central machine of our body.",
+            72: "Major sports on campus include rugby, soccer, and tennis.",
+            73: "We have three distinctive libraries which are nationally acclaimed.",
+            74: "To get a further extension, you need to call the education executive on 401.",
+            75: "The course comprises 20 hours of lectures, seminars, and tutorials each week.",
+            76: "The geographic assignment should be submitted by the midday of Friday.",
+            77: "The number of companies in bankruptcy skyrocketed in the third quarter.",
+            78: "I would like an egg and tomatoes on white sandwich bread with orange juice.",
+            79: "The competency of language in the assignment is to use more formal words.",
+            80: "Robert Frost lived in rural areas in New England.",
+            81: "All applications for internship are available in the office.",
+            82: "Any text or references you make should be cited appropriately in the bibliography",
+            83: "Ideally, free trade is beneficial for trading with two partners.",
+            84: "Only those who are over 18 years of age are eligible to open a bank account in our bank",
+            85: "The health centre is situated at the corner of the university behind the library.",
+            86: "Hypothetically, insufficient mastery in these areas slows future progress.",
+            87: "Meeting with mentors can be scheduled for students who require additional support.",
+            88: "The cafe will close soon but you can still access the snack machine which is running overnight.",
+            89: "The technician left the new microscope in the biology lab.",
+            90: "Companies are aiming to earn money not to change society.",
+            91: "The hypothesis on the black hole is rendered moot as the explanation for the explosion.",
+            92: "Organic food is grown without applying chemicals and possesses no artificial additives.",
+            93: "Number the beakers and put them away until tomorrow.",
+            94: "The office opens on Mondays and Thursdays directly following the freshman induction seminar.",
+            95: "If you forget your student number, you need to contact Jenny Brice.",
+            96: "All undergraduate students should participate in the seminar.",
+            97: "The Internet provides unusual opportunities for students and current events.",
+            98: "Our class is divided into two groups. You come with me, and the others just stay here.",
+            99: "Newspapers across the country have been reporting stories of the president.",
+            100: "Expertise in particular areas distinguishes you from other graduates."
+        };
+
+        const TOTAL_QUESTIONS = 100;
+        const FULL_QUESTION_LIST = [];
+        for(let i = 1; i <= TOTAL_QUESTIONS; i++) {
+            FULL_QUESTION_LIST.push({
+                id: i,
+                audio: `${BASE_URL}/${i.toString().padStart(3, '0')}.mp3`,
+                answer: ANSWER_KEYS[i]
+            });
+        }
+
+        // --- 2. LOGIC ---
+        let currentQueue = [];
+        let currentIndex = 0;
+        let globalMicStream = null;
+        let globalAudioContext = null;
+        let audioContext, microphone, recorder, analyser, visualizerId;
+        let audioChunks = [];
+        const userResults = {};
+        let sequenceTimeout; 
+        let nextQuestionTimeout; // Track the auto-advance timeout
+        let isDrillActive = false; // Flag to track if we are in drill mode
+
+        // Pre-defined Sets Logic
+        const PRE_SETS = [];
+        for (let i = 0; i < 10; i++) {
+            PRE_SETS.push(FULL_QUESTION_LIST.slice(i * 10, (i + 1) * 10));
+        }
+
+        function renderSets() {
+            const container = document.getElementById('sets-container');
+            container.innerHTML = PRE_SETS.map((set, idx) => `
+                <div onclick="startPreSet(${idx})" class="set-card">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-cyan-400 font-bold text-sm">SET ${idx + 1}</span>
+                        <span class="text-slate-500 text-xs font-mono">${set[0].id} - ${set[9].id}</span>
+                    </div>
+                    <div class="h-1 w-full bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-cyan-600 w-1/3"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- 3. DRILL CONTROLLERS ---
+
+        function goHome() {
+            isDrillActive = false;
+            document.getElementById('player-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            stopAllAudio();
+        }
+
+        function startPreSet(idx) {
+            currentQueue = PRE_SETS[idx];
+            startDrill();
+        }
+
+        function startRandomDrill(count) {
+            // Shuffle full list
+            let shuffled = [...FULL_QUESTION_LIST].sort(() => 0.5 - Math.random());
+            currentQueue = shuffled.slice(0, count);
+            startDrill();
+        }
+
+        function startDrill() {
+            isDrillActive = true;
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('player-view').classList.remove('hidden');
+            document.getElementById('active-question-container').classList.remove('hidden');
+            document.getElementById('intensive-results').classList.add('hidden');
+            
+            renderSidebar();
+            currentIndex = 0;
+            // Load Q1 but do NOT auto-start to allow user to settle
+            loadIntensiveQuestion(0, false);
+        }
+
+        function renderSidebar() {
+            const nav = document.getElementById('drill-nav');
+            document.getElementById('queue-count').innerText = `${currentQueue.length} Qs`;
+            nav.innerHTML = currentQueue.map((item, idx) => `
+                <button onclick="loadIntensiveQuestion(${idx}, true)" id="nav-item-${idx}" class="w-full text-left p-3 text-xs font-bold border-b border-slate-800 hover:bg-slate-800 transition-colors text-slate-500 truncate flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full border border-slate-600 flex items-center justify-center text-[8px]" id="status-dot-${idx}"></span>
+                    Question ${idx + 1} (ID: ${item.id})
+                </button>
+            `).join('');
+        }
+
+        function loadIntensiveQuestion(index, autoPlay = true) {
+            // If navigating manually, stop prior audio but stay in drill mode
+            stopAllAudio();
+            
+            // Ensure UI is correct
+            document.getElementById('intensive-results').classList.add('hidden');
+            document.getElementById('active-question-container').classList.remove('hidden');
+            isDrillActive = true; 
+
+            if (index >= currentQueue.length) {
+                showResults();
+                return;
+            }
+
+            currentIndex = index;
+            const item = currentQueue[index];
+            
+            // UI Updates
+            document.getElementById('intensive-title').innerText = `Question ${index + 1}`;
+            document.getElementById('intensive-timer').innerText = "00:00";
+            document.getElementById('intensive-timer').className = "text-4xl font-mono font-bold text-slate-200 timer-display";
+            document.getElementById('intensive-live-text').value = "";
+            document.getElementById('audio-status-text').innerText = "Ready to Start";
+            document.getElementById('visual-icon').className = "fas fa-volume-up text-6xl text-slate-600 transition-all duration-300";
+            
+            document.getElementById('timer-progress').style.width = '0%';
+            
+            // Highlight Nav
+            document.querySelectorAll('#drill-nav button').forEach(b => {
+                b.classList.remove('bg-slate-800', 'text-white');
+                b.classList.add('text-slate-500');
+            });
+            const activeBtn = document.getElementById(`nav-item-${index}`);
+            if(activeBtn) {
+                activeBtn.classList.add('bg-slate-800', 'text-white');
+                activeBtn.classList.remove('text-slate-500');
+            }
+
+            // Audio Player Setup
+            const audioPlayer = document.getElementById('intensive-audio-player');
+            audioPlayer.src = item.audio;
+            
+            // Controls
+            const btnStart = document.getElementById('btn-intensive-start');
+            const controlGroup = document.getElementById('intensive-control-group');
+            controlGroup.classList.add('hidden');
+            
+            document.getElementById('rec-status-badge').innerHTML = `<div class="w-2 h-2 rounded-full bg-slate-600"></div><span class="text-[10px] uppercase font-bold text-slate-500">Mic Idle</span>`;
+
+            if (autoPlay) {
+                btnStart.classList.add('hidden');
+                document.getElementById('audio-status-text').innerText = "Starting...";
+                sequenceTimeout = setTimeout(startIntensiveSequence, 600);
+            } else {
+                btnStart.classList.remove('hidden');
+            }
+        }
+
+        // --- 4. SEQUENCE LOGIC ---
+
+        async function startIntensiveSequence() {
+            if (!isDrillActive) return;
+
+            const index = currentIndex;
+            const item = currentQueue[index];
+            const statusText = document.getElementById('audio-status-text');
+            const visualIcon = document.getElementById('visual-icon');
+            const audioPlayer = document.getElementById('intensive-audio-player');
+            const btnStart = document.getElementById('btn-intensive-start');
+            
+            btnStart.classList.add('hidden');
+
+            // 1. Play Audio
+            statusText.innerText = "Listening...";
+            visualIcon.classList.replace('text-slate-600', 'text-cyan-400');
+            visualIcon.classList.add('animate-pulse');
+            
+            try {
+                await audioPlayer.play();
+            } catch(e) {
+                console.warn("Autoplay blocked");
+                btnStart.classList.remove('hidden');
+                statusText.innerText = "Click Start";
+                return;
+            }
+
+            await new Promise(resolve => {
+                audioPlayer.onended = resolve;
+            });
+
+            // Audio Ended
+            if (!isDrillActive) return; // Check again in case user left during audio
+
+            visualIcon.classList.remove('animate-pulse');
+            visualIcon.classList.replace('text-cyan-400', 'text-slate-600');
+            
+            // 2. Immediate Record (No Prep)
+            statusText.innerText = "Recording";
+            const timerDisplay = document.getElementById('intensive-timer');
+            timerDisplay.classList.add('text-red-500');
+            
+            document.getElementById('intensive-control-group').classList.remove('hidden');
+            document.getElementById('rec-status-badge').innerHTML = `<div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div><span class="text-[10px] uppercase font-bold text-red-400">Recording</span>`;
+
+            const canvas = document.getElementById('intensive-canvas');
+            const dictBox = document.getElementById('intensive-live-text');
+            
+            // 15s Recording Time for RS
+            startRecordingCommon(canvas, dictBox, (blob, text) => {
+                userResults[item.id] = {
+                    audioBlob: blob,
+                    dictation: dictBox.value, 
+                    id: item.id
+                };
+                
+                const dot = document.getElementById(`status-dot-${index}`);
+                if(dot) {
+                    dot.classList.remove('border-slate-600');
+                    dot.classList.add('bg-emerald-500', 'border-emerald-500');
+                }
+
+                document.getElementById('intensive-control-group').classList.add('hidden');
+                statusText.innerText = "Saved";
+                timerDisplay.classList.remove('text-red-500');
+                
+                // Only advance if still in active drill mode
+                if (isDrillActive) {
+                    nextQuestionTimeout = setTimeout(() => {
+                        loadIntensiveQuestion(index + 1);
+                    }, 800);
+                }
+
+            }, 15, timerDisplay); // 15 seconds limit
+        }
+
+        function stopIntensiveRecording() {
+            if(window.stopCurrentRecording) window.stopCurrentRecording();
+        }
+
+        function showResults() {
+            isDrillActive = false;
+            stopAllAudio();
+            document.getElementById('active-question-container').classList.add('hidden');
+            document.getElementById('intensive-results').classList.remove('hidden');
+            
+            const container = document.getElementById('intensive-results-list');
+            
+            container.innerHTML = currentQueue.map((item, idx) => {
+                const res = userResults[item.id];
+                if (!res) return ''; 
+                
+                const audioUrl = URL.createObjectURL(res.audioBlob);
+                
+                return `
+                    <div class="bg-slate-900 border border-slate-700 rounded-lg p-6 relative shadow-lg">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="font-bold text-white text-lg">Question ${idx + 1} <span class="text-slate-500 text-sm font-normal">(ID: ${item.id})</span></h3>
+                            <span class="bg-slate-800 text-slate-400 text-xs px-2 py-1 rounded">RS</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Left: Key -->
+                            <div class="bg-slate-800/50 p-4 rounded border border-slate-700">
+                                <h4 class="text-xs uppercase text-cyan-400 font-bold mb-3 border-b border-slate-600 pb-2">Transcript Key</h4>
+                                <p class="text-slate-200 text-sm leading-relaxed">${item.answer}</p>
+                            </div>
+
+                            <!-- Right: Performance -->
+                            <div>
+                                <span class="text-xs uppercase text-slate-500 block mb-2 font-bold">Your Response</span>
+                                <canvas id="res-canvas-${item.id}" class="waveform-canvas mb-3 w-full"></canvas>
+                                <audio src="${audioUrl}" controls class="w-full mb-4 h-8"></audio>
+                                <div class="bg-slate-800 p-3 rounded text-sm text-slate-300 italic h-20 overflow-y-auto border border-slate-700 font-mono">
+                                    ${res.dictation || "(No text captured)"}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Draw waveforms
+            setTimeout(() => {
+                currentQueue.forEach((item) => {
+                    const res = userResults[item.id];
+                    if (res && res.audioBlob) {
+                        drawStaticWaveform(`res-canvas-${item.id}`, res.audioBlob);
+                    }
+                });
+            }, 200);
+        }
+
+        function backToDrill() {
+            // Does not auto-restart sequence, waits for user to pick a question or manual intervention if desired
+            // But usually we just show the player container.
+            document.getElementById('intensive-results').classList.add('hidden');
+            document.getElementById('active-question-container').classList.remove('hidden');
+            // We set isDrillActive to true only when a specific question is loaded/started
+        }
+
+        // --- UTILS ---
+
+        function stopAllAudio() {
+            if (sequenceTimeout) clearTimeout(sequenceTimeout);
+            if (nextQuestionTimeout) clearTimeout(nextQuestionTimeout);
+            const player = document.getElementById('intensive-audio-player');
+            if(player) { player.pause(); player.currentTime = 0; }
+            if(window.stopCurrentRecording) window.stopCurrentRecording();
+        }
+
+        // Added setupSpeechRecognition definition here
+        function setupSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+            }
+        }
+
+        async function startRecordingCommon(canvasElem, textElem, onComplete, maxSeconds, timerElem) {
+            try {
+                if (!globalMicStream || !globalMicStream.active) {
+                    globalMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                }
+                
+                if (!globalAudioContext) {
+                    globalAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (globalAudioContext.state === 'suspended') {
+                    try { await globalAudioContext.resume(); } catch(e) {}
+                }
+
+                const stream = globalMicStream;
+                const context = globalAudioContext;
+
+                analyser = context.createAnalyser();
+                microphone = context.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                analyser.fftSize = 256;
+                drawVisualizer(canvasElem, analyser);
+                
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
+                
+                if(recognition) {
+                    recognition.onresult = (event) => {
+                        let final = '';
+                        for (let i = event.resultIndex; i < event.results.length; ++i) {
+                            if (event.results[i].isFinal) final += event.results[i][0].transcript + ' ';
+                        }
+                        if(final) textElem.value += final; 
+                    };
+                    try { recognition.start(); } catch(e) {}
+                }
+
+                let remaining = maxSeconds;
+                let total = maxSeconds;
+                const progressBar = document.getElementById('timer-progress');
+                
+                timerElem.innerText = `00:${remaining.toString().padStart(2, '0')}`;
+                progressBar.className = `h-full bg-red-500 w-full progress-bar-animate`;
+                progressBar.style.width = '100%';
+                
+                requestAnimationFrame(() => {
+                    progressBar.style.width = '0%';
+                });
+                
+                const recInterval = setInterval(() => {
+                    remaining--;
+                    timerElem.innerText = `00:${remaining.toString().padStart(2, '0')}`;
+                    if (remaining < 0) stopFn();
+                }, 1000);
+
+                const stopFn = () => {
+                    clearInterval(recInterval);
+                    cancelAnimationFrame(visualizerFrameId);
+                    
+                    if (mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+                    try { if(recognition) recognition.stop(); } catch(e){}
+                    
+                    if (microphone) { microphone.disconnect(); microphone = null; }
+                    if (analyser) { analyser.disconnect(); analyser = null; }
+                };
+
+                window.stopCurrentRecording = stopFn;
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    onComplete(blob, textElem.value);
+                };
+
+                mediaRecorder.start();
+            } catch (err) { 
+                alert("Microphone access is required."); 
+                console.error(err);
+            }
+        }
+
+        function drawVisualizer(canvas, analyser) {
+            const ctx = canvas.getContext('2d');
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            const WIDTH = canvas.width;
+            const HEIGHT = canvas.height;
+            function draw() {
+                visualizerFrameId = requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+                ctx.fillStyle = 'rgb(30, 41, 59)'; 
+                ctx.fillRect(0, 0, WIDTH, HEIGHT);
+                const barWidth = (WIDTH / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = (dataArray[i] / 255) * HEIGHT;
+                    if(barHeight > HEIGHT * 0.7) ctx.fillStyle = '#ef4444'; 
+                    else ctx.fillStyle = '#06b6d4'; 
+                    ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
+            }
+            draw();
+        }
+
+        async function drawStaticWaveform(canvasId, audioBlob) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            ctx.fillStyle = 'rgb(30, 41, 59)'; ctx.fillRect(0, 0, width, height);
+            
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const arrayBuffer = await audioBlob.arrayBuffer();
+                const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                const rawData = audioBuffer.getChannelData(0);
+                const step = Math.ceil(rawData.length / width);
+                const amp = height / 2;
+                
+                ctx.fillStyle = '#06b6d4'; 
+                for (let i = 0; i < width; i++) {
+                    let min = 1.0; let max = -1.0;
+                    for (let j = 0; j < step; j++) {
+                        const datum = rawData[(i * step) + j];
+                        if (datum < min) min = datum;
+                        if (datum > max) max = datum;
+                    }
+                    if (max === -1.0 && min === 1.0) { ctx.fillRect(i, amp, 1, 1); }
+                    else {
+                         const y_min = (1 + min) * amp;
+                         const y_max = (1 + max) * amp;
+                         ctx.fillRect(i, y_min, 1, Math.max(1, y_max - y_min));
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // Initialize
+        renderSets();
+        setupSpeechRecognition();
+        
+        document.body.addEventListener('click', () => {
+            if (globalAudioContext && globalAudioContext.state === 'suspended') {
+                globalAudioContext.resume();
+            }
+        }, { once: true });
+
+    </script>
+</body>
+</html>

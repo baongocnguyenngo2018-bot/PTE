@@ -283,6 +283,8 @@
         let audioChunks = [];
         const userResults = {};
         let skipPrepFlag = false;
+        let isDrillActive = false; // Flag to track drill status
+        let timerId;
 
         // Categorize Data
         const categorizedData = {
@@ -355,9 +357,10 @@
         // --- 3. DRILL CONTROLLERS ---
 
         function goHome() {
+            isDrillActive = false; // Stop auto-play
+            stopAll();
             document.getElementById('player-view').classList.add('hidden');
             document.getElementById('dashboard-view').classList.remove('hidden');
-            stopAudio();
         }
 
         function startPreSet(idx) {
@@ -384,13 +387,14 @@
         }
 
         function startDrill() {
+            isDrillActive = true;
             document.getElementById('dashboard-view').classList.add('hidden');
             document.getElementById('player-view').classList.remove('hidden');
             document.getElementById('active-question-container').classList.remove('hidden');
             document.getElementById('results-view').classList.add('hidden');
             renderSidebar();
             currentIndex = 0;
-            loadQuestion(0);
+            loadQuestion(0, false); // Manual start for first question
         }
 
         function renderSidebar() {
@@ -399,16 +403,17 @@
             nav.innerHTML = currentQueue.map((item, idx) => {
                 let type = item.split(" -")[0];
                 return `
-                <button onclick="loadQuestion(${idx})" id="nav-item-${idx}" class="w-full text-left p-3 text-xs font-bold border-b border-slate-800 hover:bg-slate-800 transition-colors text-slate-500 truncate flex items-center gap-2">
+                <button onclick="loadQuestion(${idx}, false)" id="nav-item-${idx}" class="w-full text-left p-3 text-xs font-bold border-b border-slate-800 hover:bg-slate-800 transition-colors text-slate-500 truncate flex items-center gap-2">
                     <span class="w-4 h-4 rounded-full border border-slate-600 flex items-center justify-center text-[8px]" id="status-dot-${idx}"></span>
                     ${idx + 1}. ${type}
                 </button>
             `}).join('');
         }
 
-        function loadQuestion(index) {
-            stopAudio();
-            clearTimeout(window.timerId);
+        function loadQuestion(index, autoStart = false) {
+            if (!isDrillActive) return; // Prevent loading if stopped
+
+            stopAll(); // Clear previous question state
             currentIndex = index;
             const filename = currentQueue[index];
             const type = filename.split(" -")[0];
@@ -423,21 +428,29 @@
             document.getElementById('live-dictation').value = "";
             document.getElementById('status-msg').innerText = "Ready";
             
-            document.getElementById('btn-start').classList.remove('hidden');
-            document.getElementById('btn-skip-prep').classList.add('hidden');
-            document.getElementById('btn-stop').classList.add('hidden');
-            
+            // Highlight Nav
             document.querySelectorAll('#drill-nav button').forEach(b => b.classList.remove('bg-slate-800', 'text-white'));
             document.getElementById(`nav-item-${index}`).classList.add('bg-slate-800', 'text-white');
+
+            if (autoStart) {
+                startSequence();
+            } else {
+                document.getElementById('btn-start').classList.remove('hidden');
+                document.getElementById('btn-skip-prep').classList.add('hidden');
+                document.getElementById('btn-stop').classList.add('hidden');
+            }
         }
 
         // --- 4. PLAYER LOGIC ---
 
         function startSequence() {
+            if (!isDrillActive) return; // Check flag
+
             document.getElementById('btn-start').classList.add('hidden');
             document.getElementById('btn-skip-prep').classList.remove('hidden');
             
             runTimer(25, "Prep", "bg-indigo-500", () => {
+                if (!isDrillActive) return; // Check flag again
                 document.getElementById('btn-skip-prep').classList.add('hidden');
                 document.getElementById('beep-audio').play();
                 runTimer(40, "Recording", "bg-red-500", () => {
@@ -450,7 +463,6 @@
             skipPrepFlag = true;
         }
 
-        let timerId;
         function runTimer(seconds, label, colorClass, onComplete, isRecording = false) {
             const display = document.getElementById('timer-display');
             const progress = document.getElementById('timer-progress');
@@ -472,6 +484,11 @@
             skipPrepFlag = false;
 
             timerId = setInterval(() => {
+                if (!isDrillActive) {
+                    clearInterval(timerId);
+                    return;
+                }
+
                 if(skipPrepFlag && !isRecording) {
                     clearInterval(timerId);
                     onComplete();
@@ -516,34 +533,39 @@
         }
 
         function stopAndNext() {
+            if (!isDrillActive) return;
+
             clearInterval(timerId);
             if (recorder && recorder.state !== "inactive") {
                 recorder.onstop = () => {
                     const blob = new Blob(audioChunks, { type: 'audio/webm' });
                     saveResult(blob);
                     
-                    if(microphone) microphone.disconnect();
-                    if(audioContext && audioContext.state !== 'closed') audioContext.close();
-                    cancelAnimationFrame(visualizerId);
-                    document.getElementById('rec-badge').classList.add('hidden');
+                    stopAll(); // Cleanup current question resources
                     
-                    if(currentIndex < currentQueue.length - 1) {
-                        loadQuestion(currentIndex + 1);
-                    } else {
+                    if(currentIndex < currentQueue.length - 1 && isDrillActive) {
+                        loadQuestion(currentIndex + 1, true); // Auto-start next
+                    } else if (isDrillActive) {
                         showResults();
                     }
                 };
                 recorder.stop();
             } else {
-                if(currentIndex < currentQueue.length - 1) loadQuestion(currentIndex + 1);
-                else showResults();
+                if(currentIndex < currentQueue.length - 1 && isDrillActive) {
+                    loadQuestion(currentIndex + 1, true);
+                } else if (isDrillActive) {
+                    showResults();
+                }
             }
         }
 
-        function stopAudio() {
+        function stopAll() {
+            clearInterval(timerId);
             if (recorder && recorder.state !== "inactive") recorder.stop();
             if (audioContext && audioContext.state !== 'closed') audioContext.close();
+            if (microphone) microphone.disconnect();
             cancelAnimationFrame(visualizerId);
+            document.getElementById('rec-badge').classList.add('hidden');
         }
 
         function drawWaveform() {
@@ -601,7 +623,7 @@
                 const step = Math.ceil(rawData.length / width);
                 const amp = height / 2;
                 
-                ctx.fillStyle = '#6366f1'; // Indigo for static waveform
+                ctx.fillStyle = '#6366f1'; 
                 for (let i = 0; i < width; i++) {
                     let min = 1.0; let max = -1.0;
                     for (let j = 0; j < step; j++) {
@@ -620,7 +642,8 @@
         }
 
         function showResults() {
-            stopAudio();
+            isDrillActive = false; // Ensure drill stops
+            stopAll();
             document.getElementById('active-question-container').classList.add('hidden');
             document.getElementById('results-view').classList.remove('hidden');
             
@@ -668,7 +691,6 @@
                 `;
             }).join('');
 
-            // Draw waveforms after elements are added to DOM
             setTimeout(() => {
                 currentQueue.forEach((filename, idx) => {
                     const res = userResults[filename];

@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTE Speaking Mastery: 88+ Target</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        slate: { 850: '#151e2e', 900: '#0f172a', 950: '#020617' },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            scroll-margin-top: 2rem; /* Smooth scroll offset */
+        }
+        
+        .template-container {
+            background-color: #0f172a; /* Slate 900 */
+            border: 1px solid #1e293b;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+        }
+
+        .template-text {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+        }
+
+        .var {
+            color: #fbbf24; /* Amber 400 */
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            background: rgba(251, 191, 36, 0.1);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+        .connector {
+            font-weight: 600;
+            text-decoration: underline;
+            text-decoration-color: rgba(255,255,255,0.2);
+            text-underline-offset: 4px;
+            color: #fff;
+        }
+        
+        /* Stats Tag Styling */
+        .stat-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .stat-tag {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.25rem;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            border: 1px solid rgba(255,255,255,0.05);
+            min-width: 80px;
+        }
+        .stat-tag strong { 
+            color: #e2e8f0; 
+            font-size: 0.8rem;
+            display: block;
+        }
+        .stat-rec {
+            color: #4ade80; /* Green 400 */
+            font-weight: bold;
+            font-size: 0.65rem;
+        }
+
+        /* Standardized Section Borders */
+        .border-left-brand { border-left-width: 4px; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-300 min-h-screen flex flex-col md:flex-row">
+
+    <!-- Sidebar Navigation (Desktop) -->
+    <nav class="hidden md:flex flex-col w-64 bg-slate-900 border-r border-slate-800 h-screen sticky top-0 p-4 shrink-0 z-50">
+        <div class="mb-8 px-2">
+            <h1 class="text-xl font-extrabold text-white tracking-tight">PTE<span class="text-emerald-500">88+</span> MASTER</h1>
+            <p class="text-xs text-slate-500 mt-1">Speaking Response Guide</p>
+        </div>
+        <div class="space-y-1 overflow-y-auto flex-1">
+            <a href="#ra" class="flex items-center gap-3 px-3 py-2 text-sm font-bold text-blue-400 hover:bg-slate-800 rounded group transition-colors">
+                <i class="fas fa-book-open w-6 text-center"></i> Read Aloud
+            </a>
+            <a href="#rs" class="flex items-center gap-3 px-3 py-2 text-sm font-bold text-violet-400 hover:bg-slate-800 rounded group transition-colors">
+                <i class="fas fa-headphones w-6 text-center"></i> Repeat Sentence
+            </a>
+            <a href="#di" class="flex items-center gap-3 px-3 py-2 text-sm font-bold text-indigo-400 hover:bg-slate-800 rounded group transition-colors">
+                <i class="fas fa-chart-pie w-6 text-center"></i> Describe Image
+            </a>
+            <a href="#rl" class="flex items-center gap-3 px-3 py-2 text-sm font-bold text-amber-400 hover:bg-slate-800 rounded group transition-colors">
+                <i class="fas fa-microphone-alt w-6 text-center"></i> Retell Lecture
+            </a>
+            <a href="#gd" class="flex items-center gap-3 px-3 py-2 text-sm font-bold text-emerald-400 hover:bg-slate-800 rounded group transition-colors">
+                <i class="fas fa-users w-6 text-center"></i> Group Discuss
+            </a>
+            <a href="#r2s" class="flex items-center gap-3 px-3 py-2 text-sm font-bold text-rose-400 hover:bg-slate-800 rounded group transition-colors">
+                <i class="fas fa-theater-masks w-6 text-center"></i> Respond to Sit.
+            </a>
+            <a href="#asq" class="flex items-center gap-3 px-3 py-2 text-sm font-bold text-cyan-400 hover:bg-slate-800 rounded group transition-colors">
+                <i class="fas fa-bolt w-6 text-center"></i> Short Question
+            </a>
+        </div>
+        <div class="mt-auto pt-4 border-t border-slate-800">
+            <div class="bg-slate-800/50 p-3 rounded text-xs text-slate-400 border border-slate-700">
+                <i class="fas fa-crosshairs text-emerald-500 mr-1"></i> <strong>Target 88+</strong><br>
+                Consistency is key.
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Header -->
+    <div class="md:hidden bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-50 flex justify-between items-center shadow-lg">
+        <span class="font-bold text-white">PTE 88+ Master</span>
+        <select onchange="document.getElementById(this.value).scrollIntoView({behavior: 'smooth'})" class="bg-slate-800 text-white text-xs p-2 rounded border border-slate-700 outline-none focus:border-blue-500">
+            <option value="ra">1. Read Aloud</option>
+            <option value="rs">2. Repeat Sentence</option>
+            <option value="di">3. Describe Image</option>
+            <option value="rl">4. Retell Lecture</option>
+            <option value="gd">5. Group Discussion</option>
+            <option value="r2s">6. Respond to Situation</option>
+            <option value="asq">7. Short Question</option>
+        </select>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 md:p-8 space-y-8 max-w-6xl mx-auto">
+
+        <!-- ========================================== -->
+        <!-- 1. READ ALOUD (RA) -->
+        <!-- ========================================== -->
+        <section id="ra" class="glass-panel rounded-2xl p-6 border-l-4 border-blue-500 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-5 text-blue-500"><i class="fas fa-book-open text-9xl"></i></div>
+            
+            <header class="flex flex-col lg:flex-row justify-between items-start mb-6 border-b border-slate-800 pb-4 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-1">Read Aloud</h2>
+                    <p class="text-xs text-blue-400 font-bold uppercase tracking-wider">Skill: Intonation & Stress</p>
+                </div>
+                <!-- Exam Stats -->
+                <div class="stat-group">
+                    <div class="stat-tag">
+                        <span><i class="fas fa-list-ol mr-1"></i> Questions</span>
+                        <strong>6 - 7</strong>
+                    </div>
+                    <div class="stat-tag">
+                        <span><i class="fas fa-hourglass-start mr-1"></i> Prep</span>
+                        <strong>30 - 40s</strong>
+                    </div>
+                    <div class="stat-tag border-blue-500/30">
+                        <span><i class="fas fa-microphone mr-1"></i> Speak (Max)</span>
+                        <strong>40s</strong>
+                        <span class="stat-rec">Rec: 30-35s</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Golden Rule -->
+                <div class="bg-blue-900/20 p-5 rounded-lg border border-blue-500/30">
+                    <h3 class="text-blue-400 font-bold mb-2 text-sm uppercase"><i class="fas fa-crown mr-2"></i>The Golden Rule</h3>
+                    <p class="text-white font-medium mb-2">Stress Content Words. Speed up Function Words.</p>
+                    <ul class="text-sm text-slate-400 space-y-1 list-disc list-inside">
+                        <li><strong>Stress:</strong> Nouns, Verbs, Adjectives.</li>
+                        <li><strong>Glide:</strong> The, a, of, to, in, and.</li>
+                    </ul>
+                </div>
+
+                <!-- Tactics -->
+                <div class="bg-slate-800/50 p-5 rounded-lg border border-slate-700">
+                    <h3 class="text-slate-200 font-bold mb-2 text-sm uppercase"><i class="fas fa-wave-square mr-2 text-blue-400"></i>Intonation Pattern</h3>
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="bg-slate-900 p-2 rounded">
+                            <span class="text-xl text-green-400 block">↗️ UP</span>
+                            <span class="text-xs text-slate-400">Lists & Commas</span>
+                        </div>
+                        <div class="bg-slate-900 p-2 rounded">
+                            <span class="text-xl text-red-400 block">↘️ DOWN</span>
+                            <span class="text-xs text-slate-400">Full stops (End strong)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency -->
+                <div class="col-span-1 lg:col-span-2 bg-slate-800 p-4 rounded-lg border-l-4 border-red-500 flex items-start gap-4">
+                    <i class="fas fa-exclamation-triangle text-red-500 mt-1"></i>
+                    <div>
+                        <strong class="text-white text-sm">The "Phonemic Bluff" Protocol</strong>
+                        <p class="text-xs text-slate-400 mt-1">Never skip a word. If you see "Biopharmaceutical" and don't know it, say <strong>"Bio-pharma-ceutical"</strong> with 100% confidence. Hesitation kills scores; wrong pronunciation does not.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 2. REPEAT SENTENCE (RS) -->
+        <!-- ========================================== -->
+        <section id="rs" class="glass-panel rounded-2xl p-6 border-l-4 border-violet-500 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-5 text-violet-500"><i class="fas fa-headphones text-9xl"></i></div>
+            
+            <header class="flex flex-col lg:flex-row justify-between items-start mb-6 border-b border-slate-800 pb-4 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-1">Repeat Sentence</h2>
+                    <p class="text-xs text-violet-400 font-bold uppercase tracking-wider">Skill: Short Term Memory</p>
+                </div>
+                <!-- Exam Stats -->
+                <div class="stat-group">
+                    <div class="stat-tag">
+                        <span><i class="fas fa-list-ol mr-1"></i> Questions</span>
+                        <strong>10 - 12</strong>
+                    </div>
+                    <div class="stat-tag">
+                        <span><i class="fas fa-hourglass-start mr-1"></i> Prep</span>
+                        <strong>Audio Ends</strong>
+                    </div>
+                    <div class="stat-tag border-violet-500/30">
+                        <span><i class="fas fa-microphone mr-1"></i> Speak (Max)</span>
+                        <strong>15s</strong>
+                        <span class="stat-rec">Rec: Immediate</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Strategy -->
+                <div class="bg-violet-900/20 p-5 rounded-lg border border-violet-500/30">
+                    <h3 class="text-violet-400 font-bold mb-2 text-sm uppercase"><i class="fas fa-brain mr-2"></i>The Echo Chamber</h3>
+                    <p class="text-sm text-slate-300 mb-2">Do not translate meaning. Hold the <strong>sound</strong>.</p>
+                    <div class="template-container text-xs">
+                        <p class="text-slate-400 mb-1">Input: "The assignment must be submitted by Friday."</p>
+                        <div class="flex justify-between mt-2">
+                            <span class="text-red-400">79: "The assignment... submitted." (50%)</span>
+                            <span class="text-emerald-400">88: "The assignment... submitted by Friday." (80%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency -->
+                <div class="bg-slate-800/50 p-5 rounded-lg border border-slate-700 flex flex-col justify-center">
+                    <h3 class="text-red-400 font-bold mb-2 text-sm uppercase"><i class="fas fa-ambulance mr-2"></i>Panic Mode</h3>
+                    <p class="text-sm text-white font-bold">"Say ANYTHING you heard."</p>
+                    <p class="text-xs text-slate-400 mt-2">If you forget the sentence, speak the 2-3 words you remember with <strong>perfect intonation</strong>. Silence is a zero. A partial sentence is points.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 3. DESCRIBE IMAGE (DI) -->
+        <!-- ========================================== -->
+        <section id="di" class="glass-panel rounded-2xl p-6 border-l-4 border-indigo-500 relative">
+            <header class="flex flex-col lg:flex-row justify-between items-start mb-6 border-b border-slate-800 pb-4 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-1">Describe Image</h2>
+                    <p class="text-xs text-indigo-400 font-bold uppercase tracking-wider">Skill: Fluency Template</p>
+                </div>
+                <!-- Exam Stats -->
+                <div class="stat-group">
+                    <div class="stat-tag">
+                        <span><i class="fas fa-list-ol mr-1"></i> Questions</span>
+                        <strong>3 - 4</strong>
+                    </div>
+                    <div class="stat-tag">
+                        <span><i class="fas fa-hourglass-start mr-1"></i> Prep</span>
+                        <strong>25s</strong>
+                    </div>
+                    <div class="stat-tag border-indigo-500/30">
+                        <span><i class="fas fa-microphone mr-1"></i> Speak (Max)</span>
+                        <strong>40s</strong>
+                        <span class="stat-rec">Rec: 30-35s</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="space-y-4">
+                <!-- Template 1: Data -->
+                <div class="template-container">
+                    <div class="flex items-center gap-2 mb-3 text-indigo-400 font-bold text-xs uppercase tracking-widest border-b border-slate-800 pb-2">
+                        <i class="fas fa-chart-bar"></i> Bar • Line • Pie • Table
+                    </div>
+                    <div class="template-text">
+                        <p>The image gives information about <span class="var">[TITLE]</span>.</p>
+                        <p>From the picture, it is clear that <span class="var">[HIGHEST ITEM]</span> has the highest figure, which is <span class="var">[NUMBER]</span>.</p>
+                        <p>On the contrary, <span class="var">[LOWEST ITEM]</span> has the lowest figure, which is <span class="var">[NUMBER]</span>.</p>
+                        <p>It can also be seen that <span class="var">[ITEM A]</span> is higher than <span class="var">[ITEM B]</span>.</p>
+                        <p class="text-indigo-400 font-bold mt-1">In conclusion, the trend is increasing/decreasing.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Template 2: Map/Photo -->
+                    <div class="template-container">
+                        <div class="flex items-center gap-2 mb-3 text-pink-400 font-bold text-xs uppercase tracking-widest border-b border-slate-800 pb-2">
+                            <i class="fas fa-map"></i> Map • Photo
+                        </div>
+                        <div class="template-text text-sm">
+                            <p>The image provides info about <span class="var">[TITLE]</span>.</p>
+                            <p>In the North/Foreground, I can see <span class="var">[OBJECT A]</span>.</p>
+                            <p>However, in the South/Background, there is <span class="var">[OBJECT B]</span>.</p>
+                            <p>On the left, <span class="var">[C]</span> is visible, and on the right, there is <span class="var">[D]</span>.</p>
+                            <p class="text-pink-400 font-bold mt-1">In conclusion, it is informative.</p>
+                        </div>
+                    </div>
+
+                    <!-- Template 3: Process -->
+                    <div class="template-container">
+                        <div class="flex items-center gap-2 mb-3 text-emerald-400 font-bold text-xs uppercase tracking-widest border-b border-slate-800 pb-2">
+                            <i class="fas fa-sync"></i> Process • Cycle
+                        </div>
+                        <div class="template-text text-sm">
+                            <p>The diagram shows the process of <span class="var">[TITLE]</span>.</p>
+                            <p>In the first stage, we see <span class="var">[STEP 1]</span>.</p>
+                            <p>Following that, it continues with <span class="var">[STEP 2]</span>.</p>
+                            <p>Then, it leads to <span class="var">[STEP 3]</span>.</p>
+                            <p>Finally, it concludes with <span class="var">[FINAL STEP]</span>.</p>
+                            <p class="text-emerald-400 font-bold mt-1">In conclusion, it is a complex process.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 4. RETELL LECTURE (RL) -->
+        <!-- ========================================== -->
+        <section id="rl" class="glass-panel rounded-2xl p-6 border-l-4 border-amber-500 relative">
+            <header class="flex flex-col lg:flex-row justify-between items-start mb-6 border-b border-slate-800 pb-4 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-1">Retell Lecture</h2>
+                    <p class="text-xs text-amber-400 font-bold uppercase tracking-wider">Skill: Note-taking & Connecting</p>
+                </div>
+                <!-- Exam Stats -->
+                <div class="stat-group">
+                    <div class="stat-tag">
+                        <span><i class="fas fa-list-ol mr-1"></i> Questions</span>
+                        <strong>1 - 2</strong>
+                    </div>
+                    <div class="stat-tag">
+                        <span><i class="fas fa-hourglass-start mr-1"></i> Prep</span>
+                        <strong>10s</strong>
+                    </div>
+                    <div class="stat-tag border-amber-500/30">
+                        <span><i class="fas fa-microphone mr-1"></i> Speak (Max)</span>
+                        <strong>40s</strong>
+                        <span class="stat-rec">Rec: 30-35s</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Template -->
+            <div class="template-container mb-6">
+                <div class="flex items-center gap-2 mb-3 text-amber-500 font-bold text-xs uppercase tracking-widest border-b border-slate-800 pb-2">
+                    <i class="fas fa-microphone-lines"></i> The 40-Second Template
+                </div>
+                <div class="template-text text-lg">
+                    <p class="mb-2">The speaker was discussing the main topic of <span class="var">[TOPIC]</span>.</p>
+                    <p class="mb-2"><span class="connector">Firstly, he mentioned that</span> <span class="var">[KEY POINT 1 + DETAIL]</span>.</p>
+                    <p class="mb-2"><span class="connector">He also highlighted that</span> <span class="var">[KEY POINT 2]</span>, <span class="connector">which is significant because</span> <span class="var">[REASON/DETAIL]</span>.</p>
+                    <p class="mb-2"><span class="connector">Furthermore, he discussed</span> <span class="var">[KEY POINT 3]</span>.</p>
+                    <p class="font-bold text-amber-400 mt-2">In conclusion, the lecture was very informative regarding <span class="var">[TOPIC]</span>.</p>
+                </div>
+            </div>
+
+            <!-- Strategy Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                    <h3 class="text-white font-bold text-sm mb-2">📝 Note Strategy</h3>
+                    <p class="text-xs text-slate-400">Write <strong>Subject + Verb</strong>. Single words are useless later.</p>
+                    <div class="mt-2 text-xs font-mono bg-slate-900 p-2 rounded text-emerald-400">Good: "Price rose fast"<br>Bad: "Price"</div>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                    <h3 class="text-white font-bold text-sm mb-2">🆘 No Notes?</h3>
+                    <p class="text-xs text-slate-400">Use the <strong>Keyword Loop</strong>.</p>
+                    <div class="mt-2 text-xs text-slate-300 italic">"He discussed [Word]. He mentioned [Word]..."</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 5. GROUP DISCUSSION (GD) -->
+        <!-- ========================================== -->
+        <section id="gd" class="glass-panel rounded-2xl p-6 border-l-4 border-emerald-500 relative">
+            <header class="flex flex-col lg:flex-row justify-between items-start mb-6 border-b border-slate-800 pb-4 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-1">Group Discussion</h2>
+                    <p class="text-xs text-emerald-400 font-bold uppercase tracking-wider">Skill: Triad Summary</p>
+                </div>
+                <!-- Exam Stats -->
+                <div class="stat-group">
+                    <div class="stat-tag">
+                        <span><i class="fas fa-list-ol mr-1"></i> Questions</span>
+                        <strong>1</strong>
+                    </div>
+                    <div class="stat-tag">
+                        <span><i class="fas fa-hourglass-start mr-1"></i> Prep</span>
+                        <strong>10s</strong>
+                    </div>
+                    <div class="stat-tag border-emerald-500/30">
+                        <span><i class="fas fa-microphone mr-1"></i> Speak (Max)</span>
+                        <strong>120s</strong>
+                        <span class="stat-rec">Rec: 90s+</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Template -->
+            <div class="template-container mb-6">
+                <div class="flex items-center gap-2 mb-3 text-emerald-500 font-bold text-xs uppercase tracking-widest border-b border-slate-800 pb-2">
+                    <i class="fas fa-users"></i> The Triad Template
+                </div>
+                <div class="template-text text-base space-y-3">
+                    <p>The audio presents a discussion regarding <span class="var">[TOPIC]</span>.</p>
+                    
+                    <div class="pl-3 border-l-2 border-slate-700">
+                        <p>The <strong class="text-emerald-400">first speaker</strong> initiated the conversation by stating that <span class="var">[POINT 1]</span>.</p>
+                    </div>
+                    
+                    <div class="pl-3 border-l-2 border-slate-700">
+                        <p>In response, the <strong class="text-emerald-400">second speaker</strong> <span class="var">[AGREED/DISAGREED]</span>, pointing out that <span class="var">[POINT 2]</span>.</p>
+                    </div>
+                    
+                    <div class="pl-3 border-l-2 border-slate-700">
+                        <p>Furthermore, the <strong class="text-emerald-400">third speaker</strong> added a new perspective regarding <span class="var">[POINT 3]</span>.</p>
+                    </div>
+                    
+                    <p class="font-bold text-emerald-400 mt-2">Overall, the group concluded that <span class="var">[OUTCOME/CONSENSUS]</span>.</p>
+                </div>
+            </div>
+
+            <!-- Strategy -->
+            <div class="bg-emerald-900/20 p-4 rounded-lg border border-emerald-500/30 flex items-center justify-between">
+                <div>
+                    <strong class="text-emerald-400 text-sm">Visualization Hack</strong>
+                    <p class="text-xs text-slate-400 mt-1">Split your notepad paper into <strong>3 vertical columns</strong> (Speaker 1, 2, 3) before audio starts.</p>
+                </div>
+                <i class="fas fa-columns text-4xl text-emerald-500/50"></i>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 6. RESPOND TO SITUATION (R2S) -->
+        <!-- ========================================== -->
+        <section id="r2s" class="glass-panel rounded-2xl p-6 border-l-4 border-rose-500 relative">
+            <header class="flex flex-col lg:flex-row justify-between items-start mb-6 border-b border-slate-800 pb-4 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-1">Respond to Situation</h2>
+                    <p class="text-xs text-rose-400 font-bold uppercase tracking-wider">Skill: Tone Adaptability</p>
+                </div>
+                <!-- Exam Stats -->
+                <div class="stat-group">
+                    <div class="stat-tag">
+                        <span><i class="fas fa-list-ol mr-1"></i> Questions</span>
+                        <strong>2 - 4</strong>
+                    </div>
+                    <div class="stat-tag">
+                        <span><i class="fas fa-hourglass-start mr-1"></i> Prep</span>
+                        <strong>20s</strong>
+                    </div>
+                    <div class="stat-tag border-rose-500/30">
+                        <span><i class="fas fa-microphone mr-1"></i> Speak (Max)</span>
+                        <strong>40s</strong>
+                        <span class="stat-rec">Rec: 25-30s</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Formal Path -->
+                <div class="template-container">
+                    <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+                        <span class="text-rose-400 font-bold text-xs uppercase">Formal Path</span>
+                        <span class="text-[10px] text-slate-500">Boss, Official</span>
+                    </div>
+                    <div class="template-text text-sm">
+                        <p class="mb-2">"Hello <span class="var">[TITLE/NAME]</span>,"</p>
+                        <p class="mb-2">"<span class="connector">I am calling regarding</span> <span class="var">[THE ISSUE]</span>."</p>
+                        <p class="mb-2">"<span class="connector">Unfortunately,</span> <span class="var">[EXPLAIN PROBLEM]</span>."</p>
+                        <p class="mb-2">"<span class="connector">Therefore, I suggest we</span> <span class="var">[SOLUTION]</span>."</p>
+                        <p class="font-bold text-white mt-2">"Thank you for your understanding."</p>
+                    </div>
+                </div>
+
+                <!-- Informal Path -->
+                <div class="template-container">
+                    <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+                        <span class="text-emerald-400 font-bold text-xs uppercase">Informal Path</span>
+                        <span class="text-[10px] text-slate-500">Friend, Family</span>
+                    </div>
+                    <div class="template-text text-sm">
+                        <p class="mb-2">"Hi <span class="var">[NAME]</span>,"</p>
+                        <p class="mb-2">"<span class="connector">Look, I need to talk about</span> <span class="var">[THE ISSUE]</span>."</p>
+                        <p class="mb-2">"<span class="connector">The thing is,</span> <span class="var">[SIMPLE PROBLEM]</span>."</p>
+                        <p class="mb-2">"<span class="connector">So, why don't we</span> <span class="var">[SOLUTION]</span>?"</p>
+                        <p class="font-bold text-white mt-2">"Let me know if that works."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 7. ANSWER SHORT QUESTION (ASQ) -->
+        <!-- ========================================== -->
+        <section id="asq" class="glass-panel rounded-2xl p-6 border-l-4 border-cyan-500 relative">
+            <header class="flex flex-col lg:flex-row justify-between items-start mb-6 border-b border-slate-800 pb-4 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-1">Answer Short Question</h2>
+                    <p class="text-xs text-cyan-400 font-bold uppercase tracking-wider">Skill: Reflexes</p>
+                </div>
+                <!-- Exam Stats -->
+                <div class="stat-group">
+                    <div class="stat-tag">
+                        <span><i class="fas fa-list-ol mr-1"></i> Questions</span>
+                        <strong>5 - 6</strong>
+                    </div>
+                    <div class="stat-tag">
+                        <span><i class="fas fa-hourglass-start mr-1"></i> Prep</span>
+                        <strong>Audio Ends</strong>
+                    </div>
+                    <div class="stat-tag border-cyan-500/30">
+                        <span><i class="fas fa-microphone mr-1"></i> Speak (Max)</span>
+                        <strong>10s</strong>
+                        <span class="stat-rec">Rec: 1-2s (1 Word)</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                    <strong class="text-cyan-400 block mb-2 text-sm uppercase">Rule 1: One Word</strong>
+                    <p class="text-xs text-slate-400">"What do we use to see stars?"<br><span class="text-white font-bold">"Telescope"</span> (Correct)<br><span class="text-red-400 line-through">"We use a telescope"</span> (Wrong)</p>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                    <strong class="text-cyan-400 block mb-2 text-sm uppercase">Rule 2: The "OR" Trick</strong>
+                    <p class="text-xs text-slate-400">"Is it X or Y?"<br>The answer is 90% likely to be either X or Y. Listen for the choices.</p>
+                </div>
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
+                    <strong class="text-red-400 block mb-2 text-sm uppercase">Panic: The Echo</strong>
+                    <p class="text-xs text-slate-400">If you don't know, repeat the main noun from the question. Better than silence.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center text-slate-600 text-xs py-8 border-t border-slate-800 mt-8">
+            PTE 88+ Mastery Protocol • Combined Reference
+        </footer>
+
+    </main>
+</body>
+</html>
